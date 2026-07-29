@@ -1,7 +1,7 @@
 # Fluent OneNote - Architecture & Developer Guide
 
 <context>
-This document defines the core architecture, data flow, component boundaries, system invariants, and API contracts for AI agents and human developers contributing to Fluent OneNote ("vibe coding"). For public usage and user installation, refer to: [README.md](file:///C:/ObsidianPublish/fluent-onenote/README.md).
+This document defines the core architecture, data flow, component boundaries, system invariants, and API contracts for Fluent OneNote. For public usage and user installation, refer to: [README.md](file:///C:/ObsidianPublish/fluent-onenote/README.md).
 </context>
 
 ## Architectural Overview
