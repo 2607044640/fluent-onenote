@@ -7,23 +7,45 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __defNormalProp = (obj, key2, value) => key2 in obj ? __defProp(obj, key2, { enumerable: true, configurable: true, writable: true, value }) : obj[key2] = value;
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    for (let key2 of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key2) && key2 !== except)
+        __defProp(to, key2, { get: () => from[key2], enumerable: !(desc = __getOwnPropDesc(from, key2)) || desc.enumerable });
   }
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __publicField = (obj, key2, value) => {
+  __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value);
   return value;
+};
+var __accessCheck = (obj, member, msg) => {
+  if (!member.has(obj))
+    throw TypeError("Cannot " + msg);
+};
+var __privateGet = (obj, member, getter) => {
+  __accessCheck(obj, member, "read from private field");
+  return getter ? getter.call(obj) : member.get(obj);
+};
+var __privateAdd = (obj, member, value) => {
+  if (member.has(obj))
+    throw TypeError("Cannot add the same private member more than once");
+  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+};
+var __privateSet = (obj, member, value, setter) => {
+  __accessCheck(obj, member, "write to private field");
+  setter ? setter.call(obj, value) : member.set(obj, value);
+  return value;
+};
+var __privateMethod = (obj, member, method) => {
+  __accessCheck(obj, member, "access private method");
+  return method;
 };
 
 // src/main.ts
@@ -32,7 +54,7 @@ __export(main_exports, {
   default: () => FluentOneNotePlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian9 = require("obsidian");
+var import_obsidian10 = require("obsidian");
 
 // src/constants.ts
 var VIEW_TYPE_SECTIONS = "fluent-onenote-sections";
@@ -43,6 +65,7 @@ var DEFAULT_UNTITLED_NOTE_NAME = "Untitled Note";
 var DEFAULT_NEW_SECTION_NAME = "New Section";
 
 // src/Logger.ts
+var import_obsidian = require("obsidian");
 var Logger = class {
   static init(app) {
     this.app = app;
@@ -59,7 +82,7 @@ var Logger = class {
     try {
       const vault = this.app.vault;
       const file = vault.getAbstractFileByPath(this.LOG_PATH);
-      if (file) {
+      if (file instanceof import_obsidian.TFile) {
         await vault.append(file, line);
       } else {
         await vault.create(this.LOG_PATH, line);
@@ -73,7 +96,7 @@ var Logger = class {
       return;
     try {
       const file = this.app.vault.getAbstractFileByPath(this.LOG_PATH);
-      if (file) {
+      if (file instanceof import_obsidian.TFile) {
         await this.app.vault.modify(file, "");
       }
     } catch (e) {
@@ -84,7 +107,7 @@ var Logger = class {
 Logger.LOG_PATH = "A1OneNote-debug.log";
 
 // src/services/VaultScanner.ts
-var import_obsidian = require("obsidian");
+var import_obsidian2 = require("obsidian");
 var VaultScanner = class {
   constructor(app) {
     this.app = app;
@@ -98,13 +121,13 @@ var VaultScanner = class {
   scanNotebooks(rootFolder) {
     const rootPath = rootFolder.trim();
     const rootAbstract = rootPath === "" ? this.app.vault.getRoot() : this.app.vault.getAbstractFileByPath(rootPath);
-    if (!rootAbstract || !(rootAbstract instanceof import_obsidian.TFolder)) {
+    if (!rootAbstract || !(rootAbstract instanceof import_obsidian2.TFolder)) {
       return [];
     }
     const notebooks = [];
-    for (const child of rootAbstract.children) {
-      if (child instanceof import_obsidian.TFolder) {
-        notebooks.push(this.buildNotebook(child));
+    for (const child2 of rootAbstract.children) {
+      if (child2 instanceof import_obsidian2.TFolder) {
+        notebooks.push(this.buildNotebook(child2));
       }
     }
     if (notebooks.length === 0) {
@@ -119,16 +142,16 @@ var VaultScanner = class {
   }
   buildNotebook(folder) {
     const sections = [];
-    for (const child of folder.children) {
-      if (child instanceof import_obsidian.TFolder) {
-        sections.push(this.buildFlatSection(child));
+    for (const child2 of folder.children) {
+      if (child2 instanceof import_obsidian2.TFolder) {
+        sections.push(this.buildFlatSection(child2));
       }
     }
     const loosePages = [];
-    for (const child of folder.children) {
-      if (child instanceof import_obsidian.TFile && child.extension === "md" && !child.name.startsWith(".")) {
-        if (child.basename !== folder.name) {
-          loosePages.push(this.buildPageTree(child));
+    for (const child2 of folder.children) {
+      if (child2 instanceof import_obsidian2.TFile && child2.extension === "md" && !child2.name.startsWith(".")) {
+        if (child2.basename !== folder.name) {
+          loosePages.push(this.buildPageTree(child2));
         }
       }
     }
@@ -151,13 +174,13 @@ var VaultScanner = class {
   }
   buildFlatSection(folder) {
     const pages = [];
-    for (const child of folder.children) {
-      if (child instanceof import_obsidian.TFile && child.extension === "md" && !child.name.startsWith(".")) {
-        if (child.basename === folder.name)
+    for (const child2 of folder.children) {
+      if (child2 instanceof import_obsidian2.TFile && child2.extension === "md" && !child2.name.startsWith(".")) {
+        if (child2.basename === folder.name)
           continue;
-        pages.push(this.buildPageTree(child));
-      } else if (child instanceof import_obsidian.TFolder) {
-        pages.push(this.buildFolderAsPage(child));
+        pages.push(this.buildPageTree(child2));
+      } else if (child2 instanceof import_obsidian2.TFolder) {
+        pages.push(this.buildFolderAsPage(child2));
       }
     }
     return {
@@ -171,22 +194,22 @@ var VaultScanner = class {
     };
   }
   buildFolderAsPage(folder) {
-    const children2 = [];
-    for (const child of folder.children) {
-      if (child instanceof import_obsidian.TFile && child.extension === "md" && !child.name.startsWith(".")) {
-        if (child.basename === folder.name)
+    const children = [];
+    for (const child2 of folder.children) {
+      if (child2 instanceof import_obsidian2.TFile && child2.extension === "md" && !child2.name.startsWith(".")) {
+        if (child2.basename === folder.name)
           continue;
-        children2.push(this.buildPageTree(child));
-      } else if (child instanceof import_obsidian.TFolder) {
-        children2.push(this.buildFolderAsPage(child));
+        children.push(this.buildPageTree(child2));
+      } else if (child2 instanceof import_obsidian2.TFolder) {
+        children.push(this.buildFolderAsPage(child2));
       }
     }
-    const folderNote = folder.children.find((c) => c instanceof import_obsidian.TFile && c.basename === folder.name);
+    const folderNote = folder.children.find((c) => c instanceof import_obsidian2.TFile && c.basename === folder.name);
     return {
       name: folder.name,
       filepath: folderNote ? folderNote.path : `${folder.path}/${folder.name}.md`,
       folderPath: folder.path,
-      children: children2,
+      children,
       isExpanded: false
     };
   }
@@ -198,9 +221,9 @@ var VaultScanner = class {
   }
   scanSectionsUnderFolder(folder) {
     const sections = [];
-    for (const child of folder.children) {
-      if (child instanceof import_obsidian.TFolder) {
-        sections.push(this.buildFlatSection(child));
+    for (const child2 of folder.children) {
+      if (child2 instanceof import_obsidian2.TFolder) {
+        sections.push(this.buildFlatSection(child2));
       }
     }
     return sections;
@@ -235,12 +258,12 @@ var DataService = class _DataService {
     const rawNotebooks = this.scanner.scanNotebooks(rootFolder);
     const sortedNotebooks = _DataService.sortNotebooksWithCustomOrder(rawNotebooks, customNotebookOrder);
     return sortedNotebooks.map((nb) => {
-      var _a;
-      const sectionOrder = (_a = customSectionOrderMap[PathUtils.normalize(nb.folderPath)]) != null ? _a : [];
+      var _a5;
+      const sectionOrder = (_a5 = customSectionOrderMap[PathUtils.normalize(nb.folderPath)]) != null ? _a5 : [];
       const sortedSections = _DataService.sortSectionsWithCustomOrder(nb.sections, sectionOrder);
       const processedSections = sortedSections.map((sec) => {
-        var _a2;
-        const pageOrder = (_a2 = customPageOrder[PathUtils.normalize(sec.folderPath)]) != null ? _a2 : [];
+        var _a6;
+        const pageOrder = (_a6 = customPageOrder[PathUtils.normalize(sec.folderPath)]) != null ? _a6 : [];
         const sortedPages = _DataService.sortPagesWithCustomOrder(sec.pages, pageOrder);
         return {
           ...sec,
@@ -336,560 +359,6548 @@ var DataService = class _DataService {
   }
 };
 
-// node_modules/svelte/src/runtime/internal/utils.js
-function noop() {
+// node_modules/svelte/src/version.js
+var PUBLIC_VERSION = "5";
+
+// node_modules/svelte/src/internal/disclose-version.js
+var _a, _b, _c;
+if (typeof window !== "undefined") {
+  ((_c = (_b = (_a = window.__svelte) != null ? _a : window.__svelte = {}).v) != null ? _c : _b.v = /* @__PURE__ */ new Set()).add(PUBLIC_VERSION);
 }
+
+// node_modules/svelte/src/internal/flags/index.js
+var async_mode_flag = false;
+var legacy_mode_flag = false;
+var tracing_mode_flag = false;
+function enable_legacy_mode_flag() {
+  legacy_mode_flag = true;
+}
+
+// node_modules/svelte/src/internal/flags/legacy.js
+enable_legacy_mode_flag();
+
+// node_modules/svelte/src/constants.js
+var EACH_ITEM_REACTIVE = 1;
+var EACH_INDEX_REACTIVE = 1 << 1;
+var EACH_IS_CONTROLLED = 1 << 2;
+var EACH_IS_ANIMATED = 1 << 3;
+var EACH_ITEM_IMMUTABLE = 1 << 4;
+var PROPS_IS_IMMUTABLE = 1;
+var PROPS_IS_RUNES = 1 << 1;
+var PROPS_IS_UPDATED = 1 << 2;
+var PROPS_IS_BINDABLE = 1 << 3;
+var PROPS_IS_LAZY_INITIAL = 1 << 4;
+var TRANSITION_OUT = 1 << 1;
+var TRANSITION_GLOBAL = 1 << 2;
+var TEMPLATE_FRAGMENT = 1;
+var TEMPLATE_USE_IMPORT_NODE = 1 << 1;
+var TEMPLATE_USE_SVG = 1 << 2;
+var TEMPLATE_USE_MATHML = 1 << 3;
+var HYDRATION_START = "[";
+var HYDRATION_START_ELSE = "[!";
+var HYDRATION_START_FAILED = "[?";
+var HYDRATION_END = "]";
+var HYDRATION_ERROR = {};
+var ELEMENT_PRESERVE_ATTRIBUTE_CASE = 1 << 1;
+var ELEMENT_IS_INPUT = 1 << 2;
+var UNINITIALIZED = Symbol("uninitialized");
+var FILENAME = Symbol("filename");
+var HMR = Symbol("hmr");
+var NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
+
+// node_modules/esm-env/dev-fallback.js
+var _a2, _b2;
+var node_env = (_b2 = (_a2 = globalThis.process) == null ? void 0 : _a2.env) == null ? void 0 : _b2.NODE_ENV;
+var dev_fallback_default = node_env && !node_env.toLowerCase().startsWith("prod");
+
+// node_modules/svelte/src/internal/shared/utils.js
+var is_array = Array.isArray;
+var index_of = Array.prototype.indexOf;
+var includes = Array.prototype.includes;
+var array_from = Array.from;
+var object_keys = Object.keys;
+var define_property = Object.defineProperty;
+var get_descriptor = Object.getOwnPropertyDescriptor;
+var get_descriptors = Object.getOwnPropertyDescriptors;
+var object_prototype = Object.prototype;
+var array_prototype = Array.prototype;
+var get_prototype_of = Object.getPrototypeOf;
+var is_extensible = Object.isExtensible;
+var noop = () => {
+};
 function run(fn) {
   return fn();
 }
-function blank_object() {
-  return /* @__PURE__ */ Object.create(null);
+function run_all(arr) {
+  for (var i = 0; i < arr.length; i++) {
+    arr[i]();
+  }
 }
-function run_all(fns) {
-  fns.forEach(run);
+function deferred() {
+  var resolve;
+  var reject;
+  var promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
 }
-function is_function(thing) {
-  return typeof thing === "function";
+
+// node_modules/svelte/src/internal/client/constants.js
+var DERIVED = 1 << 1;
+var EFFECT = 1 << 2;
+var RENDER_EFFECT = 1 << 3;
+var MANAGED_EFFECT = 1 << 24;
+var BLOCK_EFFECT = 1 << 4;
+var BRANCH_EFFECT = 1 << 5;
+var ROOT_EFFECT = 1 << 6;
+var BOUNDARY_EFFECT = 1 << 7;
+var CONNECTED = 1 << 9;
+var CLEAN = 1 << 10;
+var DIRTY = 1 << 11;
+var MAYBE_DIRTY = 1 << 12;
+var INERT = 1 << 13;
+var DESTROYED = 1 << 14;
+var REACTION_RAN = 1 << 15;
+var DESTROYING = 1 << 25;
+var EFFECT_TRANSPARENT = 1 << 16;
+var EAGER_EFFECT = 1 << 17;
+var HEAD_EFFECT = 1 << 18;
+var EFFECT_PRESERVED = 1 << 19;
+var USER_EFFECT = 1 << 20;
+var EFFECT_OFFSCREEN = 1 << 25;
+var WAS_MARKED = 1 << 16;
+var REACTION_IS_UPDATING = 1 << 21;
+var ASYNC = 1 << 22;
+var ERROR_VALUE = 1 << 23;
+var STATE_SYMBOL = Symbol("$state");
+var LEGACY_PROPS = Symbol("legacy props");
+var LOADING_ATTR_SYMBOL = Symbol("");
+var PROXY_PATH_SYMBOL = Symbol("proxy path");
+var ATTRIBUTES_CACHE = Symbol("attributes");
+var CLASS_CACHE = Symbol("class");
+var STYLE_CACHE = Symbol("style");
+var TEXT_CACHE = Symbol("text");
+var FORM_RESET_HANDLER = Symbol("form reset");
+var HMR_ANCHOR = Symbol("hmr anchor");
+var STALE_REACTION = new class StaleReactionError extends Error {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "name", "StaleReactionError");
+    __publicField(this, "message", "The reaction that called `getAbortSignal()` was re-run or destroyed");
+  }
+}();
+var _a3;
+var IS_XHTML = (
+  // We gotta write it like this because after downleveling the pure comment may end up in the wrong location
+  !!((_a3 = globalThis.document) == null ? void 0 : _a3.contentType) && /* @__PURE__ */ globalThis.document.contentType.includes("xml")
+);
+var TEXT_NODE = 3;
+var COMMENT_NODE = 8;
+
+// node_modules/svelte/src/internal/shared/errors.js
+function invariant_violation(message) {
+  if (dev_fallback_default) {
+    const error = new Error(`invariant_violation
+An invariant violation occurred, meaning Svelte's internal assumptions were flawed. This is a bug in Svelte, not your app \u2014 please open an issue at https://github.com/sveltejs/svelte, citing the following message: "${message}"
+https://svelte.dev/e/invariant_violation`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/invariant_violation`);
+  }
+}
+function lifecycle_outside_component(name) {
+  if (dev_fallback_default) {
+    const error = new Error(`lifecycle_outside_component
+\`${name}(...)\` can only be used during component initialisation
+https://svelte.dev/e/lifecycle_outside_component`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+  }
+}
+
+// node_modules/svelte/src/internal/client/errors.js
+function async_derived_orphan() {
+  if (dev_fallback_default) {
+    const error = new Error(`async_derived_orphan
+Cannot create a \`$derived(...)\` with an \`await\` expression outside of an effect tree
+https://svelte.dev/e/async_derived_orphan`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/async_derived_orphan`);
+  }
+}
+function bind_invalid_checkbox_value() {
+  if (dev_fallback_default) {
+    const error = new Error(`bind_invalid_checkbox_value
+Using \`bind:value\` together with a checkbox input is not allowed. Use \`bind:checked\` instead
+https://svelte.dev/e/bind_invalid_checkbox_value`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/bind_invalid_checkbox_value`);
+  }
+}
+function derived_references_self() {
+  if (dev_fallback_default) {
+    const error = new Error(`derived_references_self
+A derived value cannot reference itself recursively
+https://svelte.dev/e/derived_references_self`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/derived_references_self`);
+  }
+}
+function each_key_duplicate(a, b, value) {
+  if (dev_fallback_default) {
+    const error = new Error(`each_key_duplicate
+${value ? `Keyed each block has duplicate key \`${value}\` at indexes ${a} and ${b}` : `Keyed each block has duplicate key at indexes ${a} and ${b}`}
+https://svelte.dev/e/each_key_duplicate`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/each_key_duplicate`);
+  }
+}
+function each_key_volatile(index2, a, b) {
+  if (dev_fallback_default) {
+    const error = new Error(`each_key_volatile
+Keyed each block has key that is not idempotent \u2014 the key for item at index ${index2} was \`${a}\` but is now \`${b}\`. Keys must be the same each time for a given item
+https://svelte.dev/e/each_key_volatile`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/each_key_volatile`);
+  }
+}
+function effect_in_teardown(rune) {
+  if (dev_fallback_default) {
+    const error = new Error(`effect_in_teardown
+\`${rune}\` cannot be used inside an effect cleanup function
+https://svelte.dev/e/effect_in_teardown`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/effect_in_teardown`);
+  }
+}
+function effect_in_unowned_derived() {
+  if (dev_fallback_default) {
+    const error = new Error(`effect_in_unowned_derived
+Effect cannot be created inside a \`$derived\` value that was not itself created inside an effect
+https://svelte.dev/e/effect_in_unowned_derived`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/effect_in_unowned_derived`);
+  }
+}
+function effect_orphan(rune) {
+  if (dev_fallback_default) {
+    const error = new Error(`effect_orphan
+\`${rune}\` can only be used inside an effect (e.g. during component initialisation)
+https://svelte.dev/e/effect_orphan`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/effect_orphan`);
+  }
+}
+function effect_update_depth_exceeded() {
+  if (dev_fallback_default) {
+    const error = new Error(`effect_update_depth_exceeded
+Maximum update depth exceeded. This typically indicates that an effect reads and writes the same piece of state
+https://svelte.dev/e/effect_update_depth_exceeded`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/effect_update_depth_exceeded`);
+  }
+}
+function hydration_failed() {
+  if (dev_fallback_default) {
+    const error = new Error(`hydration_failed
+Failed to hydrate the application
+https://svelte.dev/e/hydration_failed`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/hydration_failed`);
+  }
+}
+function props_invalid_value(key2) {
+  if (dev_fallback_default) {
+    const error = new Error(`props_invalid_value
+Cannot do \`bind:${key2}={undefined}\` when \`${key2}\` has a fallback value
+https://svelte.dev/e/props_invalid_value`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/props_invalid_value`);
+  }
+}
+function rune_outside_svelte(rune) {
+  if (dev_fallback_default) {
+    const error = new Error(`rune_outside_svelte
+The \`${rune}\` rune is only available inside \`.svelte\` and \`.svelte.js/ts\` files
+https://svelte.dev/e/rune_outside_svelte`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/rune_outside_svelte`);
+  }
+}
+function set_context_after_init() {
+  if (dev_fallback_default) {
+    const error = new Error(`set_context_after_init
+\`setContext\` must be called when a component first initializes, not in a subsequent effect or after an \`await\` expression
+https://svelte.dev/e/set_context_after_init`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/set_context_after_init`);
+  }
+}
+function state_descriptors_fixed() {
+  if (dev_fallback_default) {
+    const error = new Error(`state_descriptors_fixed
+Property descriptors defined on \`$state\` objects must contain \`value\` and always be \`enumerable\`, \`configurable\` and \`writable\`.
+https://svelte.dev/e/state_descriptors_fixed`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/state_descriptors_fixed`);
+  }
+}
+function state_prototype_fixed() {
+  if (dev_fallback_default) {
+    const error = new Error(`state_prototype_fixed
+Cannot set prototype of \`$state\` object
+https://svelte.dev/e/state_prototype_fixed`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/state_prototype_fixed`);
+  }
+}
+function state_unsafe_mutation() {
+  if (dev_fallback_default) {
+    const error = new Error(`state_unsafe_mutation
+Updating state inside \`$derived(...)\`, \`$inspect(...)\` or a template expression is forbidden. If the value should not be reactive, declare it without \`$state\`
+https://svelte.dev/e/state_unsafe_mutation`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/state_unsafe_mutation`);
+  }
+}
+function svelte_boundary_reset_onerror() {
+  if (dev_fallback_default) {
+    const error = new Error(`svelte_boundary_reset_onerror
+A \`<svelte:boundary>\` \`reset\` function cannot be called while an error is still being handled
+https://svelte.dev/e/svelte_boundary_reset_onerror`);
+    error.name = "Svelte error";
+    throw error;
+  } else {
+    throw new Error(`https://svelte.dev/e/svelte_boundary_reset_onerror`);
+  }
+}
+
+// node_modules/svelte/src/internal/client/warnings.js
+var bold = "font-weight: bold";
+var normal = "font-weight: normal";
+function await_reactivity_loss(name) {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] await_reactivity_loss
+%cDetected reactivity loss when reading \`${name}\`. This happens when state is read in an async function after an earlier \`await\`
+https://svelte.dev/e/await_reactivity_loss`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/await_reactivity_loss`);
+  }
+}
+function await_waterfall(name, location) {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] await_waterfall
+%cAn async derived, \`${name}\` (${location}) was not read immediately after it resolved. This often indicates an unnecessary waterfall, which can slow down your app
+https://svelte.dev/e/await_waterfall`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/await_waterfall`);
+  }
+}
+function derived_inert() {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] derived_inert
+%cReading a derived belonging to a now-destroyed effect may result in stale values
+https://svelte.dev/e/derived_inert`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/derived_inert`);
+  }
+}
+function hydration_attribute_changed(attribute, html2, value) {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] hydration_attribute_changed
+%cThe \`${attribute}\` attribute on \`${html2}\` changed its value between server and client renders. The client value, \`${value}\`, will be ignored in favour of the server value
+https://svelte.dev/e/hydration_attribute_changed`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/hydration_attribute_changed`);
+  }
+}
+function hydration_mismatch(location) {
+  if (dev_fallback_default) {
+    console.warn(
+      `%c[svelte] hydration_mismatch
+%c${location ? `Hydration failed because the initial UI does not match what was rendered on the server. The error occurred near ${location}` : "Hydration failed because the initial UI does not match what was rendered on the server"}
+https://svelte.dev/e/hydration_mismatch`,
+      bold,
+      normal
+    );
+  } else {
+    console.warn(`https://svelte.dev/e/hydration_mismatch`);
+  }
+}
+function lifecycle_double_unmount() {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] lifecycle_double_unmount
+%cTried to unmount a component that was not mounted
+https://svelte.dev/e/lifecycle_double_unmount`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/lifecycle_double_unmount`);
+  }
+}
+function state_proxy_equality_mismatch(operator) {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] state_proxy_equality_mismatch
+%cReactive \`$state(...)\` proxies and the values they proxy have different identities. Because of this, comparisons with \`${operator}\` will produce unexpected results
+https://svelte.dev/e/state_proxy_equality_mismatch`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/state_proxy_equality_mismatch`);
+  }
+}
+function state_proxy_unmount() {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] state_proxy_unmount
+%cTried to unmount a state proxy, rather than a component
+https://svelte.dev/e/state_proxy_unmount`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/state_proxy_unmount`);
+  }
+}
+function svelte_boundary_reset_noop() {
+  if (dev_fallback_default) {
+    console.warn(`%c[svelte] svelte_boundary_reset_noop
+%cA \`<svelte:boundary>\` \`reset\` function only resets the boundary the first time it is called
+https://svelte.dev/e/svelte_boundary_reset_noop`, bold, normal);
+  } else {
+    console.warn(`https://svelte.dev/e/svelte_boundary_reset_noop`);
+  }
+}
+
+// node_modules/svelte/src/internal/client/dom/hydration.js
+var hydrating = false;
+function set_hydrating(value) {
+  hydrating = value;
+}
+var hydrate_node;
+function set_hydrate_node(node) {
+  if (node === null) {
+    hydration_mismatch();
+    throw HYDRATION_ERROR;
+  }
+  return hydrate_node = node;
+}
+function hydrate_next() {
+  return set_hydrate_node(get_next_sibling(hydrate_node));
+}
+function reset(node) {
+  if (!hydrating)
+    return;
+  if (get_next_sibling(hydrate_node) !== null) {
+    hydration_mismatch();
+    throw HYDRATION_ERROR;
+  }
+  hydrate_node = node;
+}
+function next(count = 1) {
+  if (hydrating) {
+    var i = count;
+    var node = hydrate_node;
+    while (i--) {
+      node = /** @type {TemplateNode} */
+      get_next_sibling(node);
+    }
+    hydrate_node = node;
+  }
+}
+function skip_nodes(remove = true) {
+  var depth = 0;
+  var node = hydrate_node;
+  while (true) {
+    if (node.nodeType === COMMENT_NODE) {
+      var data = (
+        /** @type {Comment} */
+        node.data
+      );
+      if (data === HYDRATION_END) {
+        if (depth === 0)
+          return node;
+        depth -= 1;
+      } else if (data === HYDRATION_START || data === HYDRATION_START_ELSE || // "[1", "[2", etc. for if blocks
+      data[0] === "[" && !isNaN(Number(data.slice(1)))) {
+        depth += 1;
+      }
+    }
+    var next2 = (
+      /** @type {TemplateNode} */
+      get_next_sibling(node)
+    );
+    if (remove)
+      node.remove();
+    node = next2;
+  }
+}
+function read_hydration_instruction(node) {
+  if (!node || node.nodeType !== COMMENT_NODE) {
+    hydration_mismatch();
+    throw HYDRATION_ERROR;
+  }
+  return (
+    /** @type {Comment} */
+    node.data
+  );
+}
+
+// node_modules/svelte/src/internal/client/reactivity/equality.js
+function equals(value) {
+  return value === this.v;
 }
 function safe_not_equal(a, b) {
-  return a != a ? b == b : a !== b || a && typeof a === "object" || typeof a === "function";
+  return a != a ? b == b : a !== b || a !== null && typeof a === "object" || typeof a === "function";
 }
-function is_empty(obj) {
-  return Object.keys(obj).length === 0;
+function safe_equals(value) {
+  return !safe_not_equal(value, this.v);
 }
-function subscribe(store, ...callbacks) {
-  if (store == null) {
-    for (const callback of callbacks) {
-      callback(void 0);
-    }
-    return noop;
-  }
-  const unsub = store.subscribe(...callbacks);
-  return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+
+// node_modules/svelte/src/internal/client/dev/tracing.js
+var tracing_expressions = null;
+function tag(source2, label) {
+  source2.label = label;
+  tag_proxy(source2.v, label);
+  return source2;
 }
-function get_store_value(store) {
-  let value;
-  subscribe(store, (_) => value = _)();
+function tag_proxy(value, label) {
+  var _a5;
+  (_a5 = value == null ? void 0 : value[PROXY_PATH_SYMBOL]) == null ? void 0 : _a5.call(value, label);
   return value;
 }
-function component_subscribe(component, store, callback) {
-  component.$$.on_destroy.push(subscribe(store, callback));
-}
-function set_store_value(store, ret, value) {
-  store.set(value);
-  return ret;
-}
 
-// node_modules/svelte/src/runtime/internal/globals.js
-var globals = typeof window !== "undefined" ? window : typeof globalThis !== "undefined" ? globalThis : (
-  // @ts-ignore Node typings have this
-  global
-);
-
-// node_modules/svelte/src/runtime/internal/ResizeObserverSingleton.js
-var ResizeObserverSingleton = class _ResizeObserverSingleton {
-  /** @param {ResizeObserverOptions} options */
-  constructor(options) {
-    /**
-     * @private
-     * @readonly
-     * @type {WeakMap<Element, import('./private.js').Listener>}
-     */
-    __publicField(this, "_listeners", "WeakMap" in globals ? /* @__PURE__ */ new WeakMap() : void 0);
-    /**
-     * @private
-     * @type {ResizeObserver}
-     */
-    __publicField(this, "_observer");
-    /** @type {ResizeObserverOptions} */
-    __publicField(this, "options");
-    this.options = options;
+// node_modules/svelte/src/internal/shared/dev.js
+function get_error(label) {
+  const error = new Error();
+  const stack2 = get_stack();
+  if (stack2.length === 0) {
+    return null;
   }
-  /**
-   * @param {Element} element
-   * @param {import('./private.js').Listener} listener
-   * @returns {() => void}
-   */
-  observe(element2, listener) {
-    this._listeners.set(element2, listener);
-    this._getObserver().observe(element2, this.options);
-    return () => {
-      this._listeners.delete(element2);
-      this._observer.unobserve(element2);
-    };
-  }
-  /**
-   * @private
-   */
-  _getObserver() {
-    var _a;
-    return (_a = this._observer) != null ? _a : this._observer = new ResizeObserver((entries) => {
-      var _a2;
-      for (const entry of entries) {
-        _ResizeObserverSingleton.entries.set(entry.target, entry);
-        (_a2 = this._listeners.get(entry.target)) == null ? void 0 : _a2(entry);
-      }
-    });
-  }
-};
-ResizeObserverSingleton.entries = "WeakMap" in globals ? /* @__PURE__ */ new WeakMap() : void 0;
-
-// node_modules/svelte/src/runtime/internal/dom.js
-var is_hydrating = false;
-function start_hydrating() {
-  is_hydrating = true;
-}
-function end_hydrating() {
-  is_hydrating = false;
-}
-function append(target, node) {
-  target.appendChild(node);
-}
-function insert(target, node, anchor) {
-  target.insertBefore(node, anchor || null);
-}
-function detach(node) {
-  if (node.parentNode) {
-    node.parentNode.removeChild(node);
-  }
-}
-function element(name) {
-  return document.createElement(name);
-}
-function text(data) {
-  return document.createTextNode(data);
-}
-function space() {
-  return text(" ");
-}
-function empty() {
-  return text("");
-}
-function listen(node, event, handler, options) {
-  node.addEventListener(event, handler, options);
-  return () => node.removeEventListener(event, handler, options);
-}
-function stop_propagation(fn) {
-  return function(event) {
-    event.stopPropagation();
-    return fn.call(this, event);
-  };
-}
-function attr(node, attribute, value) {
-  if (value == null)
-    node.removeAttribute(attribute);
-  else if (node.getAttribute(attribute) !== value)
-    node.setAttribute(attribute, value);
-}
-function children(element2) {
-  return Array.from(element2.childNodes);
-}
-function set_data(text2, data) {
-  data = "" + data;
-  if (text2.data === data)
-    return;
-  text2.data = /** @type {string} */
-  data;
-}
-function set_input_value(input, value) {
-  input.value = value == null ? "" : value;
-}
-function set_style(node, key, value, important) {
-  if (value == null) {
-    node.style.removeProperty(key);
-  } else {
-    node.style.setProperty(key, value, important ? "important" : "");
-  }
-}
-function toggle_class(element2, name, toggle) {
-  element2.classList.toggle(name, !!toggle);
-}
-function get_custom_elements_slots(element2) {
-  const result = {};
-  element2.childNodes.forEach(
-    /** @param {Element} node */
-    (node) => {
-      result[node.slot || "default"] = true;
-    }
+  stack2.unshift("\n");
+  define_property(error, "stack", {
+    value: stack2.join("\n")
+  });
+  define_property(error, "name", {
+    value: label
+  });
+  return (
+    /** @type {Error & { stack: string }} */
+    error
   );
-  return result;
+}
+function get_stack() {
+  const limit = Error.stackTraceLimit;
+  Error.stackTraceLimit = Infinity;
+  const stack2 = new Error().stack;
+  Error.stackTraceLimit = limit;
+  if (!stack2)
+    return [];
+  const lines = stack2.split("\n");
+  const new_lines = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const posixified = line.replaceAll("\\", "/");
+    if (line.trim() === "Error") {
+      continue;
+    }
+    if (line.includes("validate_each_keys")) {
+      return [];
+    }
+    if (posixified.includes("svelte/src/internal") || posixified.includes("node_modules/.vite")) {
+      continue;
+    }
+    new_lines.push(line);
+  }
+  return new_lines;
+}
+function invariant(condition, message) {
+  if (!dev_fallback_default) {
+    throw new Error("invariant(...) was not guarded by if (DEV)");
+  }
+  if (!condition)
+    invariant_violation(message);
 }
 
-// node_modules/svelte/src/runtime/internal/lifecycle.js
-var current_component;
-function set_current_component(component) {
-  current_component = component;
+// node_modules/svelte/src/internal/client/context.js
+var component_context = null;
+function set_component_context(context) {
+  component_context = context;
 }
-function get_current_component() {
-  if (!current_component)
-    throw new Error("Function called outside component initialization");
-  return current_component;
+var dev_stack = null;
+function set_dev_stack(stack2) {
+  dev_stack = stack2;
 }
-function onMount(fn) {
-  get_current_component().$$.on_mount.push(fn);
+var dev_current_component_function = null;
+function set_dev_current_component_function(fn) {
+  dev_current_component_function = fn;
 }
-function onDestroy(fn) {
-  get_current_component().$$.on_destroy.push(fn);
-}
-function setContext(key, context) {
-  get_current_component().$$.context.set(key, context);
+function setContext(key2, context) {
+  const context_map = get_or_init_context_map("setContext");
+  if (async_mode_flag) {
+    var flags2 = (
+      /** @type {Effect} */
+      active_effect.f
+    );
+    var valid = !active_reaction && (flags2 & BRANCH_EFFECT) !== 0 && // pop() runs synchronously, so this indicates we're setting context after an await
+    !/** @type {ComponentContext} */
+    component_context.i;
+    if (!valid) {
+      set_context_after_init();
+    }
+  }
+  context_map.set(key2, context);
   return context;
 }
-function getContext(key) {
-  return get_current_component().$$.context.get(key);
-}
-
-// node_modules/svelte/src/runtime/internal/scheduler.js
-var dirty_components = [];
-var binding_callbacks = [];
-var render_callbacks = [];
-var flush_callbacks = [];
-var resolved_promise = /* @__PURE__ */ Promise.resolve();
-var update_scheduled = false;
-function schedule_update() {
-  if (!update_scheduled) {
-    update_scheduled = true;
-    resolved_promise.then(flush);
+function push(props, runes = false, fn) {
+  component_context = {
+    p: component_context,
+    i: false,
+    c: null,
+    e: null,
+    s: props,
+    x: null,
+    r: (
+      /** @type {Effect} */
+      active_effect
+    ),
+    l: legacy_mode_flag && !runes ? { s: null, u: null, $: [] } : null
+  };
+  if (dev_fallback_default) {
+    component_context.function = fn;
+    dev_current_component_function = fn;
   }
 }
-function add_render_callback(fn) {
-  render_callbacks.push(fn);
+function pop(component2) {
+  var _a5;
+  var context = (
+    /** @type {ComponentContext} */
+    component_context
+  );
+  var effects = context.e;
+  if (effects !== null) {
+    context.e = null;
+    for (var fn of effects) {
+      create_user_effect(fn);
+    }
+  }
+  if (component2 !== void 0) {
+    context.x = component2;
+  }
+  context.i = true;
+  component_context = context.p;
+  if (dev_fallback_default) {
+    dev_current_component_function = (_a5 = component_context == null ? void 0 : component_context.function) != null ? _a5 : null;
+  }
+  return component2 != null ? component2 : (
+    /** @type {T} */
+    {}
+  );
 }
-var seen_callbacks = /* @__PURE__ */ new Set();
-var flushidx = 0;
-function flush() {
-  if (flushidx !== 0) {
+function is_runes() {
+  return !legacy_mode_flag || component_context !== null && component_context.l === null;
+}
+function get_or_init_context_map(name) {
+  var _a5;
+  if (component_context === null) {
+    lifecycle_outside_component(name);
+  }
+  return (_a5 = component_context.c) != null ? _a5 : component_context.c = new Map(get_parent_context(component_context) || void 0);
+}
+function get_parent_context(component_context2) {
+  let parent = component_context2.p;
+  while (parent !== null) {
+    const context_map = parent.c;
+    if (context_map !== null) {
+      return context_map;
+    }
+    parent = parent.p;
+  }
+  return null;
+}
+
+// node_modules/svelte/src/internal/client/dom/task.js
+var micro_tasks = [];
+function run_micro_tasks() {
+  var tasks = micro_tasks;
+  micro_tasks = [];
+  run_all(tasks);
+}
+function queue_micro_task(fn) {
+  if (micro_tasks.length === 0 && !is_flushing_sync) {
+    var tasks = micro_tasks;
+    queueMicrotask(() => {
+      if (tasks === micro_tasks)
+        run_micro_tasks();
+    });
+  }
+  micro_tasks.push(fn);
+}
+function flush_tasks() {
+  while (micro_tasks.length > 0) {
+    run_micro_tasks();
+  }
+}
+
+// node_modules/svelte/src/internal/client/error-handling.js
+var adjustments = /* @__PURE__ */ new WeakMap();
+function handle_error(error) {
+  var effect2 = active_effect;
+  if (effect2 === null) {
+    active_reaction.f |= ERROR_VALUE;
+    return error;
+  }
+  if (dev_fallback_default && error instanceof Error && !adjustments.has(error)) {
+    adjustments.set(error, get_adjustments(error, effect2));
+  }
+  if ((effect2.f & REACTION_RAN) === 0 && (effect2.f & EFFECT) === 0) {
+    if (dev_fallback_default && !effect2.parent && error instanceof Error) {
+      apply_adjustments(error);
+    }
+    throw error;
+  }
+  invoke_error_boundary(error, effect2);
+}
+function invoke_error_boundary(error, effect2) {
+  if (effect2 !== null && (effect2.f & DESTROYED) !== 0) {
     return;
   }
-  const saved_component = current_component;
-  do {
-    try {
-      while (flushidx < dirty_components.length) {
-        const component = dirty_components[flushidx];
-        flushidx++;
-        set_current_component(component);
-        update(component.$$);
+  while (effect2 !== null) {
+    if ((effect2.f & BOUNDARY_EFFECT) !== 0) {
+      if ((effect2.f & REACTION_RAN) === 0) {
+        throw error;
       }
-    } catch (e) {
-      dirty_components.length = 0;
-      flushidx = 0;
-      throw e;
-    }
-    set_current_component(null);
-    dirty_components.length = 0;
-    flushidx = 0;
-    while (binding_callbacks.length)
-      binding_callbacks.pop()();
-    for (let i = 0; i < render_callbacks.length; i += 1) {
-      const callback = render_callbacks[i];
-      if (!seen_callbacks.has(callback)) {
-        seen_callbacks.add(callback);
-        callback();
+      try {
+        effect2.b.error(error);
+        return;
+      } catch (e) {
+        error = e;
       }
     }
-    render_callbacks.length = 0;
-  } while (dirty_components.length);
-  while (flush_callbacks.length) {
-    flush_callbacks.pop()();
+    effect2 = effect2.parent;
   }
-  update_scheduled = false;
-  seen_callbacks.clear();
-  set_current_component(saved_component);
-}
-function update($$) {
-  if ($$.fragment !== null) {
-    $$.update();
-    run_all($$.before_update);
-    const dirty = $$.dirty;
-    $$.dirty = [-1];
-    $$.fragment && $$.fragment.p($$.ctx, dirty);
-    $$.after_update.forEach(add_render_callback);
+  if (dev_fallback_default && error instanceof Error) {
+    apply_adjustments(error);
   }
+  throw error;
 }
-function flush_render_callbacks(fns) {
-  const filtered = [];
-  const targets = [];
-  render_callbacks.forEach((c) => fns.indexOf(c) === -1 ? filtered.push(c) : targets.push(c));
-  targets.forEach((c) => c());
-  render_callbacks = filtered;
-}
-
-// node_modules/svelte/src/runtime/internal/transitions.js
-var outroing = /* @__PURE__ */ new Set();
-var outros;
-function group_outros() {
-  outros = {
-    r: 0,
-    c: [],
-    p: outros
-    // parent group
+function get_adjustments(error, effect2) {
+  var _a5, _b3, _c2;
+  const message_descriptor = get_descriptor(error, "message");
+  if (message_descriptor && !message_descriptor.configurable)
+    return;
+  var indent = is_firefox ? "  " : "	";
+  var component_stack = `
+${indent}in ${((_a5 = effect2.fn) == null ? void 0 : _a5.name) || "<unknown>"}`;
+  var context = effect2.ctx;
+  while (context !== null) {
+    component_stack += `
+${indent}in ${(_b3 = context.function) == null ? void 0 : _b3[FILENAME].split("/").pop()}`;
+    context = context.p;
+  }
+  return {
+    message: error.message + `
+${component_stack}
+`,
+    stack: (_c2 = error.stack) == null ? void 0 : _c2.split("\n").filter((line) => !line.includes("svelte/src/internal")).join("\n")
   };
 }
-function check_outros() {
-  if (!outros.r) {
-    run_all(outros.c);
+function apply_adjustments(error) {
+  const adjusted = adjustments.get(error);
+  if (adjusted) {
+    define_property(error, "message", {
+      value: adjusted.message
+    });
+    define_property(error, "stack", {
+      value: adjusted.stack
+    });
   }
-  outros = outros.p;
 }
-function transition_in(block, local) {
-  if (block && block.i) {
-    outroing.delete(block);
-    block.i(local);
+
+// node_modules/svelte/src/internal/client/reactivity/status.js
+var STATUS_MASK = ~(DIRTY | MAYBE_DIRTY | CLEAN);
+function set_signal_status(signal, status) {
+  signal.f = signal.f & STATUS_MASK | status;
+}
+function update_derived_status(derived3) {
+  if ((derived3.f & CONNECTED) !== 0 || derived3.deps === null) {
+    set_signal_status(derived3, CLEAN);
+  } else {
+    set_signal_status(derived3, MAYBE_DIRTY);
   }
 }
-function transition_out(block, local, detach2, callback) {
-  if (block && block.o) {
-    if (outroing.has(block))
+
+// node_modules/svelte/src/internal/client/reactivity/utils.js
+function clear_marked(deps) {
+  if (deps === null)
+    return;
+  for (const dep of deps) {
+    if ((dep.f & DERIVED) === 0 || (dep.f & WAS_MARKED) === 0) {
+      continue;
+    }
+    dep.f ^= WAS_MARKED;
+    clear_marked(
+      /** @type {Derived} */
+      dep.deps
+    );
+  }
+}
+function defer_effect(effect2, dirty_effects, maybe_dirty_effects) {
+  if ((effect2.f & DIRTY) !== 0) {
+    dirty_effects.add(effect2);
+  } else if ((effect2.f & MAYBE_DIRTY) !== 0) {
+    maybe_dirty_effects.add(effect2);
+  }
+  clear_marked(effect2.deps);
+  set_signal_status(effect2, CLEAN);
+}
+
+// node_modules/svelte/src/store/utils.js
+function subscribe_to_store(store, run3, invalidate) {
+  if (store == null) {
+    run3(void 0);
+    if (invalidate)
+      invalidate(void 0);
+    return noop;
+  }
+  const unsub = untrack(
+    () => store.subscribe(
+      run3,
+      // @ts-expect-error
+      invalidate
+    )
+  );
+  return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+}
+
+// node_modules/svelte/src/store/shared/index.js
+var subscriber_queue = [];
+function readable(value, start) {
+  return {
+    subscribe: writable(value, start).subscribe
+  };
+}
+function writable(value, start = noop) {
+  let stop = null;
+  const subscribers = /* @__PURE__ */ new Set();
+  function set2(new_value) {
+    if (safe_not_equal(value, new_value)) {
+      value = new_value;
+      if (stop) {
+        const run_queue = !subscriber_queue.length;
+        for (const subscriber of subscribers) {
+          subscriber[1]();
+          subscriber_queue.push(subscriber, value);
+        }
+        if (run_queue) {
+          for (let i = 0; i < subscriber_queue.length; i += 2) {
+            subscriber_queue[i][0](subscriber_queue[i + 1]);
+          }
+          subscriber_queue.length = 0;
+        }
+      }
+    }
+  }
+  function update2(fn) {
+    set2(fn(
+      /** @type {T} */
+      value
+    ));
+  }
+  function subscribe(run3, invalidate = noop) {
+    const subscriber = [run3, invalidate];
+    subscribers.add(subscriber);
+    if (subscribers.size === 1) {
+      stop = start(set2, update2) || noop;
+    }
+    run3(
+      /** @type {T} */
+      value
+    );
+    return () => {
+      subscribers.delete(subscriber);
+      if (subscribers.size === 0 && stop) {
+        stop();
+        stop = null;
+      }
+    };
+  }
+  return { set: set2, update: update2, subscribe };
+}
+function derived(stores, fn, initial_value) {
+  const single = !Array.isArray(stores);
+  const stores_array = single ? [stores] : stores;
+  if (!stores_array.every(Boolean)) {
+    throw new Error("derived() expects stores as input, got a falsy value");
+  }
+  const auto = fn.length < 2;
+  return readable(initial_value, (set2, update2) => {
+    let started = false;
+    const values = [];
+    let pending2 = 0;
+    let cleanup = noop;
+    const sync = () => {
+      if (pending2) {
+        return;
+      }
+      cleanup();
+      const result = fn(single ? values[0] : values, set2, update2);
+      if (auto) {
+        set2(result);
+      } else {
+        cleanup = typeof result === "function" ? result : noop;
+      }
+    };
+    const unsubscribers = stores_array.map(
+      (store, i) => subscribe_to_store(
+        store,
+        (value) => {
+          values[i] = value;
+          pending2 &= ~(1 << i);
+          if (started) {
+            sync();
+          }
+        },
+        () => {
+          pending2 |= 1 << i;
+        }
+      )
+    );
+    started = true;
+    sync();
+    return function stop() {
+      run_all(unsubscribers);
+      cleanup();
+      started = false;
+    };
+  });
+}
+function get(store) {
+  let value;
+  subscribe_to_store(store, (_) => value = _)();
+  return value;
+}
+
+// node_modules/svelte/src/internal/client/reactivity/store.js
+var legacy_is_updating_store = false;
+var is_store_binding = false;
+var IS_UNMOUNTED = Symbol("unmounted");
+function store_get(store, store_name, stores) {
+  var _a5;
+  const entry = (_a5 = stores[store_name]) != null ? _a5 : stores[store_name] = {
+    store: null,
+    source: mutable_source(void 0),
+    unsubscribe: noop
+  };
+  if (dev_fallback_default) {
+    entry.source.label = store_name;
+  }
+  if (entry.store !== store && !(IS_UNMOUNTED in stores)) {
+    entry.unsubscribe();
+    entry.store = store != null ? store : null;
+    if (store == null) {
+      entry.source.v = void 0;
+      entry.unsubscribe = noop;
+    } else {
+      var is_synchronous_callback = true;
+      entry.unsubscribe = subscribe_to_store(store, (v) => {
+        if (is_synchronous_callback) {
+          entry.source.v = v;
+        } else {
+          set(entry.source, v);
+        }
+      });
+      is_synchronous_callback = false;
+    }
+  }
+  if (store && IS_UNMOUNTED in stores) {
+    return get(store);
+  }
+  return get2(entry.source);
+}
+function store_set(store, value) {
+  update_with_flag(store, value);
+  return value;
+}
+function setup_stores() {
+  const stores = {};
+  function cleanup() {
+    teardown(() => {
+      for (var store_name in stores) {
+        const ref = stores[store_name];
+        ref.unsubscribe();
+      }
+      define_property(stores, IS_UNMOUNTED, {
+        enumerable: false,
+        value: true
+      });
+    });
+  }
+  return [stores, cleanup];
+}
+function update_with_flag(store, value) {
+  legacy_is_updating_store = true;
+  try {
+    store.set(value);
+  } finally {
+    legacy_is_updating_store = false;
+  }
+}
+function capture_store_binding(fn) {
+  var previous_is_store_binding = is_store_binding;
+  try {
+    is_store_binding = false;
+    return [fn(), is_store_binding];
+  } finally {
+    is_store_binding = previous_is_store_binding;
+  }
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/misc.js
+var listening_to_form_reset = false;
+function add_form_reset_listener() {
+  if (!listening_to_form_reset) {
+    listening_to_form_reset = true;
+    document.addEventListener(
+      "reset",
+      (evt) => {
+        Promise.resolve().then(() => {
+          var _a5;
+          if (!evt.defaultPrevented) {
+            for (
+              const e of
+              /**@type {HTMLFormElement} */
+              evt.target.elements
+            ) {
+              (_a5 = e[FORM_RESET_HANDLER]) == null ? void 0 : _a5.call(e);
+            }
+          }
+        });
+      },
+      // In the capture phase to guarantee we get noticed of it (no possibility of stopPropagation)
+      { capture: true }
+    );
+  }
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js
+function without_reactive_context(fn) {
+  var previous_reaction = active_reaction;
+  var previous_effect = active_effect;
+  set_active_reaction(null);
+  set_active_effect(null);
+  try {
+    return fn();
+  } finally {
+    set_active_reaction(previous_reaction);
+    set_active_effect(previous_effect);
+  }
+}
+function listen_to_event_and_reset_event(element2, event2, handler, on_reset = handler) {
+  element2.addEventListener(event2, () => without_reactive_context(handler));
+  const prev = (
+    /** @type {any} */
+    element2[FORM_RESET_HANDLER]
+  );
+  if (prev) {
+    element2[FORM_RESET_HANDLER] = () => {
+      prev();
+      on_reset(true);
+    };
+  } else {
+    element2[FORM_RESET_HANDLER] = () => on_reset(true);
+  }
+  add_form_reset_listener();
+}
+
+// node_modules/svelte/src/reactivity/create-subscriber.js
+function createSubscriber(start) {
+  let subscribers = 0;
+  let version = source(0);
+  let stop;
+  if (dev_fallback_default) {
+    tag(version, "createSubscriber version");
+  }
+  return () => {
+    if (effect_tracking()) {
+      get2(version);
+      render_effect(() => {
+        if (subscribers === 0) {
+          stop = untrack(() => start(() => increment(version)));
+        }
+        subscribers += 1;
+        return () => {
+          queue_micro_task(() => {
+            subscribers -= 1;
+            if (subscribers === 0) {
+              stop == null ? void 0 : stop();
+              stop = void 0;
+              increment(version);
+            }
+          });
+        };
+      });
+    }
+  };
+}
+
+// node_modules/svelte/src/internal/client/dom/blocks/boundary.js
+var flags = EFFECT_TRANSPARENT | EFFECT_PRESERVED;
+function boundary(node, props, children, transform_error) {
+  new Boundary(node, props, children, transform_error);
+}
+var _anchor, _hydrate_open, _props, _children, _effect, _main_effect, _pending_effect, _failed_effect, _offscreen_fragment, _local_pending_count, _pending_count, _pending_count_update_queued, _dirty_effects, _maybe_dirty_effects, _effect_pending, _effect_pending_subscriber, _hydrate_resolved_content, hydrate_resolved_content_fn, _hydrate_failed_content, hydrate_failed_content_fn, _create_reset, create_reset_fn, _hydrate_pending_content, hydrate_pending_content_fn, _render, render_fn, _resolve, resolve_fn, _run, run_fn, _update_pending_count, update_pending_count_fn, _handle_error, handle_error_fn;
+var Boundary = class {
+  /**
+   * @param {TemplateNode} node
+   * @param {BoundaryProps} props
+   * @param {((anchor: Node) => void)} children
+   * @param {((error: unknown) => unknown) | undefined} [transform_error]
+   */
+  constructor(node, props, children, transform_error) {
+    __privateAdd(this, _hydrate_resolved_content);
+    /**
+     * @param {unknown} error The deserialized error from the server's hydration comment
+     */
+    __privateAdd(this, _hydrate_failed_content);
+    /**
+     * Creates the `reset` function for a failed boundary, along with a function
+     * that invokes `onerror` with it (if provided)
+     * @param {unknown} error
+     * @returns {{ reset: () => void, invoke_onerror: () => void }}
+     */
+    __privateAdd(this, _create_reset);
+    __privateAdd(this, _hydrate_pending_content);
+    __privateAdd(this, _render);
+    /**
+     * @param {Batch} batch
+     */
+    __privateAdd(this, _resolve);
+    /**
+     * @template T
+     * @param {() => T} fn
+     */
+    __privateAdd(this, _run);
+    /**
+     * Updates the pending count associated with the currently visible pending snippet,
+     * if any, such that we can replace the snippet with content once work is done
+     * @param {1 | -1} d
+     * @param {Batch} batch
+     */
+    __privateAdd(this, _update_pending_count);
+    /**
+     * @param {unknown} error
+     */
+    __privateAdd(this, _handle_error);
+    /** @type {Boundary | null} */
+    __publicField(this, "parent");
+    __publicField(this, "is_pending", false);
+    /**
+     * API-level transformError transform function. Transforms errors before they reach the `failed` snippet.
+     * Inherited from parent boundary, or defaults to identity.
+     * @type {(error: unknown) => unknown}
+     */
+    __publicField(this, "transform_error");
+    /** @type {TemplateNode} */
+    __privateAdd(this, _anchor, void 0);
+    /** @type {TemplateNode | null} */
+    __privateAdd(this, _hydrate_open, hydrating ? hydrate_node : null);
+    /** @type {BoundaryProps} */
+    __privateAdd(this, _props, void 0);
+    /** @type {((anchor: Node) => void)} */
+    __privateAdd(this, _children, void 0);
+    /** @type {Effect} */
+    __privateAdd(this, _effect, void 0);
+    /** @type {Effect | null} */
+    __privateAdd(this, _main_effect, null);
+    /** @type {Effect | null} */
+    __privateAdd(this, _pending_effect, null);
+    /** @type {Effect | null} */
+    __privateAdd(this, _failed_effect, null);
+    /** @type {DocumentFragment | null} */
+    __privateAdd(this, _offscreen_fragment, null);
+    __privateAdd(this, _local_pending_count, 0);
+    __privateAdd(this, _pending_count, 0);
+    __privateAdd(this, _pending_count_update_queued, false);
+    /** @type {Set<Effect>} */
+    __privateAdd(this, _dirty_effects, /* @__PURE__ */ new Set());
+    /** @type {Set<Effect>} */
+    __privateAdd(this, _maybe_dirty_effects, /* @__PURE__ */ new Set());
+    /**
+     * A source containing the number of pending async deriveds/expressions.
+     * Only created if `$effect.pending()` is used inside the boundary,
+     * otherwise updating the source results in needless `Batch.ensure()`
+     * calls followed by no-op flushes
+     * @type {Source<number> | null}
+     */
+    __privateAdd(this, _effect_pending, null);
+    __privateAdd(this, _effect_pending_subscriber, createSubscriber(() => {
+      __privateSet(this, _effect_pending, source(__privateGet(this, _local_pending_count)));
+      if (dev_fallback_default) {
+        tag(__privateGet(this, _effect_pending), "$effect.pending()");
+      }
+      return () => {
+        __privateSet(this, _effect_pending, null);
+      };
+    }));
+    var _a5, _b3;
+    __privateSet(this, _anchor, node);
+    __privateSet(this, _props, props);
+    __privateSet(this, _children, (anchor) => {
+      var effect2 = (
+        /** @type {Effect} */
+        active_effect
+      );
+      effect2.b = this;
+      effect2.f |= BOUNDARY_EFFECT;
+      children(anchor);
+    });
+    this.parent = /** @type {Effect} */
+    active_effect.b;
+    this.transform_error = (_b3 = transform_error != null ? transform_error : (_a5 = this.parent) == null ? void 0 : _a5.transform_error) != null ? _b3 : (e) => e;
+    __privateSet(this, _effect, block(() => {
+      if (hydrating) {
+        const comment2 = (
+          /** @type {Comment} */
+          __privateGet(this, _hydrate_open)
+        );
+        hydrate_next();
+        const server_rendered_pending = comment2.data === HYDRATION_START_ELSE;
+        const server_rendered_failed = comment2.data.startsWith(HYDRATION_START_FAILED);
+        if (server_rendered_failed) {
+          const serialized_error = JSON.parse(comment2.data.slice(HYDRATION_START_FAILED.length));
+          __privateMethod(this, _hydrate_failed_content, hydrate_failed_content_fn).call(this, serialized_error);
+        } else if (server_rendered_pending) {
+          __privateMethod(this, _hydrate_pending_content, hydrate_pending_content_fn).call(this);
+        } else {
+          __privateMethod(this, _hydrate_resolved_content, hydrate_resolved_content_fn).call(this);
+        }
+      } else {
+        __privateMethod(this, _render, render_fn).call(this);
+      }
+    }, flags));
+    if (hydrating) {
+      __privateSet(this, _anchor, hydrate_node);
+    }
+  }
+  /**
+   * Defer an effect inside a pending boundary until the boundary resolves
+   * @param {Effect} effect
+   */
+  defer_effect(effect2) {
+    defer_effect(effect2, __privateGet(this, _dirty_effects), __privateGet(this, _maybe_dirty_effects));
+  }
+  /**
+   * Returns `false` if the effect exists inside a boundary whose pending snippet is shown
+   * @returns {boolean}
+   */
+  is_rendered() {
+    return !this.is_pending && (!this.parent || this.parent.is_rendered());
+  }
+  has_pending_snippet() {
+    return !!__privateGet(this, _props).pending;
+  }
+  /**
+   * Update the source that powers `$effect.pending()` inside this boundary,
+   * and controls when the current `pending` snippet (if any) is removed.
+   * Do not call from inside the class
+   * @param {1 | -1} d
+   * @param {Batch} batch
+   */
+  update_pending_count(d, batch) {
+    __privateMethod(this, _update_pending_count, update_pending_count_fn).call(this, d, batch);
+    __privateSet(this, _local_pending_count, __privateGet(this, _local_pending_count) + d);
+    if (!__privateGet(this, _effect_pending) || __privateGet(this, _pending_count_update_queued))
       return;
-    outroing.add(block);
-    outros.c.push(() => {
-      outroing.delete(block);
-      if (callback) {
-        if (detach2)
-          block.d(1);
-        callback();
+    __privateSet(this, _pending_count_update_queued, true);
+    queue_micro_task(() => {
+      __privateSet(this, _pending_count_update_queued, false);
+      if (__privateGet(this, _effect_pending)) {
+        internal_set(__privateGet(this, _effect_pending), __privateGet(this, _local_pending_count));
       }
     });
-    block.o(local);
-  } else if (callback) {
-    callback();
+  }
+  get_effect_pending() {
+    __privateGet(this, _effect_pending_subscriber).call(this);
+    return get2(
+      /** @type {Source<number>} */
+      __privateGet(this, _effect_pending)
+    );
+  }
+  /** @param {unknown} error */
+  error(error) {
+    var _a5;
+    if (!__privateGet(this, _props).onerror && !__privateGet(this, _props).failed) {
+      throw error;
+    }
+    if ((_a5 = current_batch) == null ? void 0 : _a5.is_fork) {
+      if (__privateGet(this, _main_effect))
+        current_batch.skip_effect(__privateGet(this, _main_effect));
+      if (__privateGet(this, _pending_effect))
+        current_batch.skip_effect(__privateGet(this, _pending_effect));
+      if (__privateGet(this, _failed_effect))
+        current_batch.skip_effect(__privateGet(this, _failed_effect));
+      current_batch.oncommit(() => {
+        __privateMethod(this, _handle_error, handle_error_fn).call(this, error);
+      });
+    } else {
+      __privateMethod(this, _handle_error, handle_error_fn).call(this, error);
+    }
+  }
+};
+_anchor = new WeakMap();
+_hydrate_open = new WeakMap();
+_props = new WeakMap();
+_children = new WeakMap();
+_effect = new WeakMap();
+_main_effect = new WeakMap();
+_pending_effect = new WeakMap();
+_failed_effect = new WeakMap();
+_offscreen_fragment = new WeakMap();
+_local_pending_count = new WeakMap();
+_pending_count = new WeakMap();
+_pending_count_update_queued = new WeakMap();
+_dirty_effects = new WeakMap();
+_maybe_dirty_effects = new WeakMap();
+_effect_pending = new WeakMap();
+_effect_pending_subscriber = new WeakMap();
+_hydrate_resolved_content = new WeakSet();
+hydrate_resolved_content_fn = function() {
+  try {
+    __privateSet(this, _main_effect, branch(() => __privateGet(this, _children).call(this, __privateGet(this, _anchor))));
+  } catch (error) {
+    this.error(error);
+  }
+};
+_hydrate_failed_content = new WeakSet();
+hydrate_failed_content_fn = function(error) {
+  const failed = __privateGet(this, _props).failed;
+  const { reset: reset2, invoke_onerror } = __privateMethod(this, _create_reset, create_reset_fn).call(this, error);
+  queue_micro_task(invoke_onerror);
+  if (!failed)
+    return;
+  __privateSet(this, _failed_effect, branch(() => {
+    failed(
+      __privateGet(this, _anchor),
+      () => error,
+      () => reset2
+    );
+  }));
+};
+_create_reset = new WeakSet();
+create_reset_fn = function(error) {
+  var did_reset = false;
+  var calling_on_error = false;
+  const reset2 = () => {
+    if (did_reset) {
+      svelte_boundary_reset_noop();
+      return;
+    }
+    did_reset = true;
+    if (calling_on_error) {
+      svelte_boundary_reset_onerror();
+    }
+    if (__privateGet(this, _failed_effect) !== null) {
+      pause_effect(__privateGet(this, _failed_effect), () => {
+        __privateSet(this, _failed_effect, null);
+      });
+    }
+    __privateMethod(this, _run, run_fn).call(this, () => {
+      __privateMethod(this, _render, render_fn).call(this);
+    });
+  };
+  const invoke_onerror = () => {
+    var _a5, _b3;
+    try {
+      calling_on_error = true;
+      (_b3 = (_a5 = __privateGet(this, _props)).onerror) == null ? void 0 : _b3.call(_a5, error, reset2);
+      calling_on_error = false;
+    } catch (err) {
+      invoke_error_boundary(err, __privateGet(this, _effect) && __privateGet(this, _effect).parent);
+    }
+  };
+  return { reset: reset2, invoke_onerror };
+};
+_hydrate_pending_content = new WeakSet();
+hydrate_pending_content_fn = function() {
+  const pending2 = __privateGet(this, _props).pending;
+  if (!pending2)
+    return;
+  this.is_pending = true;
+  __privateSet(this, _pending_effect, branch(() => pending2(__privateGet(this, _anchor))));
+  queue_micro_task(() => {
+    var fragment = __privateSet(this, _offscreen_fragment, document.createDocumentFragment());
+    var anchor = create_text();
+    fragment.append(anchor);
+    __privateSet(this, _main_effect, __privateMethod(this, _run, run_fn).call(this, () => {
+      return branch(() => __privateGet(this, _children).call(this, anchor));
+    }));
+    if (__privateGet(this, _pending_count) === 0) {
+      __privateGet(this, _anchor).before(fragment);
+      __privateSet(this, _offscreen_fragment, null);
+      pause_effect(
+        /** @type {Effect} */
+        __privateGet(this, _pending_effect),
+        () => {
+          __privateSet(this, _pending_effect, null);
+        }
+      );
+      __privateMethod(this, _resolve, resolve_fn).call(
+        this,
+        /** @type {Batch} */
+        current_batch
+      );
+    }
+  });
+};
+_render = new WeakSet();
+render_fn = function() {
+  try {
+    this.is_pending = this.has_pending_snippet();
+    __privateSet(this, _pending_count, 0);
+    __privateSet(this, _local_pending_count, 0);
+    __privateSet(this, _main_effect, branch(() => {
+      __privateGet(this, _children).call(this, __privateGet(this, _anchor));
+    }));
+    if (__privateGet(this, _pending_count) > 0) {
+      var fragment = __privateSet(this, _offscreen_fragment, document.createDocumentFragment());
+      move_effect(__privateGet(this, _main_effect), fragment);
+      const pending2 = (
+        /** @type {(anchor: Node) => void} */
+        __privateGet(this, _props).pending
+      );
+      __privateSet(this, _pending_effect, branch(() => pending2(__privateGet(this, _anchor))));
+    } else {
+      __privateMethod(this, _resolve, resolve_fn).call(
+        this,
+        /** @type {Batch} */
+        current_batch
+      );
+    }
+  } catch (error) {
+    this.error(error);
+  }
+};
+_resolve = new WeakSet();
+resolve_fn = function(batch) {
+  this.is_pending = false;
+  batch.transfer_effects(__privateGet(this, _dirty_effects), __privateGet(this, _maybe_dirty_effects));
+};
+_run = new WeakSet();
+run_fn = function(fn) {
+  var previous_effect = active_effect;
+  var previous_reaction = active_reaction;
+  var previous_ctx = component_context;
+  set_active_effect(__privateGet(this, _effect));
+  set_active_reaction(__privateGet(this, _effect));
+  set_component_context(__privateGet(this, _effect).ctx);
+  try {
+    Batch.ensure();
+    return fn();
+  } catch (e) {
+    handle_error(e);
+    return null;
+  } finally {
+    set_active_effect(previous_effect);
+    set_active_reaction(previous_reaction);
+    set_component_context(previous_ctx);
+  }
+};
+_update_pending_count = new WeakSet();
+update_pending_count_fn = function(d, batch) {
+  var _a5;
+  if (!this.has_pending_snippet()) {
+    if (this.parent) {
+      __privateMethod(_a5 = this.parent, _update_pending_count, update_pending_count_fn).call(_a5, d, batch);
+    }
+    return;
+  }
+  __privateSet(this, _pending_count, __privateGet(this, _pending_count) + d);
+  if (__privateGet(this, _pending_count) === 0) {
+    __privateMethod(this, _resolve, resolve_fn).call(this, batch);
+    if (__privateGet(this, _pending_effect)) {
+      pause_effect(__privateGet(this, _pending_effect), () => {
+        __privateSet(this, _pending_effect, null);
+      });
+    }
+    if (__privateGet(this, _offscreen_fragment)) {
+      __privateGet(this, _anchor).before(__privateGet(this, _offscreen_fragment));
+      __privateSet(this, _offscreen_fragment, null);
+    }
+  }
+};
+_handle_error = new WeakSet();
+handle_error_fn = function(error) {
+  if (__privateGet(this, _main_effect)) {
+    destroy_effect(__privateGet(this, _main_effect));
+    __privateSet(this, _main_effect, null);
+  }
+  if (__privateGet(this, _pending_effect)) {
+    destroy_effect(__privateGet(this, _pending_effect));
+    __privateSet(this, _pending_effect, null);
+  }
+  if (__privateGet(this, _failed_effect)) {
+    destroy_effect(__privateGet(this, _failed_effect));
+    __privateSet(this, _failed_effect, null);
+  }
+  if (hydrating) {
+    set_hydrate_node(
+      /** @type {TemplateNode} */
+      __privateGet(this, _hydrate_open)
+    );
+    next();
+    set_hydrate_node(skip_nodes());
+  }
+  let failed = __privateGet(this, _props).failed;
+  const handle_error_result = (transformed_error) => {
+    const { reset: reset2, invoke_onerror } = __privateMethod(this, _create_reset, create_reset_fn).call(this, transformed_error);
+    invoke_onerror();
+    if (failed) {
+      __privateSet(this, _failed_effect, __privateMethod(this, _run, run_fn).call(this, () => {
+        try {
+          return branch(() => {
+            var effect2 = (
+              /** @type {Effect} */
+              active_effect
+            );
+            effect2.b = this;
+            effect2.f |= BOUNDARY_EFFECT;
+            failed(
+              __privateGet(this, _anchor),
+              () => transformed_error,
+              () => reset2
+            );
+          });
+        } catch (error2) {
+          invoke_error_boundary(
+            error2,
+            /** @type {Effect} */
+            __privateGet(this, _effect).parent
+          );
+          return null;
+        }
+      }));
+    }
+  };
+  queue_micro_task(() => {
+    var result;
+    try {
+      result = this.transform_error(error);
+    } catch (e) {
+      invoke_error_boundary(e, __privateGet(this, _effect) && __privateGet(this, _effect).parent);
+      return;
+    }
+    if (result !== null && typeof result === "object" && typeof /** @type {any} */
+    result.then === "function") {
+      result.then(
+        handle_error_result,
+        /** @param {unknown} e */
+        (e) => invoke_error_boundary(e, __privateGet(this, _effect) && __privateGet(this, _effect).parent)
+      );
+    } else {
+      handle_error_result(result);
+    }
+  });
+};
+
+// node_modules/svelte/src/internal/client/reactivity/async.js
+function flatten(blockers, sync, async2, fn) {
+  const d = is_runes() ? derived2 : derived_safe_equal;
+  var pending2 = blockers.filter((b) => !b.settled);
+  var deriveds = sync.map(d);
+  if (dev_fallback_default) {
+    deriveds.forEach((d2, i) => {
+      d2.label = sync[i].toString().replace("() => ", "").replaceAll("$.eager(() => ", "$state.eager(").replace(/\$\.get\((.+?)\)/g, (_, id) => id);
+    });
+  }
+  if (async2.length === 0 && pending2.length === 0) {
+    fn(deriveds);
+    return;
+  }
+  var parent = (
+    /** @type {Effect} */
+    active_effect
+  );
+  var restore = capture();
+  var blocker_promise = pending2.length === 1 ? pending2[0].promise : pending2.length > 1 ? Promise.all(pending2.map((b) => b.promise)) : null;
+  function finish(async3) {
+    if ((parent.f & DESTROYED) !== 0) {
+      return;
+    }
+    restore();
+    try {
+      fn([...deriveds, ...async3]);
+    } catch (error) {
+      invoke_error_boundary(error, parent);
+    }
+    unset_context();
+  }
+  var decrement_pending = increment_pending();
+  if (async2.length === 0) {
+    blocker_promise.then(() => finish([])).finally(decrement_pending);
+    return;
+  }
+  function run3() {
+    Promise.all(async2.map((expression) => async_derived(expression))).then(finish).catch((error) => invoke_error_boundary(error, parent)).finally(decrement_pending);
+  }
+  if (blocker_promise) {
+    blocker_promise.then(() => {
+      restore();
+      run3();
+      unset_context();
+    });
+  } else {
+    run3();
   }
 }
-
-// node_modules/svelte/src/runtime/internal/each.js
-function ensure_array_like(array_like_or_iterator) {
-  return (array_like_or_iterator == null ? void 0 : array_like_or_iterator.length) !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
+function capture() {
+  var previous_effect = (
+    /** @type {Effect} */
+    active_effect
+  );
+  var previous_reaction = active_reaction;
+  var previous_component_context = component_context;
+  var previous_batch2 = (
+    /** @type {Batch} */
+    current_batch
+  );
+  if (dev_fallback_default) {
+    var previous_dev_stack = dev_stack;
+  }
+  return function restore(activate_batch = true) {
+    set_active_effect(previous_effect);
+    set_active_reaction(previous_reaction);
+    set_component_context(previous_component_context);
+    if (activate_batch && (previous_effect.f & DESTROYED) === 0) {
+      previous_batch2 == null ? void 0 : previous_batch2.activate();
+      previous_batch2 == null ? void 0 : previous_batch2.apply();
+    }
+    if (dev_fallback_default) {
+      set_reactivity_loss_tracker(null);
+      set_dev_stack(previous_dev_stack);
+    }
+  };
 }
-function outro_and_destroy_block(block, lookup) {
-  transition_out(block, 1, 1, () => {
-    lookup.delete(block.key);
+function unset_context(deactivate_batch = true) {
+  var _a5;
+  set_active_effect(null);
+  set_active_reaction(null);
+  set_component_context(null);
+  if (deactivate_batch)
+    (_a5 = current_batch) == null ? void 0 : _a5.deactivate();
+  if (dev_fallback_default) {
+    set_reactivity_loss_tracker(null);
+    set_dev_stack(null);
+  }
+}
+function increment_pending() {
+  var effect2 = (
+    /** @type {Effect} */
+    active_effect
+  );
+  var boundary2 = effect2.b;
+  var batch = (
+    /** @type {Batch} */
+    current_batch
+  );
+  var blocking = !!(boundary2 == null ? void 0 : boundary2.is_rendered());
+  boundary2 == null ? void 0 : boundary2.update_pending_count(1, batch);
+  batch.increment(blocking, effect2);
+  return () => {
+    boundary2 == null ? void 0 : boundary2.update_pending_count(-1, batch);
+    batch.decrement(blocking, effect2);
+  };
+}
+
+// node_modules/svelte/src/internal/client/reactivity/deriveds.js
+var reactivity_loss_tracker = null;
+function set_reactivity_loss_tracker(v) {
+  reactivity_loss_tracker = v;
+}
+var recent_async_deriveds = /* @__PURE__ */ new Set();
+// @__NO_SIDE_EFFECTS__
+function derived2(fn) {
+  var flags2 = DERIVED | DIRTY;
+  if (active_effect !== null) {
+    active_effect.f |= EFFECT_PRESERVED;
+  }
+  const signal = {
+    ctx: component_context,
+    deps: null,
+    effects: null,
+    equals,
+    f: flags2,
+    fn,
+    reactions: null,
+    rv: 0,
+    v: (
+      /** @type {V} */
+      UNINITIALIZED
+    ),
+    wv: 0,
+    parent: active_effect,
+    ac: null
+  };
+  if (dev_fallback_default && tracing_mode_flag) {
+    signal.created = get_error("created at");
+  }
+  return signal;
+}
+var OBSOLETE = Symbol("obsolete");
+// @__NO_SIDE_EFFECTS__
+function async_derived(fn, label, location) {
+  let parent = (
+    /** @type {Effect | null} */
+    active_effect
+  );
+  if (parent === null) {
+    async_derived_orphan();
+  }
+  var promise = (
+    /** @type {Promise<V>} */
+    /** @type {unknown} */
+    void 0
+  );
+  var signal = source(
+    /** @type {V} */
+    UNINITIALIZED
+  );
+  if (dev_fallback_default)
+    signal.label = label != null ? label : fn.toString();
+  var should_suspend = !active_reaction;
+  var deferreds = /* @__PURE__ */ new Set();
+  async_effect(() => {
+    var _a5, _b3;
+    var effect2 = (
+      /** @type {Effect} */
+      active_effect
+    );
+    if (dev_fallback_default) {
+      reactivity_loss_tracker = { effect: effect2, effect_deps: /* @__PURE__ */ new Set(), warned: false };
+    }
+    var d = deferred();
+    promise = d.promise;
+    try {
+      Promise.resolve(fn()).then(d.resolve, (e) => {
+        if (e !== STALE_REACTION)
+          d.reject(e);
+      }).finally(unset_context);
+    } catch (error) {
+      d.reject(error);
+      unset_context();
+    }
+    if (dev_fallback_default) {
+      if (reactivity_loss_tracker) {
+        if (effect2.deps !== null) {
+          for (let i = 0; i < skipped_deps; i += 1) {
+            reactivity_loss_tracker.effect_deps.add(effect2.deps[i]);
+          }
+        }
+        if (new_deps !== null) {
+          for (let i = 0; i < new_deps.length; i += 1) {
+            reactivity_loss_tracker.effect_deps.add(new_deps[i]);
+          }
+        }
+      }
+      reactivity_loss_tracker = null;
+    }
+    var batch = (
+      /** @type {Batch} */
+      current_batch
+    );
+    if (should_suspend) {
+      if ((effect2.f & REACTION_RAN) !== 0) {
+        var decrement_pending = increment_pending();
+      }
+      if (
+        // boundary can be null if the async derived is inside an $effect.root not connected to the component render tree
+        (_a5 = parent.b) == null ? void 0 : _a5.is_rendered()
+      ) {
+        (_b3 = batch.async_deriveds.get(effect2)) == null ? void 0 : _b3.reject(OBSOLETE);
+      } else {
+        for (const d2 of deferreds.values()) {
+          d2.reject(OBSOLETE);
+        }
+      }
+      deferreds.add(d);
+      batch.async_deriveds.set(effect2, d);
+    }
+    const handler = (value, error = void 0) => {
+      if (dev_fallback_default) {
+        reactivity_loss_tracker = null;
+      }
+      decrement_pending == null ? void 0 : decrement_pending();
+      deferreds.delete(d);
+      if (error === OBSOLETE)
+        return;
+      batch.activate();
+      if (error) {
+        signal.f |= ERROR_VALUE;
+        internal_set(signal, error);
+      } else {
+        if ((signal.f & ERROR_VALUE) !== 0) {
+          signal.f ^= ERROR_VALUE;
+        }
+        if (dev_fallback_default && location !== void 0 && !signal.equals(value)) {
+          recent_async_deriveds.add(signal);
+          setTimeout(() => {
+            if (recent_async_deriveds.has(signal) && (effect2.f & DESTROYED) === 0) {
+              await_waterfall(
+                /** @type {string} */
+                signal.label,
+                location
+              );
+              recent_async_deriveds.delete(signal);
+            }
+          });
+        }
+        internal_set(signal, value);
+      }
+      batch.deactivate();
+    };
+    d.promise.then(handler, (e) => handler(null, e || "unknown"));
+  });
+  teardown(() => {
+    for (const d of deferreds) {
+      d.reject(OBSOLETE);
+    }
+  });
+  if (dev_fallback_default) {
+    signal.f |= ASYNC;
+  }
+  return new Promise((fulfil) => {
+    function next2(p) {
+      function go() {
+        if (p === promise) {
+          fulfil(signal);
+        } else {
+          next2(promise);
+        }
+      }
+      p.then(go, go);
+    }
+    next2(promise);
   });
 }
-function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block4, next, get_context) {
-  let o = old_blocks.length;
-  let n = list.length;
-  let i = o;
-  const old_indexes = {};
-  while (i--)
-    old_indexes[old_blocks[i].key] = i;
-  const new_blocks = [];
-  const new_lookup = /* @__PURE__ */ new Map();
-  const deltas = /* @__PURE__ */ new Map();
-  const updates = [];
-  i = n;
-  while (i--) {
-    const child_ctx = get_context(ctx, list, i);
-    const key = get_key(child_ctx);
-    let block = lookup.get(key);
-    if (!block) {
-      block = create_each_block4(key, child_ctx);
-      block.c();
-    } else if (dynamic) {
-      updates.push(() => block.p(child_ctx, dirty));
-    }
-    new_lookup.set(key, new_blocks[i] = block);
-    if (key in old_indexes)
-      deltas.set(key, Math.abs(i - old_indexes[key]));
-  }
-  const will_move = /* @__PURE__ */ new Set();
-  const did_move = /* @__PURE__ */ new Set();
-  function insert2(block) {
-    transition_in(block, 1);
-    block.m(node, next);
-    lookup.set(block.key, block);
-    next = block.first;
-    n--;
-  }
-  while (o && n) {
-    const new_block = new_blocks[n - 1];
-    const old_block = old_blocks[o - 1];
-    const new_key = new_block.key;
-    const old_key = old_block.key;
-    if (new_block === old_block) {
-      next = new_block.first;
-      o--;
-      n--;
-    } else if (!new_lookup.has(old_key)) {
-      destroy(old_block, lookup);
-      o--;
-    } else if (!lookup.has(new_key) || will_move.has(new_key)) {
-      insert2(new_block);
-    } else if (did_move.has(old_key)) {
-      o--;
-    } else if (deltas.get(new_key) > deltas.get(old_key)) {
-      did_move.add(new_key);
-      insert2(new_block);
-    } else {
-      will_move.add(old_key);
-      o--;
+// @__NO_SIDE_EFFECTS__
+function derived_safe_equal(fn) {
+  const signal = /* @__PURE__ */ derived2(fn);
+  signal.equals = safe_equals;
+  return signal;
+}
+function destroy_derived_effects(derived3) {
+  var effects = derived3.effects;
+  if (effects !== null) {
+    derived3.effects = null;
+    for (var i = 0; i < effects.length; i += 1) {
+      destroy_effect(
+        /** @type {Effect} */
+        effects[i]
+      );
     }
   }
-  while (o--) {
-    const old_block = old_blocks[o];
-    if (!new_lookup.has(old_block.key))
-      destroy(old_block, lookup);
+}
+var stack = [];
+function execute_derived(derived3) {
+  var value;
+  var prev_active_effect = active_effect;
+  var parent = derived3.parent;
+  if (!is_destroying_effect && parent !== null && derived3.v !== UNINITIALIZED && // if it was never evaluated before, it's guaranteed to fail downstream, so we try to execute instead
+  (parent.f & (DESTROYED | INERT)) !== 0) {
+    derived_inert();
+    return derived3.v;
   }
-  while (n)
-    insert2(new_blocks[n - 1]);
-  run_all(updates);
-  return new_blocks;
+  set_active_effect(parent);
+  if (dev_fallback_default) {
+    let prev_eager_effects = eager_effects;
+    set_eager_effects(/* @__PURE__ */ new Set());
+    try {
+      if (includes.call(stack, derived3)) {
+        derived_references_self();
+      }
+      stack.push(derived3);
+      derived3.f &= ~WAS_MARKED;
+      destroy_derived_effects(derived3);
+      value = update_reaction(derived3);
+    } finally {
+      set_active_effect(prev_active_effect);
+      set_eager_effects(prev_eager_effects);
+      stack.pop();
+    }
+  } else {
+    try {
+      derived3.f &= ~WAS_MARKED;
+      destroy_derived_effects(derived3);
+      value = update_reaction(derived3);
+    } finally {
+      set_active_effect(prev_active_effect);
+    }
+  }
+  return value;
+}
+function update_derived(derived3) {
+  var _a5, _b3, _c2;
+  var value = execute_derived(derived3);
+  if (!derived3.equals(value)) {
+    derived3.wv = increment_write_version();
+    if (!((_a5 = current_batch) == null ? void 0 : _a5.is_fork) || derived3.deps === null) {
+      if (current_batch !== null) {
+        current_batch.capture(derived3, value, true);
+        (_b3 = previous_batch) == null ? void 0 : _b3.capture(derived3, value, true);
+      } else {
+        derived3.v = value;
+      }
+      if (derived3.deps === null) {
+        set_signal_status(derived3, CLEAN);
+        return;
+      }
+    }
+  }
+  if (is_destroying_effect) {
+    return;
+  }
+  if (batch_values !== null) {
+    if (effect_tracking() || ((_c2 = current_batch) == null ? void 0 : _c2.is_fork)) {
+      batch_values.set(derived3, value);
+    }
+  } else {
+    update_derived_status(derived3);
+  }
+}
+function freeze_derived_effects(derived3) {
+  var _a5;
+  if (derived3.effects === null)
+    return;
+  for (const e of derived3.effects) {
+    if (e.teardown || e.ac) {
+      (_a5 = e.teardown) == null ? void 0 : _a5.call(e);
+      if (e.ac !== null) {
+        without_reactive_context(() => {
+          e.ac.abort(STALE_REACTION);
+          e.ac = null;
+        });
+      }
+      if (e.fn !== null)
+        e.teardown = noop;
+      remove_reactions(e, 0);
+      destroy_effect_children(e);
+    }
+  }
+}
+function unfreeze_derived_effects(derived3) {
+  if (derived3.effects === null)
+    return;
+  for (const e of derived3.effects) {
+    if (e.teardown && e.fn !== null) {
+      update_effect(e);
+    }
+  }
 }
 
-// node_modules/svelte/src/shared/boolean_attributes.js
-var _boolean_attributes = (
+// node_modules/svelte/src/internal/client/reactivity/batch.js
+var first_batch = null;
+var last_batch = null;
+var current_batch = null;
+var previous_batch = null;
+var batch_values = null;
+var last_scheduled_effect = null;
+var is_flushing_sync = false;
+var is_processing = false;
+var collected_effects = null;
+var legacy_updates = null;
+var flush_count = 0;
+var source_stacks = /* @__PURE__ */ new Set();
+var uid = 1;
+var _started, _prev, _next, _commit_callbacks, _discard_callbacks, _pending, _blocking_pending, _deferred, _roots, _new_effects, _dirty_effects2, _maybe_dirty_effects2, _skipped_branches, _unskipped_branches, _decrement_queued, _is_deferred, is_deferred_fn, _process, process_fn, _traverse, traverse_fn, _find_earlier_batch, find_earlier_batch_fn, _merge, merge_fn, _defer_effects, defer_effects_fn, _commit, commit_fn, _unlink, unlink_fn;
+var _Batch = class _Batch {
+  constructor() {
+    __privateAdd(this, _is_deferred);
+    __privateAdd(this, _process);
+    /**
+     * Traverse the effect tree, executing effects or stashing
+     * them for later execution as appropriate
+     * @param {Effect} root
+     * @param {Effect[]} effects
+     * @param {Effect[]} render_effects
+     */
+    __privateAdd(this, _traverse);
+    __privateAdd(this, _find_earlier_batch);
+    /**
+     * @param {Batch} batch
+     */
+    __privateAdd(this, _merge);
+    /**
+     * @param {Effect[]} effects
+     */
+    __privateAdd(this, _defer_effects);
+    __privateAdd(this, _commit);
+    __privateAdd(this, _unlink);
+    __publicField(this, "id", uid++);
+    /** True as soon as `#process` was called */
+    __privateAdd(this, _started, false);
+    __publicField(this, "linked", true);
+    /** @type {Batch | null} */
+    __privateAdd(this, _prev, null);
+    /** @type {Batch | null} */
+    __privateAdd(this, _next, null);
+    /** @type {Map<Effect, ReturnType<typeof deferred<any>>>} */
+    __publicField(this, "async_deriveds", /* @__PURE__ */ new Map());
+    /**
+     * The current values of any signals that are updated in this batch.
+     * Tuple format: [value, is_derived] (note: is_derived is false for deriveds, too, if they were overridden via assignment)
+     * They keys of this map are identical to `this.#previous`
+     * @type {Map<Value, [any, boolean]>}
+     */
+    __publicField(this, "current", /* @__PURE__ */ new Map());
+    /**
+     * The values of any signals (sources and deriveds) that are updated in this batch _before_ those updates took place.
+     * They keys of this map are identical to `this.#current`
+     * @type {Map<Value, any>}
+     */
+    __publicField(this, "previous", /* @__PURE__ */ new Map());
+    /**
+     * When the batch is committed (and the DOM is updated), we need to remove old branches
+     * and append new ones by calling the functions added inside (if/each/key/etc) blocks
+     * @type {Set<(batch: Batch) => void>}
+     */
+    __privateAdd(this, _commit_callbacks, /* @__PURE__ */ new Set());
+    /**
+     * If a fork is discarded, we need to destroy any effects that are no longer needed
+     * @type {Set<(batch: Batch) => void>}
+     */
+    __privateAdd(this, _discard_callbacks, /* @__PURE__ */ new Set());
+    /**
+     * The number of async effects that are currently in flight
+     */
+    __privateAdd(this, _pending, 0);
+    /**
+     * Async effects that are currently in flight, _not_ inside a pending boundary
+     * @type {Map<Effect, number>}
+     */
+    __privateAdd(this, _blocking_pending, /* @__PURE__ */ new Map());
+    /**
+     * A deferred that resolves when the batch is committed, used with `settled()`
+     * TODO replace with Promise.withResolvers once supported widely enough
+     * @type {{ promise: Promise<void>, resolve: (value?: any) => void, reject: (reason: unknown) => void } | null}
+     */
+    __privateAdd(this, _deferred, null);
+    /**
+     * The root effects that need to be flushed
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _roots, []);
+    /**
+     * Effects created while this batch was active.
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _new_effects, []);
+    /**
+     * Deferred effects (which run after async work has completed) that are DIRTY
+     * @type {Set<Effect>}
+     */
+    __privateAdd(this, _dirty_effects2, /* @__PURE__ */ new Set());
+    /**
+     * Deferred effects that are MAYBE_DIRTY
+     * @type {Set<Effect>}
+     */
+    __privateAdd(this, _maybe_dirty_effects2, /* @__PURE__ */ new Set());
+    /**
+     * A map of branches that still exist, but will be destroyed when this batch
+     * is committed — we skip over these during `process`.
+     * The value contains child effects that were dirty/maybe_dirty before being reset,
+     * so they can be rescheduled if the branch survives.
+     * @type {Map<Effect, { d: Effect[], m: Effect[] }>}
+     */
+    __privateAdd(this, _skipped_branches, /* @__PURE__ */ new Map());
+    /**
+     * Inverse of #skipped_branches which we need to tell prior batches to unskip them when committing
+     * @type {Set<Effect>}
+     */
+    __privateAdd(this, _unskipped_branches, /* @__PURE__ */ new Set());
+    __publicField(this, "is_fork", false);
+    __privateAdd(this, _decrement_queued, false);
+    if (last_batch === null) {
+      first_batch = last_batch = this;
+    } else {
+      __privateSet(last_batch, _next, this);
+      __privateSet(this, _prev, last_batch);
+    }
+    last_batch = this;
+  }
+  /**
+   * Add an effect to the #skipped_branches map and reset its children
+   * @param {Effect} effect
+   */
+  skip_effect(effect2) {
+    if (!__privateGet(this, _skipped_branches).has(effect2)) {
+      __privateGet(this, _skipped_branches).set(effect2, { d: [], m: [] });
+    }
+    __privateGet(this, _unskipped_branches).delete(effect2);
+  }
+  /**
+   * Remove an effect from the #skipped_branches map and reschedule
+   * any tracked dirty/maybe_dirty child effects
+   * @param {Effect} effect
+   * @param {(e: Effect) => void} callback
+   */
+  unskip_effect(effect2, callback = (e) => this.schedule(e)) {
+    var tracked = __privateGet(this, _skipped_branches).get(effect2);
+    if (tracked) {
+      __privateGet(this, _skipped_branches).delete(effect2);
+      for (var e of tracked.d) {
+        set_signal_status(e, DIRTY);
+        callback(e);
+      }
+      for (e of tracked.m) {
+        set_signal_status(e, MAYBE_DIRTY);
+        callback(e);
+      }
+    }
+    __privateGet(this, _unskipped_branches).add(effect2);
+  }
+  /**
+   * Associate a change to a given source with the current
+   * batch, noting its previous and current values
+   * @param {Value} source
+   * @param {any} value
+   * @param {boolean} [is_derived]
+   */
+  capture(source2, value, is_derived = false) {
+    if (source2.v !== UNINITIALIZED && !this.previous.has(source2)) {
+      this.previous.set(source2, source2.v);
+    }
+    if ((source2.f & ERROR_VALUE) === 0) {
+      this.current.set(source2, [value, is_derived]);
+      batch_values == null ? void 0 : batch_values.set(source2, value);
+    }
+    if (!this.is_fork) {
+      source2.v = value;
+    }
+  }
+  activate() {
+    current_batch = this;
+  }
+  deactivate() {
+    current_batch = null;
+    batch_values = null;
+  }
+  flush() {
+    try {
+      if (dev_fallback_default) {
+        source_stacks.clear();
+      }
+      is_processing = true;
+      current_batch = this;
+      __privateMethod(this, _process, process_fn).call(this);
+    } finally {
+      flush_count = 0;
+      last_scheduled_effect = null;
+      collected_effects = null;
+      legacy_updates = null;
+      is_processing = false;
+      current_batch = null;
+      batch_values = null;
+      old_values.clear();
+      if (dev_fallback_default) {
+        for (const source2 of source_stacks) {
+          source2.updated = null;
+        }
+      }
+    }
+  }
+  discard() {
+    var _a5;
+    for (const fn of __privateGet(this, _discard_callbacks))
+      fn(this);
+    __privateGet(this, _discard_callbacks).clear();
+    for (const deferred2 of this.async_deriveds.values()) {
+      deferred2.reject(OBSOLETE);
+    }
+    __privateMethod(this, _unlink, unlink_fn).call(this);
+    (_a5 = __privateGet(this, _deferred)) == null ? void 0 : _a5.resolve();
+  }
+  /**
+   * @param {Effect} effect
+   */
+  register_created_effect(effect2) {
+    __privateGet(this, _new_effects).push(effect2);
+  }
+  /**
+   * @param {boolean} blocking
+   * @param {Effect} effect
+   */
+  increment(blocking, effect2) {
+    var _a5;
+    __privateSet(this, _pending, __privateGet(this, _pending) + 1);
+    if (blocking) {
+      let blocking_pending_count = (_a5 = __privateGet(this, _blocking_pending).get(effect2)) != null ? _a5 : 0;
+      __privateGet(this, _blocking_pending).set(effect2, blocking_pending_count + 1);
+    }
+  }
+  /**
+   * @param {boolean} blocking
+   * @param {Effect} effect
+   */
+  decrement(blocking, effect2) {
+    var _a5;
+    __privateSet(this, _pending, __privateGet(this, _pending) - 1);
+    if (blocking) {
+      let blocking_pending_count = (_a5 = __privateGet(this, _blocking_pending).get(effect2)) != null ? _a5 : 0;
+      if (blocking_pending_count === 1) {
+        __privateGet(this, _blocking_pending).delete(effect2);
+      } else {
+        __privateGet(this, _blocking_pending).set(effect2, blocking_pending_count - 1);
+      }
+    }
+    if (__privateGet(this, _decrement_queued))
+      return;
+    __privateSet(this, _decrement_queued, true);
+    queue_micro_task(() => {
+      __privateSet(this, _decrement_queued, false);
+      if (this.linked) {
+        this.flush();
+      }
+    });
+  }
+  /**
+   * @param {Set<Effect>} dirty_effects
+   * @param {Set<Effect>} maybe_dirty_effects
+   */
+  transfer_effects(dirty_effects, maybe_dirty_effects) {
+    for (const e of dirty_effects) {
+      __privateGet(this, _dirty_effects2).add(e);
+    }
+    for (const e of maybe_dirty_effects) {
+      __privateGet(this, _maybe_dirty_effects2).add(e);
+    }
+    dirty_effects.clear();
+    maybe_dirty_effects.clear();
+  }
+  /** @param {(batch: Batch) => void} fn */
+  oncommit(fn) {
+    __privateGet(this, _commit_callbacks).add(fn);
+  }
+  /** @param {(batch: Batch) => void} fn */
+  ondiscard(fn) {
+    __privateGet(this, _discard_callbacks).add(fn);
+  }
+  settled() {
+    var _a5;
+    return ((_a5 = __privateGet(this, _deferred)) != null ? _a5 : __privateSet(this, _deferred, deferred())).promise;
+  }
+  static ensure() {
+    if (current_batch === null) {
+      const batch = current_batch = new _Batch();
+      if (!is_processing && !is_flushing_sync) {
+        queue_micro_task(() => {
+          if (!__privateGet(batch, _started)) {
+            batch.flush();
+          }
+        });
+      }
+    }
+    return current_batch;
+  }
+  apply() {
+    if (!async_mode_flag || !this.is_fork && __privateGet(this, _prev) === null && __privateGet(this, _next) === null) {
+      batch_values = null;
+      return;
+    }
+    batch_values = /* @__PURE__ */ new Map();
+    for (const [source2, [value]] of this.current) {
+      batch_values.set(source2, value);
+    }
+    for (let batch = first_batch; batch !== null; batch = __privateGet(batch, _next)) {
+      if (batch === this || batch.is_fork)
+        continue;
+      var intersects = false;
+      if (batch.id < this.id) {
+        for (const [source2, [, is_derived]] of batch.current) {
+          if (is_derived)
+            continue;
+          if (this.current.has(source2)) {
+            intersects = true;
+            break;
+          }
+        }
+      }
+      if (!intersects) {
+        for (const [source2, previous] of batch.previous) {
+          if (!batch_values.has(source2)) {
+            batch_values.set(source2, previous);
+          }
+        }
+      }
+    }
+  }
+  /**
+   *
+   * @param {Effect} effect
+   */
+  schedule(effect2) {
+    var _a5;
+    last_scheduled_effect = effect2;
+    if (((_a5 = effect2.b) == null ? void 0 : _a5.is_pending) && (effect2.f & (EFFECT | RENDER_EFFECT | MANAGED_EFFECT)) !== 0 && (effect2.f & REACTION_RAN) === 0) {
+      effect2.b.defer_effect(effect2);
+      return;
+    }
+    var e = effect2;
+    while (e.parent !== null) {
+      e = e.parent;
+      var flags2 = e.f;
+      if (collected_effects !== null && e === active_effect) {
+        if (async_mode_flag)
+          return;
+        if ((active_reaction === null || (active_reaction.f & DERIVED) === 0) && !legacy_is_updating_store) {
+          return;
+        }
+      }
+      if ((flags2 & (ROOT_EFFECT | BRANCH_EFFECT)) !== 0) {
+        if ((flags2 & CLEAN) === 0) {
+          return;
+        }
+        e.f ^= CLEAN;
+      }
+    }
+    __privateGet(this, _roots).push(e);
+  }
+};
+_started = new WeakMap();
+_prev = new WeakMap();
+_next = new WeakMap();
+_commit_callbacks = new WeakMap();
+_discard_callbacks = new WeakMap();
+_pending = new WeakMap();
+_blocking_pending = new WeakMap();
+_deferred = new WeakMap();
+_roots = new WeakMap();
+_new_effects = new WeakMap();
+_dirty_effects2 = new WeakMap();
+_maybe_dirty_effects2 = new WeakMap();
+_skipped_branches = new WeakMap();
+_unskipped_branches = new WeakMap();
+_decrement_queued = new WeakMap();
+_is_deferred = new WeakSet();
+is_deferred_fn = function() {
+  if (this.is_fork)
+    return true;
+  for (const effect2 of __privateGet(this, _blocking_pending).keys()) {
+    var e = effect2;
+    var skipped = false;
+    while (e.parent !== null) {
+      if (__privateGet(this, _skipped_branches).has(e)) {
+        skipped = true;
+        break;
+      }
+      e = e.parent;
+    }
+    if (!skipped) {
+      return true;
+    }
+  }
+  return false;
+};
+_process = new WeakSet();
+process_fn = function() {
+  var _a5, _b3, _c2, _d;
+  __privateSet(this, _started, true);
+  if (flush_count++ > 1e3) {
+    __privateMethod(this, _unlink, unlink_fn).call(this);
+    infinite_loop_guard();
+  }
+  if (dev_fallback_default) {
+    for (const value of this.current.keys()) {
+      source_stacks.add(value);
+    }
+  }
+  for (const e of __privateGet(this, _dirty_effects2)) {
+    __privateGet(this, _maybe_dirty_effects2).delete(e);
+    set_signal_status(e, DIRTY);
+    this.schedule(e);
+  }
+  for (const e of __privateGet(this, _maybe_dirty_effects2)) {
+    set_signal_status(e, MAYBE_DIRTY);
+    this.schedule(e);
+  }
+  const roots = __privateGet(this, _roots);
+  __privateSet(this, _roots, []);
+  this.apply();
+  var effects = collected_effects = [];
+  var render_effects = [];
+  var updates = legacy_updates = [];
+  for (const root3 of roots) {
+    try {
+      __privateMethod(this, _traverse, traverse_fn).call(this, root3, effects, render_effects);
+    } catch (e) {
+      reset_all(root3);
+      if (!__privateMethod(this, _is_deferred, is_deferred_fn).call(this))
+        this.discard();
+      throw e;
+    }
+  }
+  current_batch = null;
+  if (updates.length > 0) {
+    var batch = _Batch.ensure();
+    for (const e of updates) {
+      batch.schedule(e);
+    }
+  }
+  collected_effects = null;
+  legacy_updates = null;
+  if (__privateMethod(this, _is_deferred, is_deferred_fn).call(this)) {
+    __privateMethod(this, _defer_effects, defer_effects_fn).call(this, render_effects);
+    __privateMethod(this, _defer_effects, defer_effects_fn).call(this, effects);
+    for (const [e, t] of __privateGet(this, _skipped_branches)) {
+      reset_branch(e, t);
+    }
+    if (updates.length > 0) {
+      /** @type {unknown} */
+      __privateMethod(_a5 = current_batch, _process, process_fn).call(_a5);
+    }
+    return;
+  }
+  const earlier_batch = __privateMethod(this, _find_earlier_batch, find_earlier_batch_fn).call(this);
+  if (earlier_batch) {
+    __privateMethod(this, _defer_effects, defer_effects_fn).call(this, render_effects);
+    __privateMethod(this, _defer_effects, defer_effects_fn).call(this, effects);
+    __privateMethod(_b3 = earlier_batch, _merge, merge_fn).call(_b3, this);
+    return;
+  }
+  __privateGet(this, _dirty_effects2).clear();
+  __privateGet(this, _maybe_dirty_effects2).clear();
+  for (const fn of __privateGet(this, _commit_callbacks))
+    fn(this);
+  __privateGet(this, _commit_callbacks).clear();
+  previous_batch = this;
+  flush_queued_effects(render_effects);
+  flush_queued_effects(effects);
+  previous_batch = null;
+  (_c2 = __privateGet(this, _deferred)) == null ? void 0 : _c2.resolve();
+  var next_batch = (
+    /** @type {Batch | null} */
+    /** @type {unknown} */
+    current_batch
+  );
+  if (__privateGet(this, _pending) === 0 && (__privateGet(this, _roots).length === 0 || next_batch !== null)) {
+    __privateMethod(this, _unlink, unlink_fn).call(this);
+    if (async_mode_flag) {
+      __privateMethod(this, _commit, commit_fn).call(this);
+      current_batch = next_batch;
+    }
+  }
+  if (__privateGet(this, _roots).length > 0) {
+    if (next_batch !== null) {
+      const batch2 = next_batch;
+      __privateGet(batch2, _roots).push(...__privateGet(this, _roots).filter((r) => !__privateGet(batch2, _roots).includes(r)));
+    } else {
+      next_batch = this;
+    }
+  }
+  if (next_batch !== null) {
+    __privateMethod(_d = next_batch, _process, process_fn).call(_d);
+  }
+};
+_traverse = new WeakSet();
+traverse_fn = function(root3, effects, render_effects) {
+  root3.f ^= CLEAN;
+  var effect2 = root3.first;
+  while (effect2 !== null) {
+    var flags2 = effect2.f;
+    var is_branch = (flags2 & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
+    var is_skippable_branch = is_branch && (flags2 & CLEAN) !== 0;
+    var skip = is_skippable_branch || (flags2 & INERT) !== 0 || __privateGet(this, _skipped_branches).has(effect2);
+    if (!skip && effect2.fn !== null) {
+      if (is_branch) {
+        effect2.f ^= CLEAN;
+      } else if ((flags2 & EFFECT) !== 0) {
+        effects.push(effect2);
+      } else if (async_mode_flag && (flags2 & (RENDER_EFFECT | MANAGED_EFFECT)) !== 0) {
+        render_effects.push(effect2);
+      } else if (is_dirty(effect2)) {
+        if ((flags2 & BLOCK_EFFECT) !== 0)
+          __privateGet(this, _maybe_dirty_effects2).add(effect2);
+        update_effect(effect2);
+      }
+      var child2 = effect2.first;
+      if (child2 !== null) {
+        effect2 = child2;
+        continue;
+      }
+    }
+    while (effect2 !== null) {
+      var next2 = effect2.next;
+      if (next2 !== null) {
+        effect2 = next2;
+        break;
+      }
+      effect2 = effect2.parent;
+    }
+  }
+};
+_find_earlier_batch = new WeakSet();
+find_earlier_batch_fn = function() {
+  var batch = __privateGet(this, _prev);
+  while (batch !== null) {
+    if (!batch.is_fork) {
+      for (const [value, [, is_derived]] of this.current) {
+        if (batch.current.has(value) && !is_derived) {
+          return batch;
+        }
+      }
+    }
+    batch = __privateGet(batch, _prev);
+  }
+  return null;
+};
+_merge = new WeakSet();
+merge_fn = function(batch) {
+  var _a5;
+  for (const [source2, value] of batch.current) {
+    if (!this.previous.has(source2) && batch.previous.has(source2)) {
+      this.previous.set(source2, batch.previous.get(source2));
+    }
+    this.current.set(source2, value);
+  }
+  for (const [effect2, deferred2] of batch.async_deriveds) {
+    const d = this.async_deriveds.get(effect2);
+    if (d)
+      deferred2.promise.then(d.resolve).catch(d.reject);
+  }
+  batch.async_deriveds.clear();
+  this.transfer_effects(__privateGet(batch, _dirty_effects2), __privateGet(batch, _maybe_dirty_effects2));
+  const mark = (value) => {
+    var reactions = value.reactions;
+    if (reactions === null)
+      return;
+    if ((value.f & DERIVED) !== 0 && (value.f & (DIRTY | MAYBE_DIRTY)) === 0) {
+      return;
+    }
+    for (const reaction of reactions) {
+      var flags2 = reaction.f;
+      if ((flags2 & DERIVED) !== 0) {
+        mark(
+          /** @type {Derived} */
+          reaction
+        );
+      } else {
+        var effect2 = (
+          /** @type {Effect} */
+          reaction
+        );
+        if (flags2 & (ASYNC | BLOCK_EFFECT) && !this.async_deriveds.has(effect2)) {
+          __privateGet(this, _maybe_dirty_effects2).delete(effect2);
+          set_signal_status(effect2, DIRTY);
+          this.schedule(effect2);
+        }
+      }
+    }
+  };
+  for (const source2 of this.current.keys()) {
+    mark(source2);
+  }
+  this.oncommit(() => batch.discard());
+  __privateMethod(_a5 = batch, _unlink, unlink_fn).call(_a5);
+  current_batch = this;
+  __privateMethod(this, _process, process_fn).call(this);
+};
+_defer_effects = new WeakSet();
+defer_effects_fn = function(effects) {
+  for (var i = 0; i < effects.length; i += 1) {
+    defer_effect(effects[i], __privateGet(this, _dirty_effects2), __privateGet(this, _maybe_dirty_effects2));
+  }
+};
+_commit = new WeakSet();
+commit_fn = function() {
+  var _a5;
+  for (let batch = first_batch; batch !== null; batch = __privateGet(batch, _next)) {
+    var is_earlier = batch.id < this.id;
+    var sources = [];
+    for (const [source3, [value, is_derived]] of this.current) {
+      if (batch.current.has(source3)) {
+        var batch_value = (
+          /** @type {[any, boolean]} */
+          batch.current.get(source3)[0]
+        );
+        if (is_earlier && value !== batch_value) {
+          batch.current.set(source3, [value, is_derived]);
+        } else {
+          continue;
+        }
+      }
+      sources.push(source3);
+    }
+    if (is_earlier) {
+      for (const [effect2, deferred2] of this.async_deriveds) {
+        const d = batch.async_deriveds.get(effect2);
+        if (d)
+          deferred2.promise.then(d.resolve).catch(d.reject);
+      }
+    }
+    var current = [...batch.current.keys()].filter(
+      (source3) => !/** @type {[any, boolean]} */
+      batch.current.get(source3)[1]
+    );
+    if (!__privateGet(batch, _started) || current.length === 0)
+      continue;
+    var others = current.filter((source3) => !this.current.has(source3));
+    if (others.length === 0) {
+      if (is_earlier) {
+        batch.discard();
+      }
+    } else if (sources.length > 0) {
+      if (dev_fallback_default && !__privateGet(batch, _decrement_queued)) {
+        invariant(__privateGet(batch, _roots).length === 0, "Batch has scheduled roots");
+      }
+      if (is_earlier) {
+        for (const unskipped of __privateGet(this, _unskipped_branches)) {
+          batch.unskip_effect(unskipped, (e) => {
+            var _a6;
+            if ((e.f & (BLOCK_EFFECT | ASYNC)) !== 0) {
+              batch.schedule(e);
+            } else {
+              __privateMethod(_a6 = batch, _defer_effects, defer_effects_fn).call(_a6, [e]);
+            }
+          });
+        }
+      }
+      batch.activate();
+      var marked = /* @__PURE__ */ new Set();
+      var checked = /* @__PURE__ */ new Map();
+      for (var source2 of sources) {
+        mark_effects(source2, others, marked, checked);
+      }
+      checked = /* @__PURE__ */ new Map();
+      var current_unequal = [...batch.current].filter(([c, v1]) => {
+        const v2 = this.current.get(c);
+        if (!v2)
+          return true;
+        return v2[0] !== v1[0] || v2[1] !== v1[1];
+      }).map(([c]) => c);
+      if (current_unequal.length > 0) {
+        for (const effect2 of __privateGet(this, _new_effects)) {
+          if ((effect2.f & (DESTROYED | INERT | EAGER_EFFECT)) === 0 && depends_on(effect2, current_unequal, checked)) {
+            if ((effect2.f & (ASYNC | BLOCK_EFFECT)) !== 0) {
+              set_signal_status(effect2, DIRTY);
+              batch.schedule(effect2);
+            } else {
+              __privateGet(batch, _dirty_effects2).add(effect2);
+            }
+          }
+        }
+      }
+      if (__privateGet(batch, _roots).length > 0 && !__privateGet(batch, _decrement_queued)) {
+        batch.apply();
+        for (var root3 of __privateGet(batch, _roots)) {
+          __privateMethod(_a5 = batch, _traverse, traverse_fn).call(_a5, root3, [], []);
+        }
+        __privateSet(batch, _roots, []);
+      }
+      batch.deactivate();
+    }
+  }
+};
+_unlink = new WeakSet();
+unlink_fn = function() {
+  if (!this.linked)
+    return;
+  var prev = __privateGet(this, _prev);
+  var next2 = __privateGet(this, _next);
+  if (prev === null) {
+    first_batch = next2;
+  } else {
+    __privateSet(prev, _next, next2);
+  }
+  if (next2 === null) {
+    last_batch = prev;
+  } else {
+    __privateSet(next2, _prev, prev);
+  }
+  this.linked = false;
+};
+var Batch = _Batch;
+function flushSync(fn) {
+  var was_flushing_sync = is_flushing_sync;
+  is_flushing_sync = true;
+  try {
+    var result;
+    if (fn) {
+      if (current_batch !== null && !current_batch.is_fork) {
+        current_batch.flush();
+      }
+      result = fn();
+    }
+    while (true) {
+      flush_tasks();
+      if (current_batch === null) {
+        return (
+          /** @type {T} */
+          result
+        );
+      }
+      current_batch.flush();
+    }
+  } finally {
+    is_flushing_sync = was_flushing_sync;
+  }
+}
+function infinite_loop_guard() {
+  var _a5;
+  if (dev_fallback_default) {
+    var updates = /* @__PURE__ */ new Map();
+    for (
+      const source2 of
+      /** @type {Batch} */
+      current_batch.current.keys()
+    ) {
+      for (const [stack2, update2] of (_a5 = source2.updated) != null ? _a5 : []) {
+        var entry = updates.get(stack2);
+        if (!entry) {
+          entry = { error: update2.error, count: 0 };
+          updates.set(stack2, entry);
+        }
+        entry.count += update2.count;
+      }
+    }
+    for (const update2 of updates.values()) {
+      if (update2.error) {
+        console.error(update2.error);
+      }
+    }
+  }
+  try {
+    effect_update_depth_exceeded();
+  } catch (error) {
+    if (dev_fallback_default) {
+      define_property(error, "stack", { value: "" });
+    }
+    invoke_error_boundary(error, last_scheduled_effect);
+  }
+}
+var eager_block_effects = null;
+function flush_queued_effects(effects) {
+  var length = effects.length;
+  if (length === 0)
+    return;
+  var i = 0;
+  while (i < length) {
+    var effect2 = effects[i++];
+    if ((effect2.f & (DESTROYED | INERT)) === 0 && is_dirty(effect2)) {
+      eager_block_effects = /* @__PURE__ */ new Set();
+      update_effect(effect2);
+      if (effect2.deps === null && effect2.first === null && effect2.nodes === null && effect2.teardown === null && effect2.ac === null) {
+        unlink_effect(effect2);
+      }
+      if ((eager_block_effects == null ? void 0 : eager_block_effects.size) > 0) {
+        old_values.clear();
+        for (const e of eager_block_effects) {
+          if ((e.f & (DESTROYED | INERT)) !== 0)
+            continue;
+          const ordered_effects = [e];
+          let ancestor = e.parent;
+          while (ancestor !== null) {
+            if (eager_block_effects.has(ancestor)) {
+              eager_block_effects.delete(ancestor);
+              ordered_effects.push(ancestor);
+            }
+            ancestor = ancestor.parent;
+          }
+          for (let j = ordered_effects.length - 1; j >= 0; j--) {
+            const e2 = ordered_effects[j];
+            if ((e2.f & (DESTROYED | INERT)) !== 0)
+              continue;
+            update_effect(e2);
+          }
+        }
+        eager_block_effects.clear();
+      }
+    }
+  }
+  eager_block_effects = null;
+}
+function mark_effects(value, sources, marked, checked) {
+  if (marked.has(value))
+    return;
+  marked.add(value);
+  if (value.reactions !== null) {
+    for (const reaction of value.reactions) {
+      const flags2 = reaction.f;
+      if ((flags2 & DERIVED) !== 0) {
+        mark_effects(
+          /** @type {Derived} */
+          reaction,
+          sources,
+          marked,
+          checked
+        );
+      } else if ((flags2 & (ASYNC | BLOCK_EFFECT)) !== 0 && (flags2 & DIRTY) === 0 && depends_on(reaction, sources, checked)) {
+        set_signal_status(reaction, DIRTY);
+        schedule_effect(
+          /** @type {Effect} */
+          reaction
+        );
+      }
+    }
+  }
+}
+function depends_on(reaction, sources, checked) {
+  const depends = checked.get(reaction);
+  if (depends !== void 0)
+    return depends;
+  if (reaction.deps !== null) {
+    for (const dep of reaction.deps) {
+      if (includes.call(sources, dep)) {
+        return true;
+      }
+      if ((dep.f & DERIVED) !== 0 && depends_on(
+        /** @type {Derived} */
+        dep,
+        sources,
+        checked
+      )) {
+        checked.set(
+          /** @type {Derived} */
+          dep,
+          true
+        );
+        return true;
+      }
+    }
+  }
+  checked.set(reaction, false);
+  return false;
+}
+function schedule_effect(effect2) {
+  current_batch.schedule(effect2);
+}
+function reset_branch(effect2, tracked) {
+  if ((effect2.f & BRANCH_EFFECT) !== 0 && (effect2.f & CLEAN) !== 0) {
+    return;
+  }
+  if ((effect2.f & DIRTY) !== 0) {
+    tracked.d.push(effect2);
+  } else if ((effect2.f & MAYBE_DIRTY) !== 0) {
+    tracked.m.push(effect2);
+  }
+  set_signal_status(effect2, CLEAN);
+  var e = effect2.first;
+  while (e !== null) {
+    reset_branch(e, tracked);
+    e = e.next;
+  }
+}
+function reset_all(effect2) {
+  set_signal_status(effect2, CLEAN);
+  var e = effect2.first;
+  while (e !== null) {
+    reset_all(e);
+    e = e.next;
+  }
+}
+
+// node_modules/svelte/src/internal/client/reactivity/sources.js
+var eager_effects = /* @__PURE__ */ new Set();
+var old_values = /* @__PURE__ */ new Map();
+function set_eager_effects(v) {
+  eager_effects = v;
+}
+var eager_effects_deferred = false;
+function set_eager_effects_deferred() {
+  eager_effects_deferred = true;
+}
+function source(v, stack2) {
+  var signal = {
+    f: 0,
+    // TODO ideally we could skip this altogether, but it causes type errors
+    v,
+    reactions: null,
+    equals,
+    rv: 0,
+    wv: 0
+  };
+  if (dev_fallback_default && tracing_mode_flag) {
+    signal.created = stack2 != null ? stack2 : get_error("created at");
+    signal.updated = null;
+    signal.set_during_effect = false;
+    signal.trace = null;
+  }
+  return signal;
+}
+// @__NO_SIDE_EFFECTS__
+function state(v, stack2) {
+  const s = source(v, stack2);
+  push_reaction_value(s);
+  return s;
+}
+// @__NO_SIDE_EFFECTS__
+function mutable_source(initial_value, immutable = false, trackable = true) {
+  var _a5, _b3;
+  const s = source(initial_value);
+  if (!immutable) {
+    s.equals = safe_equals;
+  }
+  if (legacy_mode_flag && trackable && component_context !== null && component_context.l !== null) {
+    ((_b3 = (_a5 = component_context.l).s) != null ? _b3 : _a5.s = []).push(s);
+  }
+  return s;
+}
+function mutate(source2, value) {
+  set(
+    source2,
+    untrack(() => get2(source2))
+  );
+  return value;
+}
+function set(source2, value, should_proxy = false) {
+  if (active_reaction !== null && // since we are untracking the function inside `$inspect.with` we need to add this check
+  // to ensure we error if state is set inside an inspect effect
+  (!untracking || (active_reaction.f & EAGER_EFFECT) !== 0) && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | EAGER_EFFECT)) !== 0 && (current_sources === null || !current_sources.has(source2))) {
+    state_unsafe_mutation();
+  }
+  let new_value = should_proxy ? proxy(value) : value;
+  if (dev_fallback_default) {
+    tag_proxy(
+      new_value,
+      /** @type {string} */
+      source2.label
+    );
+  }
+  return internal_set(source2, new_value, legacy_updates);
+}
+function internal_set(source2, value, updated_during_traversal = null) {
+  var _a5, _b3, _c2;
+  if (!source2.equals(value)) {
+    old_values.set(source2, is_destroying_effect ? value : source2.v);
+    var batch = Batch.ensure();
+    batch.capture(source2, value);
+    if (dev_fallback_default) {
+      if (tracing_mode_flag || active_effect !== null) {
+        (_a5 = source2.updated) != null ? _a5 : source2.updated = /* @__PURE__ */ new Map();
+        const count = ((_c2 = (_b3 = source2.updated.get("")) == null ? void 0 : _b3.count) != null ? _c2 : 0) + 1;
+        source2.updated.set("", { error: (
+          /** @type {any} */
+          null
+        ), count });
+        if (tracing_mode_flag || count > 5) {
+          const error = get_error("updated at");
+          if (error !== null) {
+            let entry = source2.updated.get(error.stack);
+            if (!entry) {
+              entry = { error, count: 0 };
+              source2.updated.set(error.stack, entry);
+            }
+            entry.count++;
+          }
+        }
+      }
+      if (active_effect !== null) {
+        source2.set_during_effect = true;
+      }
+    }
+    if ((source2.f & DERIVED) !== 0) {
+      const derived3 = (
+        /** @type {Derived} */
+        source2
+      );
+      if ((source2.f & DIRTY) !== 0) {
+        execute_derived(derived3);
+      }
+      if (batch_values === null) {
+        update_derived_status(derived3);
+      }
+    }
+    source2.wv = increment_write_version();
+    mark_reactions(source2, DIRTY, updated_during_traversal);
+    if (is_runes() && active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
+      if (untracked_writes === null) {
+        set_untracked_writes([source2]);
+      } else {
+        untracked_writes.push(source2);
+      }
+    }
+    if (!batch.is_fork && eager_effects.size > 0 && !eager_effects_deferred) {
+      flush_eager_effects();
+    }
+  }
+  return value;
+}
+function flush_eager_effects() {
+  eager_effects_deferred = false;
+  for (const effect2 of eager_effects) {
+    if ((effect2.f & CLEAN) !== 0) {
+      set_signal_status(effect2, MAYBE_DIRTY);
+    }
+    let dirty;
+    try {
+      dirty = is_dirty(effect2);
+    } catch (e) {
+      dirty = true;
+    }
+    if (dirty) {
+      update_effect(effect2);
+    }
+  }
+  eager_effects.clear();
+}
+function increment(source2) {
+  set(source2, source2.v + 1);
+}
+function mark_reactions(signal, status, updated_during_traversal) {
+  var _a5;
+  var reactions = signal.reactions;
+  if (reactions === null)
+    return;
+  var runes = is_runes();
+  var length = reactions.length;
+  for (var i = 0; i < length; i++) {
+    var reaction = reactions[i];
+    var flags2 = reaction.f;
+    if (!runes && reaction === active_effect)
+      continue;
+    var not_dirty = (flags2 & DIRTY) === 0;
+    if (not_dirty) {
+      set_signal_status(reaction, status);
+    }
+    if ((flags2 & EAGER_EFFECT) !== 0) {
+      eager_effects.add(
+        /** @type {Effect} */
+        reaction
+      );
+    } else if ((flags2 & DERIVED) !== 0) {
+      var derived3 = (
+        /** @type {Derived} */
+        reaction
+      );
+      (_a5 = batch_values) == null ? void 0 : _a5.delete(derived3);
+      if ((flags2 & WAS_MARKED) === 0) {
+        if (flags2 & CONNECTED && (active_effect === null || (active_effect.f & REACTION_IS_UPDATING) === 0)) {
+          reaction.f |= WAS_MARKED;
+        }
+        mark_reactions(derived3, MAYBE_DIRTY, updated_during_traversal);
+      }
+    } else if (not_dirty) {
+      var effect2 = (
+        /** @type {Effect} */
+        reaction
+      );
+      if ((flags2 & BLOCK_EFFECT) !== 0 && eager_block_effects !== null) {
+        eager_block_effects.add(effect2);
+      }
+      if (updated_during_traversal !== null) {
+        updated_during_traversal.push(effect2);
+      } else {
+        schedule_effect(effect2);
+      }
+    }
+  }
+}
+
+// node_modules/svelte/src/internal/client/proxy.js
+var regex_is_valid_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
+function proxy(value) {
+  if (typeof value !== "object" || value === null || STATE_SYMBOL in value) {
+    return value;
+  }
+  const prototype = get_prototype_of(value);
+  if (prototype !== object_prototype && prototype !== array_prototype) {
+    return value;
+  }
+  var sources = /* @__PURE__ */ new Map();
+  var is_proxied_array = is_array(value);
+  var version = state(0);
+  var stack2 = dev_fallback_default && tracing_mode_flag ? get_error("created at") : null;
+  var parent_version = update_version;
+  var with_parent = (fn) => {
+    if (update_version === parent_version) {
+      return fn();
+    }
+    var reaction = active_reaction;
+    var version2 = update_version;
+    set_active_reaction(null);
+    set_update_version(parent_version);
+    var result = fn();
+    set_active_reaction(reaction);
+    set_update_version(version2);
+    return result;
+  };
+  if (is_proxied_array) {
+    sources.set("length", state(
+      /** @type {any[]} */
+      value.length,
+      stack2
+    ));
+    if (dev_fallback_default) {
+      value = /** @type {any} */
+      inspectable_array(
+        /** @type {any[]} */
+        value
+      );
+    }
+  }
+  var path = "";
+  let updating = false;
+  function update_path(new_path) {
+    if (updating)
+      return;
+    updating = true;
+    path = new_path;
+    tag(version, `${path} version`);
+    for (const [prop2, source2] of sources) {
+      tag(source2, get_label(path, prop2));
+    }
+    updating = false;
+  }
+  return new Proxy(
+    /** @type {any} */
+    value,
+    {
+      defineProperty(_, prop2, descriptor) {
+        if (!("value" in descriptor) || descriptor.configurable === false || descriptor.enumerable === false || descriptor.writable === false) {
+          state_descriptors_fixed();
+        }
+        var s = sources.get(prop2);
+        if (s === void 0) {
+          with_parent(() => {
+            var s2 = state(descriptor.value, stack2);
+            sources.set(prop2, s2);
+            if (dev_fallback_default && typeof prop2 === "string") {
+              tag(s2, get_label(path, prop2));
+            }
+            return s2;
+          });
+        } else {
+          set(s, descriptor.value, true);
+        }
+        return true;
+      },
+      deleteProperty(target, prop2) {
+        var s = sources.get(prop2);
+        if (s === void 0) {
+          if (prop2 in target) {
+            const s2 = with_parent(() => state(UNINITIALIZED, stack2));
+            sources.set(prop2, s2);
+            increment(version);
+            if (dev_fallback_default) {
+              tag(s2, get_label(path, prop2));
+            }
+          }
+        } else {
+          set(s, UNINITIALIZED);
+          increment(version);
+        }
+        return true;
+      },
+      get(target, prop2, receiver) {
+        var _a5;
+        if (prop2 === STATE_SYMBOL) {
+          return value;
+        }
+        if (dev_fallback_default && prop2 === PROXY_PATH_SYMBOL) {
+          return update_path;
+        }
+        var s = sources.get(prop2);
+        var exists = prop2 in target;
+        if (s === void 0 && (!exists || ((_a5 = get_descriptor(target, prop2)) == null ? void 0 : _a5.writable))) {
+          s = with_parent(() => {
+            var p = proxy(exists ? target[prop2] : UNINITIALIZED);
+            var s2 = state(p, stack2);
+            if (dev_fallback_default) {
+              tag(s2, get_label(path, prop2));
+            }
+            return s2;
+          });
+          sources.set(prop2, s);
+        }
+        if (s !== void 0) {
+          var v = get2(s);
+          return v === UNINITIALIZED ? void 0 : v;
+        }
+        return Reflect.get(target, prop2, receiver);
+      },
+      getOwnPropertyDescriptor(target, prop2) {
+        var descriptor = Reflect.getOwnPropertyDescriptor(target, prop2);
+        if (descriptor && "value" in descriptor) {
+          var s = sources.get(prop2);
+          if (s)
+            descriptor.value = get2(s);
+        } else if (descriptor === void 0) {
+          var source2 = sources.get(prop2);
+          var value2 = source2 == null ? void 0 : source2.v;
+          if (source2 !== void 0 && value2 !== UNINITIALIZED) {
+            return {
+              enumerable: true,
+              configurable: true,
+              value: value2,
+              writable: true
+            };
+          }
+        }
+        return descriptor;
+      },
+      has(target, prop2) {
+        var _a5;
+        if (prop2 === STATE_SYMBOL) {
+          return true;
+        }
+        var s = sources.get(prop2);
+        var has = s !== void 0 && s.v !== UNINITIALIZED || Reflect.has(target, prop2);
+        if (s !== void 0 || active_effect !== null && (!has || ((_a5 = get_descriptor(target, prop2)) == null ? void 0 : _a5.writable))) {
+          if (s === void 0) {
+            s = with_parent(() => {
+              var p = has ? proxy(target[prop2]) : UNINITIALIZED;
+              var s2 = state(p, stack2);
+              if (dev_fallback_default) {
+                tag(s2, get_label(path, prop2));
+              }
+              return s2;
+            });
+            sources.set(prop2, s);
+          }
+          var value2 = get2(s);
+          if (value2 === UNINITIALIZED) {
+            return false;
+          }
+        }
+        return has;
+      },
+      set(target, prop2, value2, receiver) {
+        var _a5;
+        var s = sources.get(prop2);
+        var has = prop2 in target;
+        if (is_proxied_array && prop2 === "length") {
+          for (var i = value2; i < /** @type {Source<number>} */
+          s.v; i += 1) {
+            var other_s = sources.get(i + "");
+            if (other_s !== void 0) {
+              set(other_s, UNINITIALIZED);
+            } else if (i in target) {
+              other_s = with_parent(() => state(UNINITIALIZED, stack2));
+              sources.set(i + "", other_s);
+              if (dev_fallback_default) {
+                tag(other_s, get_label(path, i));
+              }
+            }
+          }
+        }
+        if (s === void 0) {
+          if (!has || ((_a5 = get_descriptor(target, prop2)) == null ? void 0 : _a5.writable)) {
+            s = with_parent(() => state(void 0, stack2));
+            if (dev_fallback_default) {
+              tag(s, get_label(path, prop2));
+            }
+            set(s, proxy(value2));
+            sources.set(prop2, s);
+          }
+        } else {
+          has = s.v !== UNINITIALIZED;
+          var p = with_parent(() => proxy(value2));
+          set(s, p);
+        }
+        var descriptor = Reflect.getOwnPropertyDescriptor(target, prop2);
+        if (descriptor == null ? void 0 : descriptor.set) {
+          descriptor.set.call(receiver, value2);
+        }
+        if (!has) {
+          if (is_proxied_array && typeof prop2 === "string") {
+            var ls = (
+              /** @type {Source<number>} */
+              sources.get("length")
+            );
+            var n = Number(prop2);
+            if (Number.isInteger(n) && n >= ls.v) {
+              set(ls, n + 1);
+            }
+          }
+          increment(version);
+        }
+        return true;
+      },
+      ownKeys(target) {
+        get2(version);
+        var own_keys = Reflect.ownKeys(target).filter((key3) => {
+          var source3 = sources.get(key3);
+          return source3 === void 0 || source3.v !== UNINITIALIZED;
+        });
+        for (var [key2, source2] of sources) {
+          if (source2.v !== UNINITIALIZED && !(key2 in target)) {
+            own_keys.push(key2);
+          }
+        }
+        return own_keys;
+      },
+      setPrototypeOf() {
+        state_prototype_fixed();
+      }
+    }
+  );
+}
+function get_label(path, prop2) {
+  var _a5;
+  if (typeof prop2 === "symbol")
+    return `${path}[Symbol(${(_a5 = prop2.description) != null ? _a5 : ""})]`;
+  if (regex_is_valid_identifier.test(prop2))
+    return `${path}.${prop2}`;
+  return /^\d+$/.test(prop2) ? `${path}[${prop2}]` : `${path}['${prop2}']`;
+}
+function get_proxied_value(value) {
+  try {
+    if (value !== null && typeof value === "object" && STATE_SYMBOL in value) {
+      return value[STATE_SYMBOL];
+    }
+  } catch (e) {
+  }
+  return value;
+}
+var ARRAY_MUTATING_METHODS = /* @__PURE__ */ new Set([
+  "copyWithin",
+  "fill",
+  "pop",
+  "push",
+  "reverse",
+  "shift",
+  "sort",
+  "splice",
+  "unshift"
+]);
+function inspectable_array(array) {
+  return new Proxy(array, {
+    get(target, prop2, receiver) {
+      var value = Reflect.get(target, prop2, receiver);
+      if (!ARRAY_MUTATING_METHODS.has(
+        /** @type {string} */
+        prop2
+      )) {
+        return value;
+      }
+      return function(...args) {
+        set_eager_effects_deferred();
+        var result = value.apply(this, args);
+        flush_eager_effects();
+        return result;
+      };
+    }
+  });
+}
+
+// node_modules/svelte/src/internal/client/dev/equality.js
+function init_array_prototype_warnings() {
+  const array_prototype2 = Array.prototype;
+  const cleanup = Array.__svelte_cleanup;
+  if (cleanup) {
+    cleanup();
+  }
+  const { indexOf, lastIndexOf, includes: includes2 } = array_prototype2;
+  array_prototype2.indexOf = function(item, from_index) {
+    const index2 = indexOf.call(this, item, from_index);
+    if (index2 === -1) {
+      for (let i = from_index != null ? from_index : 0; i < this.length; i += 1) {
+        if (get_proxied_value(this[i]) === item) {
+          state_proxy_equality_mismatch("array.indexOf(...)");
+          break;
+        }
+      }
+    }
+    return index2;
+  };
+  array_prototype2.lastIndexOf = function(item, from_index) {
+    const index2 = lastIndexOf.call(this, item, from_index != null ? from_index : this.length - 1);
+    if (index2 === -1) {
+      for (let i = 0; i <= (from_index != null ? from_index : this.length - 1); i += 1) {
+        if (get_proxied_value(this[i]) === item) {
+          state_proxy_equality_mismatch("array.lastIndexOf(...)");
+          break;
+        }
+      }
+    }
+    return index2;
+  };
+  array_prototype2.includes = function(item, from_index) {
+    const has = includes2.call(this, item, from_index);
+    if (!has) {
+      for (let i = 0; i < this.length; i += 1) {
+        if (get_proxied_value(this[i]) === item) {
+          state_proxy_equality_mismatch("array.includes(...)");
+          break;
+        }
+      }
+    }
+    return has;
+  };
+  Array.__svelte_cleanup = () => {
+    array_prototype2.indexOf = indexOf;
+    array_prototype2.lastIndexOf = lastIndexOf;
+    array_prototype2.includes = includes2;
+  };
+}
+
+// node_modules/svelte/src/internal/client/dom/operations.js
+var $window;
+var $document;
+var is_firefox;
+var first_child_getter;
+var next_sibling_getter;
+function init_operations() {
+  if ($window !== void 0) {
+    return;
+  }
+  $window = window;
+  $document = document;
+  is_firefox = /Firefox/.test(navigator.userAgent);
+  var element_prototype = Element.prototype;
+  var node_prototype = Node.prototype;
+  var text_prototype = Text.prototype;
+  first_child_getter = get_descriptor(node_prototype, "firstChild").get;
+  next_sibling_getter = get_descriptor(node_prototype, "nextSibling").get;
+  if (is_extensible(element_prototype)) {
+    element_prototype[CLASS_CACHE] = void 0;
+    element_prototype[ATTRIBUTES_CACHE] = null;
+    element_prototype[STYLE_CACHE] = void 0;
+    element_prototype.__e = void 0;
+  }
+  if (is_extensible(text_prototype)) {
+    text_prototype[TEXT_CACHE] = void 0;
+  }
+  if (dev_fallback_default) {
+    element_prototype.__svelte_meta = null;
+    init_array_prototype_warnings();
+  }
+}
+function create_text(value = "") {
+  return document.createTextNode(value);
+}
+// @__NO_SIDE_EFFECTS__
+function get_first_child(node) {
+  return (
+    /** @type {TemplateNode | null} */
+    first_child_getter.call(node)
+  );
+}
+// @__NO_SIDE_EFFECTS__
+function get_next_sibling(node) {
+  return (
+    /** @type {TemplateNode | null} */
+    next_sibling_getter.call(node)
+  );
+}
+function child(node, is_text) {
+  if (!hydrating) {
+    return /* @__PURE__ */ get_first_child(node);
+  }
+  var child2 = /* @__PURE__ */ get_first_child(hydrate_node);
+  if (child2 === null) {
+    child2 = hydrate_node.appendChild(create_text());
+  } else if (is_text && child2.nodeType !== TEXT_NODE) {
+    var text2 = create_text();
+    child2 == null ? void 0 : child2.before(text2);
+    set_hydrate_node(text2);
+    return text2;
+  }
+  if (is_text) {
+    merge_text_nodes(
+      /** @type {Text} */
+      child2
+    );
+  }
+  set_hydrate_node(child2);
+  return child2;
+}
+function first_child(node, is_text = false) {
+  var _a5, _b3;
+  if (!hydrating) {
+    var first = /* @__PURE__ */ get_first_child(node);
+    if (first instanceof Comment && first.data === "")
+      return /* @__PURE__ */ get_next_sibling(first);
+    return first;
+  }
+  if (is_text) {
+    if (((_a5 = hydrate_node) == null ? void 0 : _a5.nodeType) !== TEXT_NODE) {
+      var text2 = create_text();
+      (_b3 = hydrate_node) == null ? void 0 : _b3.before(text2);
+      set_hydrate_node(text2);
+      return text2;
+    }
+    merge_text_nodes(
+      /** @type {Text} */
+      hydrate_node
+    );
+  }
+  return hydrate_node;
+}
+function sibling(node, count = 1, is_text = false) {
+  let next_sibling = hydrating ? hydrate_node : node;
+  var last_sibling;
+  while (count--) {
+    last_sibling = next_sibling;
+    next_sibling = /** @type {TemplateNode} */
+    /* @__PURE__ */ get_next_sibling(next_sibling);
+  }
+  if (!hydrating) {
+    return next_sibling;
+  }
+  if (is_text) {
+    if ((next_sibling == null ? void 0 : next_sibling.nodeType) !== TEXT_NODE) {
+      var text2 = create_text();
+      if (next_sibling === null) {
+        last_sibling == null ? void 0 : last_sibling.after(text2);
+      } else {
+        next_sibling.before(text2);
+      }
+      set_hydrate_node(text2);
+      return text2;
+    }
+    merge_text_nodes(
+      /** @type {Text} */
+      next_sibling
+    );
+  }
+  set_hydrate_node(next_sibling);
+  return next_sibling;
+}
+function clear_text_content(node) {
+  node.textContent = "";
+}
+function should_defer_append() {
+  if (!async_mode_flag)
+    return false;
+  if (eager_block_effects !== null)
+    return false;
+  var flags2 = (
+    /** @type {Effect} */
+    active_effect.f
+  );
+  return (flags2 & REACTION_RAN) !== 0;
+}
+function create_element(tag2, namespace, is2) {
+  if (namespace == null || namespace === NAMESPACE_HTML) {
+    return (
+      /** @type {T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : Element} */
+      is2 ? document.createElement(tag2, { is: is2 }) : document.createElement(tag2)
+    );
+  }
+  return (
+    /** @type {T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : Element} */
+    is2 ? document.createElementNS(namespace, tag2, { is: is2 }) : document.createElementNS(namespace, tag2)
+  );
+}
+function merge_text_nodes(text2) {
+  if (
+    /** @type {string} */
+    text2.nodeValue.length < 65536
+  ) {
+    return;
+  }
+  let next2 = text2.nextSibling;
+  while (next2 !== null && next2.nodeType === TEXT_NODE) {
+    next2.remove();
+    text2.nodeValue += /** @type {string} */
+    next2.nodeValue;
+    next2 = text2.nextSibling;
+  }
+}
+
+// node_modules/svelte/src/internal/client/reactivity/effects.js
+function validate_effect(rune) {
+  if (active_effect === null) {
+    if (active_reaction === null) {
+      effect_orphan(rune);
+    }
+    effect_in_unowned_derived();
+  }
+  if (is_destroying_effect) {
+    effect_in_teardown(rune);
+  }
+}
+function push_effect(effect2, parent_effect) {
+  var parent_last = parent_effect.last;
+  if (parent_last === null) {
+    parent_effect.last = parent_effect.first = effect2;
+  } else {
+    parent_last.next = effect2;
+    effect2.prev = parent_last;
+    parent_effect.last = effect2;
+  }
+}
+function create_effect(type, fn) {
+  var _a5, _b3;
+  var parent = active_effect;
+  if (dev_fallback_default) {
+    while (parent !== null && (parent.f & EAGER_EFFECT) !== 0) {
+      parent = parent.parent;
+    }
+  }
+  if (parent !== null && (parent.f & INERT) !== 0) {
+    type |= INERT;
+  }
+  var effect2 = {
+    ctx: component_context,
+    deps: null,
+    nodes: null,
+    f: type | DIRTY | CONNECTED,
+    first: null,
+    fn,
+    last: null,
+    next: null,
+    parent,
+    b: parent && parent.b,
+    prev: null,
+    teardown: null,
+    wv: 0,
+    ac: null
+  };
+  if (dev_fallback_default) {
+    effect2.component_function = dev_current_component_function;
+  }
+  (_a5 = current_batch) == null ? void 0 : _a5.register_created_effect(effect2);
+  var e = effect2;
+  if ((type & EFFECT) !== 0) {
+    if (collected_effects !== null) {
+      collected_effects.push(effect2);
+    } else {
+      Batch.ensure().schedule(effect2);
+    }
+  } else if (fn !== null) {
+    try {
+      update_effect(effect2);
+    } catch (e2) {
+      destroy_effect(effect2);
+      throw e2;
+    }
+    if (e.deps === null && e.teardown === null && e.nodes === null && e.first === e.last && // either `null`, or a singular child
+    (e.f & EFFECT_PRESERVED) === 0) {
+      e = e.first;
+      if ((type & BLOCK_EFFECT) !== 0 && (type & EFFECT_TRANSPARENT) !== 0 && e !== null) {
+        e.f |= EFFECT_TRANSPARENT;
+      }
+    }
+  }
+  if (e !== null) {
+    e.parent = parent;
+    if (parent !== null) {
+      push_effect(e, parent);
+    }
+    if (active_reaction !== null && (active_reaction.f & DERIVED) !== 0 && (type & ROOT_EFFECT) === 0) {
+      var derived3 = (
+        /** @type {Derived} */
+        active_reaction
+      );
+      ((_b3 = derived3.effects) != null ? _b3 : derived3.effects = []).push(e);
+    }
+  }
+  return effect2;
+}
+function effect_tracking() {
+  return active_reaction !== null && !untracking;
+}
+function teardown(fn) {
+  const effect2 = create_effect(RENDER_EFFECT, null);
+  set_signal_status(effect2, CLEAN);
+  effect2.teardown = fn;
+  return effect2;
+}
+function user_effect(fn) {
+  var _a5;
+  validate_effect("$effect");
+  if (dev_fallback_default) {
+    define_property(fn, "name", {
+      value: "$effect"
+    });
+  }
+  var flags2 = (
+    /** @type {Effect} */
+    active_effect.f
+  );
+  var defer = !active_reaction && (flags2 & BRANCH_EFFECT) !== 0 && component_context !== null && !component_context.i;
+  if (defer) {
+    var context = (
+      /** @type {ComponentContext} */
+      component_context
+    );
+    ((_a5 = context.e) != null ? _a5 : context.e = []).push(fn);
+  } else {
+    return create_user_effect(fn);
+  }
+}
+function create_user_effect(fn) {
+  return create_effect(EFFECT | USER_EFFECT, fn);
+}
+function user_pre_effect(fn) {
+  validate_effect("$effect.pre");
+  if (dev_fallback_default) {
+    define_property(fn, "name", {
+      value: "$effect.pre"
+    });
+  }
+  return create_effect(RENDER_EFFECT | USER_EFFECT, fn);
+}
+function effect_root(fn) {
+  Batch.ensure();
+  const effect2 = create_effect(ROOT_EFFECT | EFFECT_PRESERVED, fn);
+  return () => {
+    destroy_effect(effect2);
+  };
+}
+function component_root(fn) {
+  Batch.ensure();
+  const effect2 = create_effect(ROOT_EFFECT | EFFECT_PRESERVED, fn);
+  return (options = {}) => {
+    return new Promise((fulfil) => {
+      if (options.outro) {
+        pause_effect(effect2, () => {
+          destroy_effect(effect2);
+          fulfil(void 0);
+        });
+      } else {
+        destroy_effect(effect2);
+        fulfil(void 0);
+      }
+    });
+  };
+}
+function effect(fn) {
+  return create_effect(EFFECT, fn);
+}
+function legacy_pre_effect(deps, fn) {
+  var context = (
+    /** @type {ComponentContextLegacy} */
+    component_context
+  );
+  var token = { effect: null, ran: false, deps };
+  context.l.$.push(token);
+  token.effect = render_effect(() => {
+    deps();
+    if (token.ran)
+      return;
+    token.ran = true;
+    var effect2 = (
+      /** @type {Effect} */
+      active_effect
+    );
+    try {
+      set_active_effect(effect2.parent);
+      untrack(fn);
+    } finally {
+      set_active_effect(effect2);
+    }
+  });
+}
+function legacy_pre_effect_reset() {
+  var context = (
+    /** @type {ComponentContextLegacy} */
+    component_context
+  );
+  render_effect(() => {
+    for (var token of context.l.$) {
+      token.deps();
+      var effect2 = token.effect;
+      if ((effect2.f & CLEAN) !== 0 && effect2.deps !== null) {
+        set_signal_status(effect2, MAYBE_DIRTY);
+      }
+      if (is_dirty(effect2)) {
+        update_effect(effect2);
+      }
+      token.ran = false;
+    }
+  });
+}
+function async_effect(fn) {
+  return create_effect(ASYNC | EFFECT_PRESERVED, fn);
+}
+function render_effect(fn, flags2 = 0) {
+  return create_effect(RENDER_EFFECT | flags2, fn);
+}
+function template_effect(fn, sync = [], async2 = [], blockers = []) {
+  flatten(blockers, sync, async2, (values) => {
+    create_effect(RENDER_EFFECT, () => {
+      fn(...values.map(get2));
+    });
+  });
+}
+function block(fn, flags2 = 0) {
+  var effect2 = create_effect(BLOCK_EFFECT | flags2, fn);
+  if (dev_fallback_default) {
+    effect2.dev_stack = dev_stack;
+  }
+  return effect2;
+}
+function branch(fn) {
+  return create_effect(BRANCH_EFFECT | EFFECT_PRESERVED, fn);
+}
+function execute_effect_teardown(effect2) {
+  var teardown2 = effect2.teardown;
+  if (teardown2 !== null) {
+    const previously_destroying_effect = is_destroying_effect;
+    const previous_reaction = active_reaction;
+    set_is_destroying_effect(true);
+    set_active_reaction(null);
+    try {
+      teardown2.call(null);
+    } finally {
+      set_is_destroying_effect(previously_destroying_effect);
+      set_active_reaction(previous_reaction);
+    }
+  }
+}
+function destroy_effect_children(signal, remove_dom = false) {
+  var effect2 = signal.first;
+  signal.first = signal.last = null;
+  while (effect2 !== null) {
+    const controller = effect2.ac;
+    if (controller !== null) {
+      without_reactive_context(() => {
+        controller.abort(STALE_REACTION);
+      });
+    }
+    var next2 = effect2.next;
+    if ((effect2.f & ROOT_EFFECT) !== 0) {
+      effect2.parent = null;
+    } else {
+      destroy_effect(effect2, remove_dom);
+    }
+    effect2 = next2;
+  }
+}
+function destroy_block_effect_children(signal) {
+  var effect2 = signal.first;
+  while (effect2 !== null) {
+    var next2 = effect2.next;
+    if ((effect2.f & BRANCH_EFFECT) === 0) {
+      destroy_effect(effect2);
+    }
+    effect2 = next2;
+  }
+}
+function destroy_effect(effect2, remove_dom = true) {
+  var removed = false;
+  if ((remove_dom || (effect2.f & HEAD_EFFECT) !== 0) && effect2.nodes !== null && effect2.nodes.end !== null) {
+    remove_effect_dom(
+      effect2.nodes.start,
+      /** @type {TemplateNode} */
+      effect2.nodes.end
+    );
+    removed = true;
+  }
+  effect2.f |= DESTROYING;
+  destroy_effect_children(effect2, remove_dom && !removed);
+  remove_reactions(effect2, 0);
+  var transitions = effect2.nodes && effect2.nodes.t;
+  if (transitions !== null) {
+    for (const transition2 of transitions) {
+      transition2.stop();
+    }
+  }
+  execute_effect_teardown(effect2);
+  effect2.f ^= DESTROYING;
+  effect2.f |= DESTROYED;
+  var parent = effect2.parent;
+  if (parent !== null && parent.first !== null) {
+    unlink_effect(effect2);
+  }
+  if (dev_fallback_default) {
+    effect2.component_function = null;
+  }
+  effect2.next = effect2.prev = effect2.teardown = effect2.ctx = effect2.deps = effect2.fn = effect2.nodes = effect2.ac = effect2.b = null;
+}
+function remove_effect_dom(node, end) {
+  while (node !== null) {
+    var next2 = node === end ? null : get_next_sibling(node);
+    node.remove();
+    node = next2;
+  }
+}
+function unlink_effect(effect2) {
+  var parent = effect2.parent;
+  var prev = effect2.prev;
+  var next2 = effect2.next;
+  if (prev !== null)
+    prev.next = next2;
+  if (next2 !== null)
+    next2.prev = prev;
+  if (parent !== null) {
+    if (parent.first === effect2)
+      parent.first = next2;
+    if (parent.last === effect2)
+      parent.last = prev;
+  }
+}
+function pause_effect(effect2, callback, destroy = true) {
+  var transitions = [];
+  pause_children(effect2, transitions, true);
+  var fn = () => {
+    if (destroy)
+      destroy_effect(effect2);
+    if (callback)
+      callback();
+  };
+  var remaining = transitions.length;
+  if (remaining > 0) {
+    var check = () => --remaining || fn();
+    for (var transition2 of transitions) {
+      transition2.out(check);
+    }
+  } else {
+    fn();
+  }
+}
+function pause_children(effect2, transitions, local) {
+  if ((effect2.f & INERT) !== 0)
+    return;
+  effect2.f ^= INERT;
+  var t = effect2.nodes && effect2.nodes.t;
+  if (t !== null) {
+    for (const transition2 of t) {
+      if (transition2.is_global || local) {
+        transitions.push(transition2);
+      }
+    }
+  }
+  var child2 = effect2.first;
+  while (child2 !== null) {
+    var sibling2 = child2.next;
+    if ((child2.f & ROOT_EFFECT) === 0) {
+      var transparent = (child2.f & EFFECT_TRANSPARENT) !== 0 || // If this is a branch effect without a block effect parent,
+      // it means the parent block effect was pruned. In that case,
+      // transparency information was transferred to the branch effect.
+      (child2.f & BRANCH_EFFECT) !== 0 && (effect2.f & BLOCK_EFFECT) !== 0;
+      pause_children(child2, transitions, transparent ? local : false);
+    }
+    child2 = sibling2;
+  }
+}
+function resume_effect(effect2) {
+  resume_children(effect2, true);
+}
+function resume_children(effect2, local) {
+  if ((effect2.f & INERT) === 0)
+    return;
+  effect2.f ^= INERT;
+  if ((effect2.f & CLEAN) === 0) {
+    set_signal_status(effect2, DIRTY);
+    Batch.ensure().schedule(effect2);
+  }
+  var child2 = effect2.first;
+  while (child2 !== null) {
+    var sibling2 = child2.next;
+    var transparent = (child2.f & EFFECT_TRANSPARENT) !== 0 || (child2.f & BRANCH_EFFECT) !== 0;
+    resume_children(child2, transparent ? local : false);
+    child2 = sibling2;
+  }
+  var t = effect2.nodes && effect2.nodes.t;
+  if (t !== null) {
+    for (const transition2 of t) {
+      if (transition2.is_global || local) {
+        transition2.in();
+      }
+    }
+  }
+}
+function move_effect(effect2, fragment) {
+  if (!effect2.nodes)
+    return;
+  var node = effect2.nodes.start;
+  var end = effect2.nodes.end;
+  while (node !== null) {
+    var next2 = node === end ? null : get_next_sibling(node);
+    fragment.append(node);
+    node = next2;
+  }
+}
+
+// node_modules/svelte/src/internal/client/legacy.js
+var captured_signals = null;
+
+// node_modules/svelte/src/internal/client/runtime.js
+var is_updating_effect = false;
+var is_destroying_effect = false;
+function set_is_destroying_effect(value) {
+  is_destroying_effect = value;
+}
+var active_reaction = null;
+var untracking = false;
+function set_active_reaction(reaction) {
+  active_reaction = reaction;
+}
+var active_effect = null;
+function set_active_effect(effect2) {
+  active_effect = effect2;
+}
+var current_sources = null;
+function push_reaction_value(value) {
+  if (active_reaction !== null && (!async_mode_flag || (active_reaction.f & DERIVED) !== 0)) {
+    (current_sources != null ? current_sources : current_sources = /* @__PURE__ */ new Set()).add(value);
+  }
+}
+var new_deps = null;
+var skipped_deps = 0;
+var untracked_writes = null;
+function set_untracked_writes(value) {
+  untracked_writes = value;
+}
+var write_version = 1;
+var read_version = 0;
+var update_version = read_version;
+function set_update_version(value) {
+  update_version = value;
+}
+function increment_write_version() {
+  return ++write_version;
+}
+function is_dirty(reaction) {
+  var flags2 = reaction.f;
+  if ((flags2 & DIRTY) !== 0) {
+    return true;
+  }
+  if (flags2 & DERIVED) {
+    reaction.f &= ~WAS_MARKED;
+  }
+  if ((flags2 & MAYBE_DIRTY) !== 0) {
+    var dependencies = (
+      /** @type {Value[]} */
+      reaction.deps
+    );
+    var length = dependencies.length;
+    for (var i = 0; i < length; i++) {
+      var dependency = dependencies[i];
+      if (is_dirty(
+        /** @type {Derived} */
+        dependency
+      )) {
+        update_derived(
+          /** @type {Derived} */
+          dependency
+        );
+      }
+      if (dependency.wv > reaction.wv) {
+        return true;
+      }
+    }
+    if ((flags2 & CONNECTED) !== 0 && // During time traveling we don't want to reset the status so that
+    // traversal of the graph in the other batches still happens
+    batch_values === null) {
+      set_signal_status(reaction, CLEAN);
+    }
+  }
+  return false;
+}
+function schedule_possible_effect_self_invalidation(signal, effect2, root3 = true) {
+  var reactions = signal.reactions;
+  if (reactions === null)
+    return;
+  if (!async_mode_flag && current_sources !== null && current_sources.has(signal)) {
+    return;
+  }
+  for (var i = 0; i < reactions.length; i++) {
+    var reaction = reactions[i];
+    if ((reaction.f & DERIVED) !== 0) {
+      schedule_possible_effect_self_invalidation(
+        /** @type {Derived} */
+        reaction,
+        effect2,
+        false
+      );
+    } else if (effect2 === reaction) {
+      if (root3) {
+        set_signal_status(reaction, DIRTY);
+      } else if ((reaction.f & CLEAN) !== 0) {
+        set_signal_status(reaction, MAYBE_DIRTY);
+      }
+      schedule_effect(
+        /** @type {Effect} */
+        reaction
+      );
+    }
+  }
+}
+function update_reaction(reaction) {
+  var _a5, _b3, _c2;
+  var previous_deps = new_deps;
+  var previous_skipped_deps = skipped_deps;
+  var previous_untracked_writes = untracked_writes;
+  var previous_reaction = active_reaction;
+  var previous_sources = current_sources;
+  var previous_component_context = component_context;
+  var previous_untracking = untracking;
+  var previous_update_version = update_version;
+  var flags2 = reaction.f;
+  new_deps = /** @type {null | Value[]} */
+  null;
+  skipped_deps = 0;
+  untracked_writes = null;
+  active_reaction = (flags2 & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
+  current_sources = null;
+  set_component_context(reaction.ctx);
+  untracking = false;
+  update_version = ++read_version;
+  if (reaction.ac !== null) {
+    without_reactive_context(() => {
+      reaction.ac.abort(STALE_REACTION);
+    });
+    reaction.ac = null;
+  }
+  try {
+    reaction.f |= REACTION_IS_UPDATING;
+    var fn = (
+      /** @type {Function} */
+      reaction.fn
+    );
+    var result = fn();
+    reaction.f |= REACTION_RAN;
+    var deps = reaction.deps;
+    var is_fork = (_a5 = current_batch) == null ? void 0 : _a5.is_fork;
+    if (new_deps !== null) {
+      var i;
+      if (!is_fork) {
+        remove_reactions(reaction, skipped_deps);
+      }
+      if (deps !== null && skipped_deps > 0) {
+        deps.length = skipped_deps + new_deps.length;
+        for (i = 0; i < new_deps.length; i++) {
+          deps[skipped_deps + i] = new_deps[i];
+        }
+      } else {
+        reaction.deps = deps = new_deps;
+      }
+      if (effect_tracking() && (reaction.f & CONNECTED) !== 0) {
+        for (i = skipped_deps; i < deps.length; i++) {
+          ((_c2 = (_b3 = deps[i]).reactions) != null ? _c2 : _b3.reactions = []).push(reaction);
+        }
+      }
+    } else if (!is_fork && deps !== null && skipped_deps < deps.length) {
+      remove_reactions(reaction, skipped_deps);
+      deps.length = skipped_deps;
+    }
+    if (is_runes() && untracked_writes !== null && !untracking && deps !== null && (reaction.f & (DERIVED | MAYBE_DIRTY | DIRTY)) === 0) {
+      for (i = 0; i < /** @type {Source[]} */
+      untracked_writes.length; i++) {
+        schedule_possible_effect_self_invalidation(
+          untracked_writes[i],
+          /** @type {Effect} */
+          reaction
+        );
+      }
+    }
+    if (previous_reaction !== null && previous_reaction !== reaction) {
+      read_version++;
+      if (previous_reaction.deps !== null) {
+        for (let i2 = 0; i2 < previous_skipped_deps; i2 += 1) {
+          previous_reaction.deps[i2].rv = read_version;
+        }
+      }
+      if (previous_deps !== null) {
+        for (const dep of previous_deps) {
+          dep.rv = read_version;
+        }
+      }
+      if (untracked_writes !== null) {
+        if (previous_untracked_writes === null) {
+          previous_untracked_writes = untracked_writes;
+        } else {
+          previous_untracked_writes.push(.../** @type {Source[]} */
+          untracked_writes);
+        }
+      }
+    }
+    if ((reaction.f & ERROR_VALUE) !== 0) {
+      reaction.f ^= ERROR_VALUE;
+    }
+    return result;
+  } catch (error) {
+    return handle_error(error);
+  } finally {
+    reaction.f ^= REACTION_IS_UPDATING;
+    new_deps = previous_deps;
+    skipped_deps = previous_skipped_deps;
+    untracked_writes = previous_untracked_writes;
+    active_reaction = previous_reaction;
+    current_sources = previous_sources;
+    set_component_context(previous_component_context);
+    untracking = previous_untracking;
+    update_version = previous_update_version;
+  }
+}
+function remove_reaction(signal, dependency) {
+  let reactions = dependency.reactions;
+  if (reactions !== null) {
+    var index2 = index_of.call(reactions, signal);
+    if (index2 !== -1) {
+      var new_length = reactions.length - 1;
+      if (new_length === 0) {
+        reactions = dependency.reactions = null;
+      } else {
+        reactions[index2] = reactions[new_length];
+        reactions.pop();
+      }
+    }
+  }
+  if (reactions === null && (dependency.f & DERIVED) !== 0 && // Destroying a child effect while updating a parent effect can cause a dependency to appear
+  // to be unused, when in fact it is used by the currently-updating parent. Checking `new_deps`
+  // allows us to skip the expensive work of disconnecting and immediately reconnecting it
+  (new_deps === null || !includes.call(new_deps, dependency))) {
+    var derived3 = (
+      /** @type {Derived} */
+      dependency
+    );
+    if ((derived3.f & CONNECTED) !== 0) {
+      derived3.f ^= CONNECTED;
+      derived3.f &= ~WAS_MARKED;
+    }
+    if (derived3.v !== UNINITIALIZED) {
+      update_derived_status(derived3);
+    }
+    if (derived3.ac !== null) {
+      without_reactive_context(() => {
+        derived3.ac.abort(STALE_REACTION);
+        derived3.ac = null;
+        set_signal_status(derived3, DIRTY);
+      });
+    }
+    freeze_derived_effects(derived3);
+    remove_reactions(derived3, 0);
+  }
+}
+function remove_reactions(signal, start_index) {
+  var dependencies = signal.deps;
+  if (dependencies === null)
+    return;
+  for (var i = start_index; i < dependencies.length; i++) {
+    remove_reaction(signal, dependencies[i]);
+  }
+}
+function update_effect(effect2) {
+  var _a5;
+  var flags2 = effect2.f;
+  if ((flags2 & DESTROYED) !== 0) {
+    return;
+  }
+  set_signal_status(effect2, CLEAN);
+  var previous_effect = active_effect;
+  var was_updating_effect = is_updating_effect;
+  active_effect = effect2;
+  is_updating_effect = (flags2 & (BRANCH_EFFECT | ROOT_EFFECT)) === 0;
+  if (dev_fallback_default) {
+    var previous_component_fn = dev_current_component_function;
+    set_dev_current_component_function(effect2.component_function);
+    var previous_stack = (
+      /** @type {any} */
+      dev_stack
+    );
+    set_dev_stack((_a5 = effect2.dev_stack) != null ? _a5 : dev_stack);
+  }
+  try {
+    if ((flags2 & (BLOCK_EFFECT | MANAGED_EFFECT)) !== 0) {
+      destroy_block_effect_children(effect2);
+    } else {
+      destroy_effect_children(effect2);
+    }
+    execute_effect_teardown(effect2);
+    var teardown2 = update_reaction(effect2);
+    effect2.teardown = typeof teardown2 === "function" ? teardown2 : null;
+    effect2.wv = write_version;
+    if (dev_fallback_default && tracing_mode_flag && (effect2.f & DIRTY) !== 0 && effect2.deps !== null) {
+      for (var dep of effect2.deps) {
+        if (dep.set_during_effect) {
+          dep.wv = increment_write_version();
+          dep.set_during_effect = false;
+        }
+      }
+    }
+  } finally {
+    is_updating_effect = was_updating_effect;
+    active_effect = previous_effect;
+    if (dev_fallback_default) {
+      set_dev_current_component_function(previous_component_fn);
+      set_dev_stack(previous_stack);
+    }
+  }
+}
+async function tick() {
+  if (async_mode_flag) {
+    return new Promise((f) => {
+      requestAnimationFrame(() => f());
+      setTimeout(() => f());
+    });
+  }
+  await Promise.resolve();
+  flushSync();
+}
+function get2(signal) {
+  var _a5, _b3, _c2;
+  var flags2 = signal.f;
+  var is_derived = (flags2 & DERIVED) !== 0;
+  (_a5 = captured_signals) == null ? void 0 : _a5.add(signal);
+  if (active_reaction !== null && !untracking) {
+    var destroyed = active_effect !== null && (active_effect.f & DESTROYED) !== 0;
+    if (!destroyed && (current_sources === null || !current_sources.has(signal))) {
+      var deps = active_reaction.deps;
+      if ((active_reaction.f & REACTION_IS_UPDATING) !== 0) {
+        if (signal.rv < read_version) {
+          signal.rv = read_version;
+          if (new_deps === null && deps !== null && deps[skipped_deps] === signal) {
+            skipped_deps++;
+          } else if (new_deps === null) {
+            new_deps = [signal];
+          } else {
+            new_deps.push(signal);
+          }
+        }
+      } else {
+        (_b3 = active_reaction.deps) != null ? _b3 : active_reaction.deps = [];
+        if (!includes.call(active_reaction.deps, signal)) {
+          active_reaction.deps.push(signal);
+        }
+        var reactions = signal.reactions;
+        if (reactions === null) {
+          signal.reactions = [active_reaction];
+        } else if (!includes.call(reactions, active_reaction)) {
+          reactions.push(active_reaction);
+        }
+      }
+    }
+  }
+  if (dev_fallback_default) {
+    if (!untracking && reactivity_loss_tracker && // By checking that current/previous batch are null we filter out false positives.
+    // reactivity_loss_tracker is only reset after a microtask, so if a flush happens
+    // before that, we get warnings for things we shouldn't warn on.
+    current_batch === null && previous_batch === null && !reactivity_loss_tracker.warned && (reactivity_loss_tracker.effect.f & REACTION_IS_UPDATING) === 0 && !reactivity_loss_tracker.effect_deps.has(signal)) {
+      reactivity_loss_tracker.warned = true;
+      await_reactivity_loss(
+        /** @type {string} */
+        signal.label
+      );
+      var trace2 = get_error("traced at");
+      if (trace2)
+        console.warn(trace2);
+    }
+    recent_async_deriveds.delete(signal);
+    if (tracing_mode_flag && !untracking && tracing_expressions !== null && active_reaction !== null && tracing_expressions.reaction === active_reaction) {
+      if (signal.trace) {
+        signal.trace();
+      } else {
+        trace2 = get_error("traced at");
+        if (trace2) {
+          var entry = tracing_expressions.entries.get(signal);
+          if (entry === void 0) {
+            entry = { traces: [] };
+            tracing_expressions.entries.set(signal, entry);
+          }
+          var last = entry.traces[entry.traces.length - 1];
+          if (trace2.stack !== (last == null ? void 0 : last.stack)) {
+            entry.traces.push(trace2);
+          }
+        }
+      }
+    }
+  }
+  if (is_destroying_effect && old_values.has(signal)) {
+    return old_values.get(signal);
+  }
+  if (is_derived) {
+    var derived3 = (
+      /** @type {Derived} */
+      signal
+    );
+    if (is_destroying_effect) {
+      var value = derived3.v;
+      if ((derived3.f & CLEAN) === 0 && derived3.reactions !== null || depends_on_old_values(derived3)) {
+        value = execute_derived(derived3);
+      }
+      old_values.set(derived3, value);
+      return value;
+    }
+    var should_connect = (derived3.f & CONNECTED) === 0 && !untracking && active_reaction !== null && (is_updating_effect || (active_reaction.f & CONNECTED) !== 0);
+    var is_new = (derived3.f & REACTION_RAN) === 0;
+    if (is_dirty(derived3)) {
+      if (should_connect) {
+        derived3.f |= CONNECTED;
+      }
+      update_derived(derived3);
+    }
+    if (should_connect && !is_new) {
+      unfreeze_derived_effects(derived3);
+      reconnect(derived3);
+    }
+  }
+  if ((_c2 = batch_values) == null ? void 0 : _c2.has(signal)) {
+    return batch_values.get(signal);
+  }
+  if ((signal.f & ERROR_VALUE) !== 0) {
+    throw signal.v;
+  }
+  return signal.v;
+}
+function reconnect(derived3) {
+  var _a5;
+  derived3.f |= CONNECTED;
+  if (derived3.deps === null)
+    return;
+  for (const dep of derived3.deps) {
+    ((_a5 = dep.reactions) != null ? _a5 : dep.reactions = []).push(derived3);
+    if ((dep.f & DERIVED) !== 0 && (dep.f & CONNECTED) === 0) {
+      unfreeze_derived_effects(
+        /** @type {Derived} */
+        dep
+      );
+      reconnect(
+        /** @type {Derived} */
+        dep
+      );
+    }
+  }
+}
+function depends_on_old_values(derived3) {
+  if (derived3.v === UNINITIALIZED)
+    return true;
+  if (derived3.deps === null)
+    return false;
+  for (const dep of derived3.deps) {
+    if (old_values.has(dep)) {
+      return true;
+    }
+    if ((dep.f & DERIVED) !== 0 && depends_on_old_values(
+      /** @type {Derived} */
+      dep
+    )) {
+      return true;
+    }
+  }
+  return false;
+}
+function untrack(fn) {
+  var previous_untracking = untracking;
+  try {
+    untracking = true;
+    return fn();
+  } finally {
+    untracking = previous_untracking;
+  }
+}
+function deep_read_state(value) {
+  if (typeof value !== "object" || !value || value instanceof EventTarget) {
+    return;
+  }
+  if (STATE_SYMBOL in value) {
+    deep_read(value);
+  } else if (!Array.isArray(value)) {
+    for (let key2 in value) {
+      const prop2 = value[key2];
+      if (typeof prop2 === "object" && prop2 && STATE_SYMBOL in prop2) {
+        deep_read(prop2);
+      }
+    }
+  }
+}
+function deep_read(value, visited = /* @__PURE__ */ new Set()) {
+  if (typeof value === "object" && value !== null && // We don't want to traverse DOM elements
+  !(value instanceof EventTarget) && !visited.has(value)) {
+    visited.add(value);
+    if (value instanceof Date) {
+      value.getTime();
+    }
+    for (let key2 in value) {
+      try {
+        deep_read(value[key2], visited);
+      } catch (e) {
+      }
+    }
+    const proto = get_prototype_of(value);
+    if (proto !== Object.prototype && proto !== Array.prototype && proto !== Map.prototype && proto !== Set.prototype && proto !== Date.prototype) {
+      const descriptors = get_descriptors(proto);
+      for (let key2 in descriptors) {
+        const get3 = descriptors[key2].get;
+        if (get3) {
+          try {
+            get3.call(value);
+          } catch (e) {
+          }
+        }
+      }
+    }
+  }
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/events.js
+var event_symbol = Symbol("events");
+var all_registered_events = /* @__PURE__ */ new Set();
+var root_event_handles = /* @__PURE__ */ new Set();
+function create_event(event_name, dom, handler, options = {}) {
+  function target_handler(event2) {
+    if (!options.capture) {
+      handle_event_propagation.call(dom, event2);
+    }
+    if (!event2.cancelBubble) {
+      return without_reactive_context(() => {
+        return handler == null ? void 0 : handler.call(this, event2);
+      });
+    }
+  }
+  if (event_name.startsWith("pointer") || event_name.startsWith("touch") || event_name === "wheel") {
+    queue_micro_task(() => {
+      dom.addEventListener(event_name, target_handler, options);
+    });
+  } else {
+    dom.addEventListener(event_name, target_handler, options);
+  }
+  return target_handler;
+}
+function event(event_name, dom, handler, capture2, passive2) {
+  var options = { capture: capture2, passive: passive2 };
+  var target_handler = create_event(event_name, dom, handler, options);
+  if (dom === document.body || // @ts-ignore
+  dom === window || // @ts-ignore
+  dom === document || // Firefox has quirky behavior, it can happen that we still get "canplay" events when the element is already removed
+  dom instanceof HTMLMediaElement) {
+    teardown(() => {
+      dom.removeEventListener(event_name, target_handler, options);
+    });
+  }
+}
+var last_propagated_event = null;
+function handle_event_propagation(event2) {
+  var _a5, _b3;
+  var handler_element = this;
+  var owner_document = (
+    /** @type {Node} */
+    handler_element.ownerDocument
+  );
+  var event_name = event2.type;
+  var path = ((_a5 = event2.composedPath) == null ? void 0 : _a5.call(event2)) || [];
+  var current_target = (
+    /** @type {null | Element} */
+    path[0] || event2.target
+  );
+  last_propagated_event = event2;
+  var path_idx = 0;
+  var handled_at = last_propagated_event === event2 && event2[event_symbol];
+  if (handled_at) {
+    var at_idx = path.indexOf(handled_at);
+    if (at_idx !== -1 && (handler_element === document || handler_element === /** @type {any} */
+    window)) {
+      event2[event_symbol] = handler_element;
+      return;
+    }
+    var handler_idx = path.indexOf(handler_element);
+    if (handler_idx === -1) {
+      return;
+    }
+    if (at_idx <= handler_idx) {
+      path_idx = at_idx;
+    }
+  }
+  current_target = /** @type {Element} */
+  path[path_idx] || event2.target;
+  if (current_target === handler_element)
+    return;
+  define_property(event2, "currentTarget", {
+    configurable: true,
+    get() {
+      return current_target || owner_document;
+    }
+  });
+  var previous_reaction = active_reaction;
+  var previous_effect = active_effect;
+  set_active_reaction(null);
+  set_active_effect(null);
+  try {
+    var throw_error;
+    var other_errors = [];
+    while (current_target !== null) {
+      if (current_target === handler_element)
+        break;
+      try {
+        var delegated2 = (_b3 = current_target[event_symbol]) == null ? void 0 : _b3[event_name];
+        if (delegated2 != null && (!/** @type {any} */
+        current_target.disabled || // DOM could've been updated already by the time this is reached, so we check this as well
+        // -> the target could not have been disabled because it emits the event in the first place
+        event2.target === current_target)) {
+          delegated2.call(current_target, event2);
+        }
+      } catch (error) {
+        if (throw_error) {
+          other_errors.push(error);
+        } else {
+          throw_error = error;
+        }
+      }
+      if (event2.cancelBubble)
+        break;
+      path_idx++;
+      current_target = path_idx < path.length ? (
+        /** @type {Element} */
+        path[path_idx]
+      ) : null;
+    }
+    if (throw_error) {
+      for (let error of other_errors) {
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
+      throw throw_error;
+    }
+  } finally {
+    event2[event_symbol] = handler_element;
+    delete event2.currentTarget;
+    set_active_reaction(previous_reaction);
+    set_active_effect(previous_effect);
+  }
+}
+
+// node_modules/svelte/src/internal/client/dom/reconciler.js
+var _a4;
+var policy = (
+  // We gotta write it like this because after downleveling the pure comment may end up in the wrong location
+  ((_a4 = globalThis == null ? void 0 : globalThis.window) == null ? void 0 : _a4.trustedTypes) && /* @__PURE__ */ globalThis.window.trustedTypes.createPolicy("svelte-trusted-html", {
+    /** @param {string} html */
+    createHTML: (html2) => {
+      return html2;
+    }
+  })
+);
+function create_trusted_html(html2) {
+  var _a5;
+  return (
+    /** @type {string} */
+    (_a5 = policy == null ? void 0 : policy.createHTML(html2)) != null ? _a5 : html2
+  );
+}
+function create_fragment_from_html(html2) {
+  var elem = create_element("template");
+  elem.innerHTML = create_trusted_html(html2.replaceAll("<!>", "<!---->"));
+  return elem.content;
+}
+
+// node_modules/svelte/src/internal/client/dom/template.js
+function assign_nodes(start, end) {
+  var effect2 = (
+    /** @type {Effect} */
+    active_effect
+  );
+  if (effect2.nodes === null) {
+    effect2.nodes = { start, end, a: null, t: null };
+  }
+}
+// @__NO_SIDE_EFFECTS__
+function from_html(content, flags2) {
+  var is_fragment = (flags2 & TEMPLATE_FRAGMENT) !== 0;
+  var use_import_node = (flags2 & TEMPLATE_USE_IMPORT_NODE) !== 0;
+  var node;
+  var has_start = !content.startsWith("<!>");
+  return () => {
+    if (hydrating) {
+      assign_nodes(hydrate_node, null);
+      return hydrate_node;
+    }
+    if (node === void 0) {
+      node = create_fragment_from_html(has_start ? content : "<!>" + content);
+      if (!is_fragment)
+        node = /** @type {TemplateNode} */
+        get_first_child(node);
+    }
+    var clone = (
+      /** @type {TemplateNode} */
+      use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
+    );
+    if (is_fragment) {
+      var start = (
+        /** @type {TemplateNode} */
+        get_first_child(clone)
+      );
+      var end = (
+        /** @type {TemplateNode} */
+        clone.lastChild
+      );
+      assign_nodes(start, end);
+    } else {
+      assign_nodes(clone, clone);
+    }
+    return clone;
+  };
+}
+function comment() {
+  if (hydrating) {
+    assign_nodes(hydrate_node, null);
+    return hydrate_node;
+  }
+  var frag = document.createDocumentFragment();
+  var start = document.createComment("");
+  var anchor = create_text();
+  frag.append(start, anchor);
+  assign_nodes(start, anchor);
+  return frag;
+}
+function append(anchor, dom) {
+  if (hydrating) {
+    var effect2 = (
+      /** @type {Effect & { nodes: EffectNodes }} */
+      active_effect
+    );
+    if ((effect2.f & REACTION_RAN) === 0 || effect2.nodes.end === null) {
+      effect2.nodes.end = hydrate_node;
+    }
+    hydrate_next();
+    return;
+  }
+  if (anchor === null) {
+    return;
+  }
+  anchor.before(
+    /** @type {Node} */
+    dom
+  );
+}
+
+// node_modules/svelte/src/utils.js
+var DOM_BOOLEAN_ATTRIBUTES = [
+  "allowfullscreen",
+  "async",
+  "autofocus",
+  "autoplay",
+  "checked",
+  "controls",
+  "default",
+  "disabled",
+  "formnovalidate",
+  "indeterminate",
+  "inert",
+  "ismap",
+  "loop",
+  "multiple",
+  "muted",
+  "nomodule",
+  "novalidate",
+  "open",
+  "playsinline",
+  "readonly",
+  "required",
+  "reversed",
+  "seamless",
+  "selected",
+  "webkitdirectory",
+  "defer",
+  "disablepictureinpicture",
+  "disableremoteplayback"
+];
+var DOM_PROPERTIES = [
+  ...DOM_BOOLEAN_ATTRIBUTES,
+  "formNoValidate",
+  "isMap",
+  "noModule",
+  "playsInline",
+  "readOnly",
+  "value",
+  "volume",
+  "defaultValue",
+  "defaultChecked",
+  "srcObject",
+  "noValidate",
+  "allowFullscreen",
+  "disablePictureInPicture",
+  "disableRemotePlayback"
+];
+var PASSIVE_EVENTS = ["touchstart", "touchmove"];
+function is_passive_event(name) {
+  return PASSIVE_EVENTS.includes(name);
+}
+var STATE_CREATION_RUNES = (
   /** @type {const} */
   [
-    "allowfullscreen",
-    "allowpaymentrequest",
-    "async",
-    "autofocus",
-    "autoplay",
-    "checked",
-    "controls",
-    "default",
-    "defer",
-    "disabled",
-    "formnovalidate",
-    "hidden",
-    "inert",
-    "ismap",
-    "loop",
-    "multiple",
-    "muted",
-    "nomodule",
-    "novalidate",
-    "open",
-    "playsinline",
-    "readonly",
-    "required",
-    "reversed",
-    "selected"
+    "$state",
+    "$state.raw",
+    "$derived",
+    "$derived.by"
   ]
 );
-var boolean_attributes = /* @__PURE__ */ new Set([..._boolean_attributes]);
+var RUNES = (
+  /** @type {const} */
+  [
+    ...STATE_CREATION_RUNES,
+    "$state.eager",
+    "$state.snapshot",
+    "$props",
+    "$props.id",
+    "$bindable",
+    "$effect",
+    "$effect.pre",
+    "$effect.tracking",
+    "$effect.root",
+    "$effect.pending",
+    "$inspect",
+    "$inspect().with",
+    "$inspect.trace",
+    "$host"
+  ]
+);
 
-// node_modules/svelte/src/runtime/internal/Component.js
-function create_component(block) {
-  block && block.c();
+// node_modules/svelte/src/internal/client/render.js
+var should_intro = true;
+function set_text(text2, value) {
+  var _a5, _b3;
+  var str = value == null ? "" : typeof value === "object" ? `${value}` : value;
+  if (str !== /** @type {any} */
+  ((_b3 = text2[_a5 = TEXT_CACHE]) != null ? _b3 : text2[_a5] = text2.nodeValue)) {
+    text2[TEXT_CACHE] = str;
+    text2.nodeValue = `${str}`;
+  }
 }
-function mount_component(component, target, anchor) {
-  const { fragment, after_update } = component.$$;
-  fragment && fragment.m(target, anchor);
-  add_render_callback(() => {
-    const new_on_destroy = component.$$.on_mount.map(run).filter(is_function);
-    if (component.$$.on_destroy) {
-      component.$$.on_destroy.push(...new_on_destroy);
-    } else {
-      run_all(new_on_destroy);
+function mount(component2, options) {
+  return _mount(component2, options);
+}
+function hydrate(component2, options) {
+  var _a5;
+  init_operations();
+  options.intro = (_a5 = options.intro) != null ? _a5 : false;
+  const target = options.target;
+  const was_hydrating = hydrating;
+  const previous_hydrate_node = hydrate_node;
+  try {
+    var anchor = get_first_child(target);
+    while (anchor && (anchor.nodeType !== COMMENT_NODE || /** @type {Comment} */
+    anchor.data !== HYDRATION_START)) {
+      anchor = get_next_sibling(anchor);
     }
-    component.$$.on_mount = [];
+    if (!anchor) {
+      throw HYDRATION_ERROR;
+    }
+    set_hydrating(true);
+    set_hydrate_node(
+      /** @type {Comment} */
+      anchor
+    );
+    const instance = _mount(component2, { ...options, anchor });
+    set_hydrating(false);
+    return (
+      /**  @type {Exports} */
+      instance
+    );
+  } catch (error) {
+    if (error instanceof Error && error.message.split("\n").some((line) => line.startsWith("https://svelte.dev/e/"))) {
+      throw error;
+    }
+    if (error !== HYDRATION_ERROR) {
+      console.warn("Failed to hydrate: ", error);
+    }
+    if (options.recover === false) {
+      hydration_failed();
+    }
+    init_operations();
+    clear_text_content(target);
+    set_hydrating(false);
+    return mount(component2, options);
+  } finally {
+    set_hydrating(was_hydrating);
+    set_hydrate_node(previous_hydrate_node);
+  }
+}
+var listeners = /* @__PURE__ */ new Map();
+function _mount(Component, { target, anchor, props = {}, events, context, intro = true, transformError }) {
+  init_operations();
+  var component2 = void 0;
+  var unmount2 = component_root(() => {
+    var anchor_node = anchor != null ? anchor : target.appendChild(create_text());
+    boundary(
+      /** @type {TemplateNode} */
+      anchor_node,
+      {
+        pending: () => {
+        }
+      },
+      (anchor_node2) => {
+        push({});
+        var ctx = (
+          /** @type {ComponentContext} */
+          component_context
+        );
+        if (context)
+          ctx.c = context;
+        if (events) {
+          props.$$events = events;
+        }
+        if (hydrating) {
+          assign_nodes(
+            /** @type {TemplateNode} */
+            anchor_node2,
+            null
+          );
+        }
+        should_intro = intro;
+        component2 = Component(anchor_node2, props) || {};
+        should_intro = true;
+        if (hydrating) {
+          active_effect.nodes.end = hydrate_node;
+          if (hydrate_node === null || hydrate_node.nodeType !== COMMENT_NODE || /** @type {Comment} */
+          hydrate_node.data !== HYDRATION_END) {
+            hydration_mismatch();
+            throw HYDRATION_ERROR;
+          }
+        }
+        pop();
+      },
+      transformError
+    );
+    var registered_events = /* @__PURE__ */ new Set();
+    var event_handle = (events2) => {
+      for (var i = 0; i < events2.length; i++) {
+        var event_name = events2[i];
+        if (registered_events.has(event_name))
+          continue;
+        registered_events.add(event_name);
+        var passive2 = is_passive_event(event_name);
+        for (const node of [target, document]) {
+          var counts = listeners.get(node);
+          if (counts === void 0) {
+            counts = /* @__PURE__ */ new Map();
+            listeners.set(node, counts);
+          }
+          var count = counts.get(event_name);
+          if (count === void 0) {
+            node.addEventListener(event_name, handle_event_propagation, { passive: passive2 });
+            counts.set(event_name, 1);
+          } else {
+            counts.set(event_name, count + 1);
+          }
+        }
+      }
+    };
+    event_handle(array_from(all_registered_events));
+    root_event_handles.add(event_handle);
+    return () => {
+      var _a5;
+      for (var event_name of registered_events) {
+        for (const node of [target, document]) {
+          var counts = (
+            /** @type {Map<string, number>} */
+            listeners.get(node)
+          );
+          var count = (
+            /** @type {number} */
+            counts.get(event_name)
+          );
+          if (--count == 0) {
+            node.removeEventListener(event_name, handle_event_propagation);
+            counts.delete(event_name);
+            if (counts.size === 0) {
+              listeners.delete(node);
+            }
+          } else {
+            counts.set(event_name, count);
+          }
+        }
+      }
+      root_event_handles.delete(event_handle);
+      if (anchor_node !== anchor) {
+        (_a5 = anchor_node.parentNode) == null ? void 0 : _a5.removeChild(anchor_node);
+      }
+    };
   });
-  after_update.forEach(add_render_callback);
+  mounted_components.set(component2, unmount2);
+  return component2;
 }
-function destroy_component(component, detaching) {
-  const $$ = component.$$;
-  if ($$.fragment !== null) {
-    flush_render_callbacks($$.after_update);
-    run_all($$.on_destroy);
-    $$.fragment && $$.fragment.d(detaching);
-    $$.on_destroy = $$.fragment = null;
-    $$.ctx = [];
+var mounted_components = /* @__PURE__ */ new WeakMap();
+function unmount(component2, options) {
+  const fn = mounted_components.get(component2);
+  if (fn) {
+    mounted_components.delete(component2);
+    return fn(options);
   }
-}
-function make_dirty(component, i) {
-  if (component.$$.dirty[0] === -1) {
-    dirty_components.push(component);
-    schedule_update();
-    component.$$.dirty.fill(0);
-  }
-  component.$$.dirty[i / 31 | 0] |= 1 << i % 31;
-}
-function init(component, options, instance6, create_fragment6, not_equal, props, append_styles = null, dirty = [-1]) {
-  const parent_component = current_component;
-  set_current_component(component);
-  const $$ = component.$$ = {
-    fragment: null,
-    ctx: [],
-    // state
-    props,
-    update: noop,
-    not_equal,
-    bound: blank_object(),
-    // lifecycle
-    on_mount: [],
-    on_destroy: [],
-    on_disconnect: [],
-    before_update: [],
-    after_update: [],
-    context: new Map(options.context || (parent_component ? parent_component.$$.context : [])),
-    // everything else
-    callbacks: blank_object(),
-    dirty,
-    skip_bound: false,
-    root: options.target || parent_component.$$.root
-  };
-  append_styles && append_styles($$.root);
-  let ready = false;
-  $$.ctx = instance6 ? instance6(component, options.props || {}, (i, ret, ...rest) => {
-    const value = rest.length ? rest[0] : ret;
-    if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
-      if (!$$.skip_bound && $$.bound[i])
-        $$.bound[i](value);
-      if (ready)
-        make_dirty(component, i);
-    }
-    return ret;
-  }) : [];
-  $$.update();
-  ready = true;
-  run_all($$.before_update);
-  $$.fragment = create_fragment6 ? create_fragment6($$.ctx) : false;
-  if (options.target) {
-    if (options.hydrate) {
-      start_hydrating();
-      const nodes = children(options.target);
-      $$.fragment && $$.fragment.l(nodes);
-      nodes.forEach(detach);
+  if (dev_fallback_default) {
+    if (STATE_SYMBOL in component2) {
+      state_proxy_unmount();
     } else {
-      $$.fragment && $$.fragment.c();
+      lifecycle_double_unmount();
     }
-    if (options.intro)
-      transition_in(component.$$.fragment);
-    mount_component(component, options.target, options.anchor);
-    end_hydrating();
-    flush();
   }
-  set_current_component(parent_component);
+  return Promise.resolve();
 }
+
+// node_modules/svelte/src/internal/client/dom/blocks/branches.js
+var _batches, _onscreen, _offscreen, _outroing, _transition, _commit2, _discard;
+var BranchManager = class {
+  /**
+   * @param {TemplateNode} anchor
+   * @param {boolean} transition
+   */
+  constructor(anchor, transition2 = true) {
+    /** @type {TemplateNode} */
+    __publicField(this, "anchor");
+    /** @type {Map<Batch, Key>} */
+    __privateAdd(this, _batches, /* @__PURE__ */ new Map());
+    /**
+     * Map of keys to effects that are currently rendered in the DOM.
+     * These effects are visible and actively part of the document tree.
+     * Example:
+     * ```
+     * {#if condition}
+     * 	foo
+     * {:else}
+     * 	bar
+     * {/if}
+     * ```
+     * Can result in the entries `true->Effect` and `false->Effect`
+     * @type {Map<Key, Effect>}
+     */
+    __privateAdd(this, _onscreen, /* @__PURE__ */ new Map());
+    /**
+     * Similar to #onscreen with respect to the keys, but contains branches that are not yet
+     * in the DOM, because their insertion is deferred.
+     * @type {Map<Key, Branch>}
+     */
+    __privateAdd(this, _offscreen, /* @__PURE__ */ new Map());
+    /**
+     * Keys of effects that are currently outroing
+     * @type {Set<Key>}
+     */
+    __privateAdd(this, _outroing, /* @__PURE__ */ new Set());
+    /**
+     * Whether to pause (i.e. outro) on change, or destroy immediately.
+     * This is necessary for `<svelte:element>`
+     */
+    __privateAdd(this, _transition, true);
+    /**
+     * @param {Batch} batch
+     */
+    __privateAdd(this, _commit2, (batch) => {
+      if (!__privateGet(this, _batches).has(batch))
+        return;
+      var key2 = (
+        /** @type {Key} */
+        __privateGet(this, _batches).get(batch)
+      );
+      var onscreen = __privateGet(this, _onscreen).get(key2);
+      if (onscreen) {
+        resume_effect(onscreen);
+        __privateGet(this, _outroing).delete(key2);
+      } else {
+        var offscreen = __privateGet(this, _offscreen).get(key2);
+        if (offscreen) {
+          resume_effect(offscreen.effect);
+          __privateGet(this, _onscreen).set(key2, offscreen.effect);
+          __privateGet(this, _offscreen).delete(key2);
+          if (dev_fallback_default) {
+            offscreen.fragment.lastChild[HMR_ANCHOR] = this.anchor;
+          }
+          offscreen.fragment.lastChild.remove();
+          this.anchor.before(offscreen.fragment);
+          onscreen = offscreen.effect;
+        }
+      }
+      for (const [b, k] of __privateGet(this, _batches)) {
+        __privateGet(this, _batches).delete(b);
+        if (b === batch) {
+          break;
+        }
+        const offscreen2 = __privateGet(this, _offscreen).get(k);
+        if (offscreen2) {
+          destroy_effect(offscreen2.effect);
+          __privateGet(this, _offscreen).delete(k);
+        }
+      }
+      for (const [k, effect2] of __privateGet(this, _onscreen)) {
+        if (k === key2 || __privateGet(this, _outroing).has(k))
+          continue;
+        const on_destroy = () => {
+          const keys = Array.from(__privateGet(this, _batches).values());
+          if (keys.includes(k)) {
+            var fragment = document.createDocumentFragment();
+            move_effect(effect2, fragment);
+            fragment.append(create_text());
+            __privateGet(this, _offscreen).set(k, { effect: effect2, fragment });
+          } else {
+            destroy_effect(effect2);
+          }
+          __privateGet(this, _outroing).delete(k);
+          __privateGet(this, _onscreen).delete(k);
+        };
+        if (__privateGet(this, _transition) || !onscreen) {
+          __privateGet(this, _outroing).add(k);
+          pause_effect(effect2, on_destroy, false);
+        } else {
+          on_destroy();
+        }
+      }
+    });
+    /**
+     * @param {Batch} batch
+     */
+    __privateAdd(this, _discard, (batch) => {
+      __privateGet(this, _batches).delete(batch);
+      const keys = Array.from(__privateGet(this, _batches).values());
+      for (const [k, branch2] of __privateGet(this, _offscreen)) {
+        if (!keys.includes(k)) {
+          destroy_effect(branch2.effect);
+          __privateGet(this, _offscreen).delete(k);
+        }
+      }
+    });
+    this.anchor = anchor;
+    __privateSet(this, _transition, transition2);
+  }
+  /**
+   *
+   * @param {any} key
+   * @param {null | ((target: TemplateNode) => void)} fn
+   */
+  ensure(key2, fn) {
+    var batch = (
+      /** @type {Batch} */
+      current_batch
+    );
+    var defer = should_defer_append();
+    if (fn && !__privateGet(this, _onscreen).has(key2) && !__privateGet(this, _offscreen).has(key2)) {
+      if (defer) {
+        var fragment = document.createDocumentFragment();
+        var target = create_text();
+        fragment.append(target);
+        __privateGet(this, _offscreen).set(key2, {
+          effect: branch(() => fn(target)),
+          fragment
+        });
+      } else {
+        __privateGet(this, _onscreen).set(
+          key2,
+          branch(() => fn(this.anchor))
+        );
+      }
+    }
+    __privateGet(this, _batches).set(batch, key2);
+    if (defer) {
+      for (const [k, effect2] of __privateGet(this, _onscreen)) {
+        if (k === key2) {
+          batch.unskip_effect(effect2);
+        } else {
+          batch.skip_effect(effect2);
+        }
+      }
+      for (const [k, branch2] of __privateGet(this, _offscreen)) {
+        if (k === key2) {
+          batch.unskip_effect(branch2.effect);
+        } else {
+          batch.skip_effect(branch2.effect);
+        }
+      }
+      batch.oncommit(__privateGet(this, _commit2));
+      batch.ondiscard(__privateGet(this, _discard));
+    } else {
+      if (hydrating) {
+        this.anchor = hydrate_node;
+      }
+      __privateGet(this, _commit2).call(this, batch);
+    }
+  }
+};
+_batches = new WeakMap();
+_onscreen = new WeakMap();
+_offscreen = new WeakMap();
+_outroing = new WeakMap();
+_transition = new WeakMap();
+_commit2 = new WeakMap();
+_discard = new WeakMap();
+
+// node_modules/svelte/src/index-client.js
+if (dev_fallback_default) {
+  let throw_rune_error = function(rune) {
+    if (!(rune in globalThis)) {
+      let value;
+      Object.defineProperty(globalThis, rune, {
+        configurable: true,
+        // eslint-disable-next-line getter-return
+        get: () => {
+          if (value !== void 0) {
+            return value;
+          }
+          rune_outside_svelte(rune);
+        },
+        set: (v) => {
+          value = v;
+        }
+      });
+    }
+  };
+  throw_rune_error("$state");
+  throw_rune_error("$effect");
+  throw_rune_error("$derived");
+  throw_rune_error("$inspect");
+  throw_rune_error("$props");
+  throw_rune_error("$bindable");
+}
+function onMount(fn) {
+  if (component_context === null) {
+    lifecycle_outside_component("onMount");
+  }
+  if (legacy_mode_flag && component_context.l !== null) {
+    init_update_callbacks(component_context).m.push(fn);
+  } else {
+    user_effect(() => {
+      const cleanup = untrack(fn);
+      if (typeof cleanup === "function")
+        return (
+          /** @type {() => void} */
+          cleanup
+        );
+    });
+  }
+}
+function onDestroy(fn) {
+  if (component_context === null) {
+    lifecycle_outside_component("onDestroy");
+  }
+  onMount(() => () => untrack(fn));
+}
+function init_update_callbacks(context) {
+  var _a5;
+  var l = (
+    /** @type {ComponentContextLegacy} */
+    context.l
+  );
+  return (_a5 = l.u) != null ? _a5 : l.u = { a: [], b: [], m: [] };
+}
+
+// node_modules/svelte/src/internal/client/dom/blocks/if.js
+function if_block(node, fn, elseif = false) {
+  var marker;
+  if (hydrating) {
+    marker = hydrate_node;
+    hydrate_next();
+  }
+  var branches = new BranchManager(node);
+  var flags2 = elseif ? EFFECT_TRANSPARENT : 0;
+  function update_branch(key2, fn2) {
+    if (hydrating) {
+      var data = read_hydration_instruction(
+        /** @type {TemplateNode} */
+        marker
+      );
+      if (key2 !== parseInt(data.substring(1))) {
+        var anchor = skip_nodes();
+        set_hydrate_node(anchor);
+        branches.anchor = anchor;
+        set_hydrating(false);
+        branches.ensure(key2, fn2);
+        set_hydrating(true);
+        return;
+      }
+    }
+    branches.ensure(key2, fn2);
+  }
+  block(() => {
+    var has_branch = false;
+    fn((fn2, key2 = 0) => {
+      has_branch = true;
+      update_branch(key2, fn2);
+    });
+    if (!has_branch) {
+      update_branch(-1, null);
+    }
+  }, flags2);
+}
+
+// node_modules/svelte/src/internal/client/dom/blocks/key.js
+var NAN = Symbol("NaN");
+
+// node_modules/svelte/src/internal/client/dom/blocks/each.js
+function pause_effects(state2, to_destroy, controlled_anchor) {
+  var _a5;
+  var transitions = [];
+  var length = to_destroy.length;
+  var group;
+  var remaining = to_destroy.length;
+  for (var i = 0; i < length; i++) {
+    let effect2 = to_destroy[i];
+    pause_effect(
+      effect2,
+      () => {
+        if (group) {
+          group.pending.delete(effect2);
+          group.done.add(effect2);
+          if (group.pending.size === 0) {
+            var groups = (
+              /** @type {Set<EachOutroGroup>} */
+              state2.outrogroups
+            );
+            destroy_effects(state2, array_from(group.done));
+            groups.delete(group);
+            if (groups.size === 0) {
+              state2.outrogroups = null;
+            }
+          }
+        } else {
+          remaining -= 1;
+        }
+      },
+      false
+    );
+  }
+  if (remaining === 0) {
+    var fast_path = transitions.length === 0 && controlled_anchor !== null;
+    if (fast_path) {
+      var anchor = (
+        /** @type {Element} */
+        controlled_anchor
+      );
+      var parent_node = (
+        /** @type {Element} */
+        anchor.parentNode
+      );
+      clear_text_content(parent_node);
+      parent_node.append(anchor);
+      state2.items.clear();
+    }
+    destroy_effects(state2, to_destroy, !fast_path);
+  } else {
+    group = {
+      pending: new Set(to_destroy),
+      done: /* @__PURE__ */ new Set()
+    };
+    ((_a5 = state2.outrogroups) != null ? _a5 : state2.outrogroups = /* @__PURE__ */ new Set()).add(group);
+  }
+}
+function destroy_effects(state2, to_destroy, remove_dom = true) {
+  var preserved_effects;
+  if (state2.pending.size > 0) {
+    preserved_effects = /* @__PURE__ */ new Set();
+    for (const keys of state2.pending.values()) {
+      for (const key2 of keys) {
+        preserved_effects.add(
+          /** @type {EachItem} */
+          state2.items.get(key2).e
+        );
+      }
+    }
+  }
+  for (var i = 0; i < to_destroy.length; i++) {
+    var e = to_destroy[i];
+    if (preserved_effects == null ? void 0 : preserved_effects.has(e)) {
+      e.f |= EFFECT_OFFSCREEN;
+      const fragment = document.createDocumentFragment();
+      move_effect(e, fragment);
+    } else {
+      destroy_effect(to_destroy[i], remove_dom);
+    }
+  }
+}
+var offscreen_anchor;
+function each(node, flags2, get_collection, get_key, render_fn2, fallback_fn = null) {
+  var anchor = node;
+  var items = /* @__PURE__ */ new Map();
+  var is_controlled = (flags2 & EACH_IS_CONTROLLED) !== 0;
+  if (is_controlled) {
+    var parent_node = (
+      /** @type {Element} */
+      node
+    );
+    anchor = hydrating ? set_hydrate_node(get_first_child(parent_node)) : parent_node.appendChild(create_text());
+  }
+  if (hydrating) {
+    hydrate_next();
+  }
+  var fallback2 = null;
+  var each_array = derived_safe_equal(() => {
+    var collection = get_collection();
+    return (
+      /** @type {V[]} */
+      is_array(collection) ? collection : collection == null ? [] : array_from(collection)
+    );
+  });
+  if (dev_fallback_default) {
+    tag(each_array, "{#each ...}");
+  }
+  var array;
+  var pending2 = /* @__PURE__ */ new Map();
+  var first_run = true;
+  function commit(batch) {
+    if ((state2.effect.f & DESTROYED) !== 0) {
+      return;
+    }
+    state2.pending.delete(batch);
+    state2.fallback = fallback2;
+    reconcile(state2, array, anchor, flags2, get_key);
+    if (fallback2 !== null) {
+      if (array.length === 0) {
+        if ((fallback2.f & EFFECT_OFFSCREEN) === 0) {
+          resume_effect(fallback2);
+        } else {
+          fallback2.f ^= EFFECT_OFFSCREEN;
+          move(fallback2, null, anchor);
+        }
+      } else {
+        pause_effect(fallback2, () => {
+          fallback2 = null;
+        });
+      }
+    }
+  }
+  function discard(batch) {
+    state2.pending.delete(batch);
+  }
+  var effect2 = block(() => {
+    array = /** @type {V[]} */
+    get2(each_array);
+    var length = array.length;
+    let mismatch = false;
+    if (hydrating) {
+      var is_else = read_hydration_instruction(anchor) === HYDRATION_START_ELSE;
+      if (is_else !== (length === 0)) {
+        anchor = skip_nodes();
+        set_hydrate_node(anchor);
+        set_hydrating(false);
+        mismatch = true;
+      }
+    }
+    var keys = /* @__PURE__ */ new Set();
+    var batch = (
+      /** @type {Batch} */
+      current_batch
+    );
+    var defer = should_defer_append();
+    for (var index2 = 0; index2 < length; index2 += 1) {
+      if (hydrating && hydrate_node.nodeType === COMMENT_NODE && /** @type {Comment} */
+      hydrate_node.data === HYDRATION_END) {
+        anchor = /** @type {Comment} */
+        hydrate_node;
+        mismatch = true;
+        set_hydrating(false);
+      }
+      var value = array[index2];
+      var key2 = get_key(value, index2);
+      if (dev_fallback_default) {
+        var key_again = get_key(value, index2);
+        if (key2 !== key_again) {
+          each_key_volatile(String(index2), String(key2), String(key_again));
+        }
+      }
+      var item = first_run ? null : items.get(key2);
+      if (item) {
+        if (item.v)
+          internal_set(item.v, value);
+        if (item.i)
+          internal_set(item.i, index2);
+        if (defer) {
+          batch.unskip_effect(item.e);
+        }
+      } else {
+        item = create_item(
+          items,
+          first_run ? anchor : offscreen_anchor != null ? offscreen_anchor : offscreen_anchor = create_text(),
+          value,
+          key2,
+          index2,
+          render_fn2,
+          flags2,
+          get_collection
+        );
+        if (!first_run) {
+          item.e.f |= EFFECT_OFFSCREEN;
+        }
+        items.set(key2, item);
+      }
+      keys.add(key2);
+    }
+    if (length === 0 && fallback_fn && !fallback2) {
+      if (first_run) {
+        fallback2 = branch(() => fallback_fn(anchor));
+      } else {
+        fallback2 = branch(() => fallback_fn(offscreen_anchor != null ? offscreen_anchor : offscreen_anchor = create_text()));
+        fallback2.f |= EFFECT_OFFSCREEN;
+      }
+    }
+    if (length > keys.size) {
+      if (dev_fallback_default) {
+        validate_each_keys(array, get_key);
+      } else {
+        each_key_duplicate("", "", "");
+      }
+    }
+    if (hydrating && length > 0) {
+      set_hydrate_node(skip_nodes());
+    }
+    if (!first_run) {
+      pending2.set(batch, keys);
+      if (defer) {
+        for (const [key3, item2] of items) {
+          if (!keys.has(key3)) {
+            batch.skip_effect(item2.e);
+          }
+        }
+        batch.oncommit(commit);
+        batch.ondiscard(discard);
+      } else {
+        commit(batch);
+      }
+    }
+    if (mismatch) {
+      set_hydrating(true);
+    }
+    get2(each_array);
+  });
+  var state2 = { effect: effect2, flags: flags2, items, pending: pending2, outrogroups: null, fallback: fallback2 };
+  first_run = false;
+  if (hydrating) {
+    anchor = hydrate_node;
+  }
+}
+function skip_to_branch(effect2) {
+  while (effect2 !== null && (effect2.f & BRANCH_EFFECT) === 0) {
+    effect2 = effect2.next;
+  }
+  return effect2;
+}
+function reconcile(state2, array, anchor, flags2, get_key) {
+  var _a5, _b3, _c2, _d, _e, _f, _g, _h, _i;
+  var is_animated = (flags2 & EACH_IS_ANIMATED) !== 0;
+  var length = array.length;
+  var items = state2.items;
+  var current = skip_to_branch(state2.effect.first);
+  var seen;
+  var prev = null;
+  var to_animate;
+  var matched = [];
+  var stashed = [];
+  var value;
+  var key2;
+  var effect2;
+  var i;
+  if (is_animated) {
+    for (i = 0; i < length; i += 1) {
+      value = array[i];
+      key2 = get_key(value, i);
+      effect2 = /** @type {EachItem} */
+      items.get(key2).e;
+      if ((effect2.f & EFFECT_OFFSCREEN) === 0) {
+        (_b3 = (_a5 = effect2.nodes) == null ? void 0 : _a5.a) == null ? void 0 : _b3.measure();
+        (to_animate != null ? to_animate : to_animate = /* @__PURE__ */ new Set()).add(effect2);
+      }
+    }
+  }
+  for (i = 0; i < length; i += 1) {
+    value = array[i];
+    key2 = get_key(value, i);
+    effect2 = /** @type {EachItem} */
+    items.get(key2).e;
+    if (state2.outrogroups !== null) {
+      for (const group of state2.outrogroups) {
+        group.pending.delete(effect2);
+        group.done.delete(effect2);
+      }
+    }
+    if ((effect2.f & INERT) !== 0) {
+      resume_effect(effect2);
+      if (is_animated) {
+        (_d = (_c2 = effect2.nodes) == null ? void 0 : _c2.a) == null ? void 0 : _d.unfix();
+        (to_animate != null ? to_animate : to_animate = /* @__PURE__ */ new Set()).delete(effect2);
+      }
+    }
+    if ((effect2.f & EFFECT_OFFSCREEN) !== 0) {
+      effect2.f ^= EFFECT_OFFSCREEN;
+      if (effect2 === current) {
+        move(effect2, null, anchor);
+      } else {
+        var next2 = prev ? prev.next : current;
+        if (effect2 === state2.effect.last) {
+          state2.effect.last = effect2.prev;
+        }
+        if (effect2.prev)
+          effect2.prev.next = effect2.next;
+        if (effect2.next)
+          effect2.next.prev = effect2.prev;
+        link(state2, prev, effect2);
+        link(state2, effect2, next2);
+        move(effect2, next2, anchor);
+        prev = effect2;
+        matched = [];
+        stashed = [];
+        current = skip_to_branch(prev.next);
+        continue;
+      }
+    }
+    if (effect2 !== current) {
+      if (seen !== void 0 && seen.has(effect2)) {
+        if (matched.length < stashed.length) {
+          var start = stashed[0];
+          var j;
+          prev = start.prev;
+          var a = matched[0];
+          var b = matched[matched.length - 1];
+          for (j = 0; j < matched.length; j += 1) {
+            move(matched[j], start, anchor);
+          }
+          for (j = 0; j < stashed.length; j += 1) {
+            seen.delete(stashed[j]);
+          }
+          link(state2, a.prev, b.next);
+          link(state2, prev, a);
+          link(state2, b, start);
+          current = start;
+          prev = b;
+          i -= 1;
+          matched = [];
+          stashed = [];
+        } else {
+          seen.delete(effect2);
+          move(effect2, current, anchor);
+          link(state2, effect2.prev, effect2.next);
+          link(state2, effect2, prev === null ? state2.effect.first : prev.next);
+          link(state2, prev, effect2);
+          prev = effect2;
+        }
+        continue;
+      }
+      matched = [];
+      stashed = [];
+      while (current !== null && current !== effect2) {
+        (seen != null ? seen : seen = /* @__PURE__ */ new Set()).add(current);
+        stashed.push(current);
+        current = skip_to_branch(current.next);
+      }
+      if (current === null) {
+        continue;
+      }
+    }
+    if ((effect2.f & EFFECT_OFFSCREEN) === 0) {
+      matched.push(effect2);
+    }
+    prev = effect2;
+    current = skip_to_branch(effect2.next);
+  }
+  if (state2.outrogroups !== null) {
+    for (const group of state2.outrogroups) {
+      if (group.pending.size === 0) {
+        destroy_effects(state2, array_from(group.done));
+        (_e = state2.outrogroups) == null ? void 0 : _e.delete(group);
+      }
+    }
+    if (state2.outrogroups.size === 0) {
+      state2.outrogroups = null;
+    }
+  }
+  if (current !== null || seen !== void 0) {
+    var to_destroy = [];
+    if (seen !== void 0) {
+      for (effect2 of seen) {
+        if ((effect2.f & INERT) === 0) {
+          to_destroy.push(effect2);
+        }
+      }
+    }
+    while (current !== null) {
+      if ((current.f & INERT) === 0 && current !== state2.fallback) {
+        to_destroy.push(current);
+      }
+      current = skip_to_branch(current.next);
+    }
+    var destroy_length = to_destroy.length;
+    if (destroy_length > 0) {
+      var controlled_anchor = (flags2 & EACH_IS_CONTROLLED) !== 0 && length === 0 ? anchor : null;
+      if (is_animated) {
+        for (i = 0; i < destroy_length; i += 1) {
+          (_g = (_f = to_destroy[i].nodes) == null ? void 0 : _f.a) == null ? void 0 : _g.measure();
+        }
+        for (i = 0; i < destroy_length; i += 1) {
+          (_i = (_h = to_destroy[i].nodes) == null ? void 0 : _h.a) == null ? void 0 : _i.fix();
+        }
+      }
+      pause_effects(state2, to_destroy, controlled_anchor);
+    }
+  }
+  if (is_animated) {
+    queue_micro_task(() => {
+      var _a6, _b4;
+      if (to_animate === void 0)
+        return;
+      for (effect2 of to_animate) {
+        (_b4 = (_a6 = effect2.nodes) == null ? void 0 : _a6.a) == null ? void 0 : _b4.apply();
+      }
+    });
+  }
+}
+function create_item(items, anchor, value, key2, index2, render_fn2, flags2, get_collection) {
+  var v = (flags2 & EACH_ITEM_REACTIVE) !== 0 ? (flags2 & EACH_ITEM_IMMUTABLE) === 0 ? mutable_source(value, false, false) : source(value) : null;
+  var i = (flags2 & EACH_INDEX_REACTIVE) !== 0 ? source(index2) : null;
+  if (dev_fallback_default && v) {
+    v.trace = () => {
+      var _a5;
+      get_collection()[(_a5 = i == null ? void 0 : i.v) != null ? _a5 : index2];
+    };
+  }
+  return {
+    v,
+    i,
+    e: branch(() => {
+      render_fn2(anchor, v != null ? v : value, i != null ? i : index2, get_collection);
+      return () => {
+        items.delete(key2);
+      };
+    })
+  };
+}
+function move(effect2, next2, anchor) {
+  if (!effect2.nodes)
+    return;
+  var node = effect2.nodes.start;
+  var end = effect2.nodes.end;
+  var dest = next2 && (next2.f & EFFECT_OFFSCREEN) === 0 ? (
+    /** @type {EffectNodes} */
+    next2.nodes.start
+  ) : anchor;
+  while (node !== null) {
+    var next_node = (
+      /** @type {TemplateNode} */
+      get_next_sibling(node)
+    );
+    dest.before(node);
+    if (node === end) {
+      return;
+    }
+    node = next_node;
+  }
+}
+function link(state2, prev, next2) {
+  if (prev === null) {
+    state2.effect.first = next2;
+  } else {
+    prev.next = next2;
+  }
+  if (next2 === null) {
+    state2.effect.last = prev;
+  } else {
+    next2.prev = prev;
+  }
+}
+function validate_each_keys(array, key_fn) {
+  const keys = /* @__PURE__ */ new Map();
+  const length = array.length;
+  for (let i = 0; i < length; i++) {
+    const key2 = key_fn(array[i], i);
+    if (keys.has(key2)) {
+      const a = String(keys.get(key2));
+      const b = String(i);
+      let k = String(key2);
+      if (k.startsWith("[object "))
+        k = null;
+      each_key_duplicate(a, b, k);
+    }
+    keys.set(key2, i);
+  }
+}
+
+// node_modules/svelte/src/internal/shared/attributes.js
+var whitespace = [..." 	\n\r\f\xA0\v\uFEFF"];
+function to_class(value, hash2, directives) {
+  var classname = value == null ? "" : "" + value;
+  if (hash2) {
+    classname = classname ? classname + " " + hash2 : hash2;
+  }
+  if (directives) {
+    for (var key2 of Object.keys(directives)) {
+      if (directives[key2]) {
+        classname = classname ? classname + " " + key2 : key2;
+      } else if (classname.length) {
+        var len = key2.length;
+        var a = 0;
+        while ((a = classname.indexOf(key2, a)) >= 0) {
+          var b = a + len;
+          if ((a === 0 || whitespace.includes(classname[a - 1])) && (b === classname.length || whitespace.includes(classname[b]))) {
+            classname = (a === 0 ? "" : classname.substring(0, a)) + classname.substring(b + 1);
+          } else {
+            a = b;
+          }
+        }
+      }
+    }
+  }
+  return classname === "" ? null : classname;
+}
+function append_styles(styles, important = false) {
+  var separator = important ? " !important;" : ";";
+  var css = "";
+  for (var key2 of Object.keys(styles)) {
+    var value = styles[key2];
+    if (value != null && value !== "") {
+      css += " " + key2 + ": " + value + separator;
+    }
+  }
+  return css;
+}
+function to_css_name(name) {
+  if (name[0] !== "-" || name[1] !== "-") {
+    return name.toLowerCase();
+  }
+  return name;
+}
+function to_style(value, styles) {
+  if (styles) {
+    var new_style = "";
+    var normal_styles;
+    var important_styles;
+    if (Array.isArray(styles)) {
+      normal_styles = styles[0];
+      important_styles = styles[1];
+    } else {
+      normal_styles = styles;
+    }
+    if (value) {
+      value = String(value).replaceAll(/\s*\/\*.*?\*\/\s*/g, "").trim();
+      var in_str = false;
+      var in_apo = 0;
+      var in_comment = false;
+      var reserved_names = [];
+      if (normal_styles) {
+        reserved_names.push(...Object.keys(normal_styles).map(to_css_name));
+      }
+      if (important_styles) {
+        reserved_names.push(...Object.keys(important_styles).map(to_css_name));
+      }
+      var start_index = 0;
+      var name_index = -1;
+      const len = value.length;
+      for (var i = 0; i < len; i++) {
+        var c = value[i];
+        if (in_comment) {
+          if (c === "/" && value[i - 1] === "*") {
+            in_comment = false;
+          }
+        } else if (in_str) {
+          if (in_str === c) {
+            in_str = false;
+          }
+        } else if (c === "/" && value[i + 1] === "*") {
+          in_comment = true;
+        } else if (c === '"' || c === "'") {
+          in_str = c;
+        } else if (c === "(") {
+          in_apo++;
+        } else if (c === ")") {
+          in_apo--;
+        }
+        if (!in_comment && in_str === false && in_apo === 0) {
+          if (c === ":" && name_index === -1) {
+            name_index = i;
+          } else if (c === ";" || i === len - 1) {
+            if (name_index !== -1) {
+              var name = to_css_name(value.substring(start_index, name_index).trim());
+              if (!reserved_names.includes(name)) {
+                if (c !== ";") {
+                  i++;
+                }
+                var property = value.substring(start_index, i).trim();
+                new_style += " " + property + ";";
+              }
+            }
+            start_index = i + 1;
+            name_index = -1;
+          }
+        }
+      }
+    }
+    if (normal_styles) {
+      new_style += append_styles(normal_styles);
+    }
+    if (important_styles) {
+      new_style += append_styles(important_styles, true);
+    }
+    new_style = new_style.trim();
+    return new_style === "" ? null : new_style;
+  }
+  return value == null ? null : String(value);
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/class.js
+function set_class(dom, is_html, value, hash2, prev_classes, next_classes) {
+  var prev = (
+    /** @type {any} */
+    dom[CLASS_CACHE]
+  );
+  if (hydrating || prev !== value || prev === void 0) {
+    var next_class_name = to_class(value, hash2, next_classes);
+    if (!hydrating || next_class_name !== dom.getAttribute("class")) {
+      if (next_class_name == null) {
+        dom.removeAttribute("class");
+      } else if (is_html) {
+        dom.className = next_class_name;
+      } else {
+        dom.setAttribute("class", next_class_name);
+      }
+    }
+    dom[CLASS_CACHE] = value;
+  } else if (next_classes && prev_classes !== next_classes) {
+    for (var key2 in next_classes) {
+      var is_present = !!next_classes[key2];
+      if (prev_classes == null || is_present !== !!prev_classes[key2]) {
+        dom.classList.toggle(key2, is_present);
+      }
+    }
+  }
+  return next_classes;
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/style.js
+function update_styles(dom, prev = {}, next2, priority) {
+  for (var key2 in next2) {
+    var value = next2[key2];
+    if (prev[key2] !== value) {
+      if (next2[key2] == null) {
+        dom.style.removeProperty(key2);
+      } else {
+        dom.style.setProperty(key2, value, priority);
+      }
+    }
+  }
+}
+function set_style(dom, value, prev_styles, next_styles) {
+  var prev = (
+    /** @type {any} */
+    dom[STYLE_CACHE]
+  );
+  if (hydrating || prev !== value) {
+    var next_style_attr = to_style(value, next_styles);
+    if (!hydrating || next_style_attr !== dom.getAttribute("style")) {
+      if (next_style_attr == null) {
+        dom.removeAttribute("style");
+      } else {
+        dom.style.cssText = next_style_attr;
+      }
+    }
+    dom[STYLE_CACHE] = value;
+  } else if (next_styles) {
+    if (Array.isArray(next_styles)) {
+      update_styles(dom, prev_styles == null ? void 0 : prev_styles[0], next_styles[0]);
+      update_styles(dom, prev_styles == null ? void 0 : prev_styles[1], next_styles[1], "important");
+    } else {
+      update_styles(dom, prev_styles, next_styles);
+    }
+  }
+  return next_styles;
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/attributes.js
+var CLASS = Symbol("class");
+var STYLE = Symbol("style");
+var IS_CUSTOM_ELEMENT = Symbol("is custom element");
+var IS_HTML = Symbol("is html");
+var LINK_TAG = IS_XHTML ? "link" : "LINK";
+function remove_input_defaults(input) {
+  if (!hydrating)
+    return;
+  var already_removed = false;
+  var remove_defaults = () => {
+    if (already_removed)
+      return;
+    already_removed = true;
+    if (input.hasAttribute("value")) {
+      var value = input.value;
+      set_attribute2(input, "value", null);
+      input.value = value;
+    }
+    if (input.hasAttribute("checked")) {
+      var checked = input.checked;
+      set_attribute2(input, "checked", null);
+      input.checked = checked;
+    }
+  };
+  input[FORM_RESET_HANDLER] = remove_defaults;
+  queue_micro_task(remove_defaults);
+  add_form_reset_listener();
+}
+function set_attribute2(element2, attribute, value, skip_warning) {
+  var attributes = get_attributes(element2);
+  if (hydrating) {
+    attributes[attribute] = element2.getAttribute(attribute);
+    if (attribute === "src" || attribute === "srcset" || attribute === "href" && element2.nodeName === LINK_TAG) {
+      if (!skip_warning) {
+        check_src_in_dev_hydration(element2, attribute, value != null ? value : "");
+      }
+      return;
+    }
+  }
+  if (attributes[attribute] === (attributes[attribute] = value))
+    return;
+  if (attribute === "loading") {
+    element2[LOADING_ATTR_SYMBOL] = value;
+  }
+  if (value == null) {
+    element2.removeAttribute(attribute);
+  } else if (typeof value !== "string" && get_setters(element2).includes(attribute)) {
+    element2[attribute] = value;
+  } else {
+    element2.setAttribute(attribute, value);
+  }
+}
+function get_attributes(element2) {
+  var _a5, _b3;
+  return (
+    /** @type {Record<string | symbol, unknown>} **/
+    /** @type {any} */
+    (_b3 = element2[_a5 = ATTRIBUTES_CACHE]) != null ? _b3 : element2[_a5] = {
+      [IS_CUSTOM_ELEMENT]: element2.nodeName.includes("-"),
+      [IS_HTML]: element2.namespaceURI === NAMESPACE_HTML
+    }
+  );
+}
+var setters_cache = /* @__PURE__ */ new Map();
+function get_setters(element2) {
+  var cache_key = element2.getAttribute("is") || element2.nodeName;
+  var setters = setters_cache.get(cache_key);
+  if (setters)
+    return setters;
+  setters_cache.set(cache_key, setters = []);
+  var descriptors;
+  var proto = element2;
+  var element_proto = Element.prototype;
+  while (element_proto !== proto) {
+    descriptors = get_descriptors(proto);
+    for (var key2 in descriptors) {
+      if (descriptors[key2].set && // better safe than sorry, we don't want spread attributes to mess with HTML content
+      key2 !== "innerHTML" && key2 !== "textContent" && key2 !== "innerText") {
+        setters.push(key2);
+      }
+    }
+    proto = get_prototype_of(proto);
+  }
+  return setters;
+}
+function check_src_in_dev_hydration(element2, attribute, value) {
+  var _a5;
+  if (!dev_fallback_default)
+    return;
+  if (attribute === "srcset" && srcset_url_equal(element2, value))
+    return;
+  if (src_url_equal((_a5 = element2.getAttribute(attribute)) != null ? _a5 : "", value))
+    return;
+  hydration_attribute_changed(
+    attribute,
+    element2.outerHTML.replace(element2.innerHTML, element2.innerHTML && "..."),
+    String(value)
+  );
+}
+function src_url_equal(element_src, url) {
+  if (element_src === url)
+    return true;
+  return new URL(element_src, document.baseURI).href === new URL(url, document.baseURI).href;
+}
+function split_srcset(srcset) {
+  return srcset.split(",").map((src) => src.trim().split(" ").filter(Boolean));
+}
+function srcset_url_equal(element2, srcset) {
+  var element_urls = split_srcset(element2.srcset);
+  var urls = split_srcset(srcset);
+  return urls.length === element_urls.length && urls.every(
+    ([url, width], i) => width === element_urls[i][1] && // We need to test both ways because Vite will create an a full URL with
+    // `new URL(asset, import.meta.url).href` for the client when `base: './'`, and the
+    // relative URLs inside srcset are not automatically resolved to absolute URLs by
+    // browsers (in contrast to img.src). This means both SSR and DOM code could
+    // contain relative or absolute URLs.
+    (src_url_equal(element_urls[i][0], url) || src_url_equal(url, element_urls[i][0]))
+  );
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/bindings/input.js
+function bind_value(input, get3, set2 = get3) {
+  var batches = /* @__PURE__ */ new WeakSet();
+  listen_to_event_and_reset_event(input, "input", async (is_reset) => {
+    if (dev_fallback_default && input.type === "checkbox") {
+      bind_invalid_checkbox_value();
+    }
+    var value = is_reset ? input.defaultValue : input.value;
+    value = is_numberlike_input(input) ? to_number(value) : value;
+    set2(value);
+    if (current_batch !== null) {
+      batches.add(current_batch);
+    }
+    await tick();
+    if (value !== (value = get3())) {
+      var start = input.selectionStart;
+      var end = input.selectionEnd;
+      var length = input.value.length;
+      input.value = value != null ? value : "";
+      if (end !== null) {
+        var new_length = input.value.length;
+        if (start === end && end === length && new_length > length) {
+          input.selectionStart = new_length;
+          input.selectionEnd = new_length;
+        } else {
+          input.selectionStart = start;
+          input.selectionEnd = Math.min(end, new_length);
+        }
+      }
+    }
+  });
+  if (
+    // If we are hydrating and the value has since changed,
+    // then use the updated value from the input instead.
+    hydrating && input.defaultValue !== input.value || // If defaultValue is set, then value == defaultValue
+    // TODO Svelte 6: remove input.value check and set to empty string?
+    untrack(get3) == null && input.value
+  ) {
+    set2(is_numberlike_input(input) ? to_number(input.value) : input.value);
+    if (current_batch !== null) {
+      batches.add(current_batch);
+    }
+  }
+  render_effect(() => {
+    if (dev_fallback_default && input.type === "checkbox") {
+      bind_invalid_checkbox_value();
+    }
+    var value = get3();
+    if (input === document.activeElement) {
+      var batch = (
+        /** @type {Batch} */
+        async_mode_flag ? previous_batch : current_batch
+      );
+      if (batches.has(batch)) {
+        return;
+      }
+    }
+    if (is_numberlike_input(input) && value === to_number(input.value)) {
+      return;
+    }
+    if (input.type === "date" && !value && !input.value) {
+      return;
+    }
+    if (value !== input.value) {
+      input.value = value != null ? value : "";
+    }
+  });
+}
+function is_numberlike_input(input) {
+  var type = input.type;
+  return type === "number" || type === "range";
+}
+function to_number(value) {
+  return value === "" ? null : +value;
+}
+
+// node_modules/svelte/src/internal/client/dom/elements/bindings/this.js
+function is_bound_this(bound_value, element_or_component) {
+  return bound_value === element_or_component || (bound_value == null ? void 0 : bound_value[STATE_SYMBOL]) === element_or_component;
+}
+function bind_this(element_or_component = {}, update2, get_value, get_parts) {
+  var component_effect = (
+    /** @type {ComponentContext} */
+    component_context.r
+  );
+  var parent = (
+    /** @type {Effect} */
+    active_effect
+  );
+  effect(() => {
+    var old_parts;
+    var parts;
+    render_effect(() => {
+      old_parts = parts;
+      parts = (get_parts == null ? void 0 : get_parts()) || [];
+      untrack(() => {
+        if (!is_bound_this(get_value(...parts), element_or_component)) {
+          update2(element_or_component, ...parts);
+          if (old_parts && is_bound_this(get_value(...old_parts), element_or_component)) {
+            update2(null, ...old_parts);
+          }
+        }
+      });
+    });
+    return () => {
+      let p = parent;
+      while (p !== component_effect && p.parent !== null && p.parent.f & DESTROYING) {
+        p = p.parent;
+      }
+      const teardown2 = () => {
+        if (parts && is_bound_this(get_value(...parts), element_or_component)) {
+          update2(null, ...parts);
+        }
+      };
+      const original_teardown = p.teardown;
+      p.teardown = () => {
+        teardown2();
+        original_teardown == null ? void 0 : original_teardown();
+      };
+    };
+  });
+  return element_or_component;
+}
+
+// node_modules/svelte/src/internal/client/dom/legacy/event-modifiers.js
+function stopPropagation(fn) {
+  return function(...args) {
+    var event2 = (
+      /** @type {Event} */
+      args[0]
+    );
+    event2.stopPropagation();
+    return fn == null ? void 0 : fn.apply(this, args);
+  };
+}
+
+// node_modules/svelte/src/internal/client/dom/legacy/lifecycle.js
+function init(immutable = false) {
+  const context = (
+    /** @type {ComponentContextLegacy} */
+    component_context
+  );
+  const callbacks = context.l.u;
+  if (!callbacks)
+    return;
+  let props = () => deep_read_state(context.s);
+  if (immutable) {
+    let version = 0;
+    let prev = (
+      /** @type {Record<string, any>} */
+      {}
+    );
+    const d = derived2(() => {
+      let changed = false;
+      const props2 = context.s;
+      for (const key2 in props2) {
+        if (props2[key2] !== prev[key2]) {
+          prev[key2] = props2[key2];
+          changed = true;
+        }
+      }
+      if (changed)
+        version++;
+      return version;
+    });
+    props = () => get2(d);
+  }
+  if (callbacks.b.length) {
+    user_pre_effect(() => {
+      observe_all(context, props);
+      run_all(callbacks.b);
+    });
+  }
+  user_effect(() => {
+    const fns = untrack(() => callbacks.m.map(run));
+    return () => {
+      for (const fn of fns) {
+        if (typeof fn === "function") {
+          fn();
+        }
+      }
+    };
+  });
+  if (callbacks.a.length) {
+    user_effect(() => {
+      observe_all(context, props);
+      run_all(callbacks.a);
+    });
+  }
+}
+function observe_all(context, props) {
+  if (context.l.s) {
+    for (const signal of context.l.s)
+      get2(signal);
+  }
+  props();
+}
+
+// node_modules/svelte/src/internal/client/reactivity/props.js
+function prop(props, key2, flags2, fallback2) {
+  var _a5, _b3;
+  var runes = !legacy_mode_flag || (flags2 & PROPS_IS_RUNES) !== 0;
+  var bindable = (flags2 & PROPS_IS_BINDABLE) !== 0;
+  var lazy = (flags2 & PROPS_IS_LAZY_INITIAL) !== 0;
+  var fallback_value = (
+    /** @type {V} */
+    fallback2
+  );
+  var fallback_dirty = true;
+  var fallback_signal = (
+    /** @type {Derived<V> | undefined} */
+    void 0
+  );
+  var get_fallback = () => {
+    if (lazy && runes) {
+      fallback_signal != null ? fallback_signal : fallback_signal = derived2(
+        /** @type {() => V} */
+        fallback2
+      );
+      return get2(fallback_signal);
+    }
+    if (fallback_dirty) {
+      fallback_dirty = false;
+      fallback_value = lazy ? untrack(
+        /** @type {() => V} */
+        fallback2
+      ) : (
+        /** @type {V} */
+        fallback2
+      );
+    }
+    return fallback_value;
+  };
+  let setter;
+  if (bindable) {
+    var is_entry_props = STATE_SYMBOL in props || LEGACY_PROPS in props;
+    setter = (_b3 = (_a5 = get_descriptor(props, key2)) == null ? void 0 : _a5.set) != null ? _b3 : is_entry_props && key2 in props ? (v) => props[key2] = v : void 0;
+  }
+  var initial_value;
+  var is_store_sub = false;
+  if (bindable) {
+    [initial_value, is_store_sub] = capture_store_binding(() => (
+      /** @type {V} */
+      props[key2]
+    ));
+  } else {
+    initial_value = /** @type {V} */
+    props[key2];
+  }
+  if (initial_value === void 0 && fallback2 !== void 0) {
+    initial_value = get_fallback();
+    if (setter) {
+      if (runes)
+        props_invalid_value(key2);
+      setter(initial_value);
+    }
+  }
+  var getter;
+  if (runes) {
+    getter = () => {
+      var value = (
+        /** @type {V} */
+        props[key2]
+      );
+      if (value === void 0)
+        return get_fallback();
+      fallback_dirty = true;
+      return value;
+    };
+  } else {
+    getter = () => {
+      var value = (
+        /** @type {V} */
+        props[key2]
+      );
+      if (value !== void 0) {
+        fallback_value = /** @type {V} */
+        void 0;
+      }
+      return value === void 0 ? fallback_value : value;
+    };
+  }
+  if (runes && (flags2 & PROPS_IS_UPDATED) === 0) {
+    return getter;
+  }
+  if (setter) {
+    var legacy_parent = props.$$legacy;
+    return (
+      /** @type {() => V} */
+      function(value, mutation) {
+        if (arguments.length > 0) {
+          if (!runes || !mutation || legacy_parent || is_store_sub) {
+            setter(mutation ? getter() : value);
+          }
+          return value;
+        }
+        return getter();
+      }
+    );
+  }
+  var overridden = false;
+  var d = ((flags2 & PROPS_IS_IMMUTABLE) !== 0 ? derived2 : derived_safe_equal)(() => {
+    overridden = false;
+    return getter();
+  });
+  if (dev_fallback_default) {
+    d.label = key2;
+  }
+  if (bindable)
+    get2(d);
+  var parent_effect = (
+    /** @type {Effect} */
+    active_effect
+  );
+  return (
+    /** @type {() => V} */
+    function(value, mutation) {
+      if (arguments.length > 0) {
+        const new_value = mutation ? get2(d) : runes && bindable ? proxy(value) : value;
+        set(d, new_value);
+        overridden = true;
+        if (fallback_value !== void 0) {
+          fallback_value = new_value;
+        }
+        return value;
+      }
+      if (is_destroying_effect && overridden || (parent_effect.f & DESTROYED) !== 0) {
+        return d.v;
+      }
+      return get2(d);
+    }
+  );
+}
+
+// node_modules/svelte/src/legacy/legacy-client.js
+function createClassComponent(options) {
+  return new Svelte4Component(options);
+}
+var _events, _instance;
+var Svelte4Component = class {
+  /**
+   * @param {ComponentConstructorOptions & {
+   *  component: any;
+   * }} options
+   */
+  constructor(options) {
+    /** @type {any} */
+    __privateAdd(this, _events, void 0);
+    /** @type {Record<string, any>} */
+    __privateAdd(this, _instance, void 0);
+    var _a5, _b3;
+    var sources = /* @__PURE__ */ new Map();
+    var add_source = (key2, value) => {
+      var s = mutable_source(value, false, false);
+      sources.set(key2, s);
+      return s;
+    };
+    const props = new Proxy(
+      { ...options.props || {}, $$events: {} },
+      {
+        get(target, prop2) {
+          var _a6;
+          return get2((_a6 = sources.get(prop2)) != null ? _a6 : add_source(prop2, Reflect.get(target, prop2)));
+        },
+        has(target, prop2) {
+          var _a6;
+          if (prop2 === LEGACY_PROPS)
+            return true;
+          get2((_a6 = sources.get(prop2)) != null ? _a6 : add_source(prop2, Reflect.get(target, prop2)));
+          return Reflect.has(target, prop2);
+        },
+        set(target, prop2, value) {
+          var _a6;
+          set((_a6 = sources.get(prop2)) != null ? _a6 : add_source(prop2, value), value);
+          return Reflect.set(target, prop2, value);
+        }
+      }
+    );
+    __privateSet(this, _instance, (options.hydrate ? hydrate : mount)(options.component, {
+      target: options.target,
+      anchor: options.anchor,
+      props,
+      context: options.context,
+      intro: (_a5 = options.intro) != null ? _a5 : false,
+      recover: options.recover,
+      transformError: options.transformError
+    }));
+    if (!async_mode_flag && (!((_b3 = options == null ? void 0 : options.props) == null ? void 0 : _b3.$$host) || options.sync === false)) {
+      flushSync();
+    }
+    __privateSet(this, _events, props.$$events);
+    for (const key2 of Object.keys(__privateGet(this, _instance))) {
+      if (key2 === "$set" || key2 === "$destroy" || key2 === "$on")
+        continue;
+      define_property(this, key2, {
+        get() {
+          return __privateGet(this, _instance)[key2];
+        },
+        /** @param {any} value */
+        set(value) {
+          __privateGet(this, _instance)[key2] = value;
+        },
+        enumerable: true
+      });
+    }
+    __privateGet(this, _instance).$set = /** @param {Record<string, any>} next */
+    (next2) => {
+      Object.assign(props, next2);
+    };
+    __privateGet(this, _instance).$destroy = () => {
+      unmount(__privateGet(this, _instance));
+    };
+  }
+  /** @param {Record<string, any>} props */
+  $set(props) {
+    __privateGet(this, _instance).$set(props);
+  }
+  /**
+   * @param {string} event
+   * @param {(...args: any[]) => any} callback
+   * @returns {any}
+   */
+  $on(event2, callback) {
+    __privateGet(this, _events)[event2] = __privateGet(this, _events)[event2] || [];
+    const cb = (...args) => callback.call(this, ...args);
+    __privateGet(this, _events)[event2].push(cb);
+    return () => {
+      __privateGet(this, _events)[event2] = __privateGet(this, _events)[event2].filter(
+        /** @param {any} fn */
+        (fn) => fn !== cb
+      );
+    };
+  }
+  $destroy() {
+    __privateGet(this, _instance).$destroy();
+  }
+};
+_events = new WeakMap();
+_instance = new WeakMap();
+
+// node_modules/svelte/src/internal/client/dom/elements/custom-element.js
 var SvelteElement;
 if (typeof HTMLElement === "function") {
   SvelteElement = class extends HTMLElement {
-    constructor($$componentCtor, $$slots, use_shadow_dom) {
+    /**
+     * @param {*} $$componentCtor
+     * @param {*} $$slots
+     * @param {ShadowRootInit | undefined} shadow_root_init
+     */
+    constructor($$componentCtor, $$slots, shadow_root_init) {
       super();
       /** The Svelte component constructor */
       __publicField(this, "$$ctor");
       /** Slots */
       __publicField(this, "$$s");
-      /** The Svelte component instance */
+      /** @type {any} The Svelte component instance */
       __publicField(this, "$$c");
       /** Whether or not the custom element is connected */
       __publicField(this, "$$cn", false);
-      /** Component props data */
+      /** @type {Record<string, any>} Component props data */
       __publicField(this, "$$d", {});
       /** `true` if currently in the process of reflecting component props back to attributes */
       __publicField(this, "$$r", false);
       /** @type {Record<string, CustomElementPropDefinition>} Props definition (name, reflected, type etc) */
       __publicField(this, "$$p_d", {});
-      /** @type {Record<string, Function[]>} Event listeners */
+      /** @type {Record<string, EventListenerOrEventListenerObject[]>} Event listeners */
       __publicField(this, "$$l", {});
-      /** @type {Map<Function, Function>} Event listener unsubscribe functions */
+      /** @type {Map<EventListenerOrEventListenerObject, Function>} Event listener unsubscribe functions */
       __publicField(this, "$$l_u", /* @__PURE__ */ new Map());
+      /** @type {any} The managed render effect for reflecting attributes */
+      __publicField(this, "$$me");
+      /** @type {ShadowRoot | null} The ShadowRoot of the custom element */
+      __publicField(this, "$$shadowRoot", null);
       this.$$ctor = $$componentCtor;
       this.$$s = $$slots;
-      if (use_shadow_dom) {
-        this.attachShadow({ mode: "open" });
+      if (shadow_root_init) {
+        this.$$shadowRoot = this.attachShadow(shadow_root_init);
       }
     }
+    /**
+     * @param {string} type
+     * @param {EventListenerOrEventListenerObject} listener
+     * @param {boolean | AddEventListenerOptions} [options]
+     */
     addEventListener(type, listener, options) {
       this.$$l[type] = this.$$l[type] || [];
       this.$$l[type].push(listener);
@@ -899,6 +6910,11 @@ if (typeof HTMLElement === "function") {
       }
       super.addEventListener(type, listener, options);
     }
+    /**
+     * @param {string} type
+     * @param {EventListenerOrEventListenerObject} listener
+     * @param {boolean | AddEventListenerOptions} [options]
+     */
     removeEventListener(type, listener, options) {
       super.removeEventListener(type, listener, options);
       if (this.$$c) {
@@ -908,40 +6924,16 @@ if (typeof HTMLElement === "function") {
           this.$$l_u.delete(listener);
         }
       }
-      if (this.$$l[type]) {
-        const idx = this.$$l[type].indexOf(listener);
-        if (idx >= 0) {
-          this.$$l[type].splice(idx, 1);
-        }
-      }
     }
     async connectedCallback() {
       this.$$cn = true;
       if (!this.$$c) {
         let create_slot = function(name) {
-          return () => {
-            let node;
-            const obj = {
-              c: function create() {
-                node = element("slot");
-                if (name !== "default") {
-                  attr(node, "name", name);
-                }
-              },
-              /**
-               * @param {HTMLElement} target
-               * @param {HTMLElement} [anchor]
-               */
-              m: function mount(target, anchor) {
-                insert(target, node, anchor);
-              },
-              d: function destroy(detaching) {
-                if (detaching) {
-                  detach(node);
-                }
-              }
-            };
-            return obj;
+          return (anchor) => {
+            const slot2 = create_element("slot");
+            if (name !== "default")
+              slot2.name = name;
+            append(anchor, slot2);
           };
         };
         await Promise.resolve();
@@ -952,7 +6944,12 @@ if (typeof HTMLElement === "function") {
         const existing_slots = get_custom_elements_slots(this);
         for (const name of this.$$s) {
           if (name in existing_slots) {
-            $$slots[name] = [create_slot(name)];
+            if (name === "default" && !this.$$d.children) {
+              this.$$d.children = create_slot(name);
+              $$slots.default = true;
+            } else {
+              $$slots[name] = create_slot(name);
+            }
           }
         }
         for (const attribute of this.attributes) {
@@ -961,44 +6958,44 @@ if (typeof HTMLElement === "function") {
             this.$$d[name] = get_custom_element_value(name, attribute.value, this.$$p_d, "toProp");
           }
         }
-        for (const key in this.$$p_d) {
-          if (!(key in this.$$d) && this[key] !== void 0) {
-            this.$$d[key] = this[key];
-            delete this[key];
+        for (const key2 in this.$$p_d) {
+          if (!(key2 in this.$$d) && this[key2] !== void 0) {
+            this.$$d[key2] = this[key2];
+            delete this[key2];
           }
         }
-        this.$$c = new this.$$ctor({
-          target: this.shadowRoot || this,
+        this.$$c = createClassComponent({
+          component: this.$$ctor,
+          target: this.$$shadowRoot || this,
           props: {
             ...this.$$d,
             $$slots,
-            $$scope: {
-              ctx: []
-            }
+            $$host: this
           }
         });
-        const reflect_attributes = () => {
-          this.$$r = true;
-          for (const key in this.$$p_d) {
-            this.$$d[key] = this.$$c.$$.ctx[this.$$c.$$.props[key]];
-            if (this.$$p_d[key].reflect) {
+        this.$$me = effect_root(() => {
+          render_effect(() => {
+            var _a5;
+            this.$$r = true;
+            for (const key2 of object_keys(this.$$c)) {
+              if (!((_a5 = this.$$p_d[key2]) == null ? void 0 : _a5.reflect))
+                continue;
+              this.$$d[key2] = this.$$c[key2];
               const attribute_value = get_custom_element_value(
-                key,
-                this.$$d[key],
+                key2,
+                this.$$d[key2],
                 this.$$p_d,
                 "toAttribute"
               );
               if (attribute_value == null) {
-                this.removeAttribute(this.$$p_d[key].attribute || key);
+                this.removeAttribute(this.$$p_d[key2].attribute || key2);
               } else {
-                this.setAttribute(this.$$p_d[key].attribute || key, attribute_value);
+                this.setAttribute(this.$$p_d[key2].attribute || key2, attribute_value);
               }
             }
-          }
-          this.$$r = false;
-        };
-        this.$$c.$$.after_update.push(reflect_attributes);
-        reflect_attributes();
+            this.$$r = false;
+          });
+        });
         for (const type in this.$$l) {
           for (const listener of this.$$l[type]) {
             const unsub = this.$$c.$on(type, listener);
@@ -1010,35 +7007,44 @@ if (typeof HTMLElement === "function") {
     }
     // We don't need this when working within Svelte code, but for compatibility of people using this outside of Svelte
     // and setting attributes through setAttribute etc, this is helpful
+    /**
+     * @param {string} attr
+     * @param {string} _oldValue
+     * @param {string} newValue
+     */
     attributeChangedCallback(attr2, _oldValue, newValue) {
-      var _a;
+      var _a5;
       if (this.$$r)
         return;
       attr2 = this.$$g_p(attr2);
       this.$$d[attr2] = get_custom_element_value(attr2, newValue, this.$$p_d, "toProp");
-      (_a = this.$$c) == null ? void 0 : _a.$set({ [attr2]: this.$$d[attr2] });
+      (_a5 = this.$$c) == null ? void 0 : _a5.$set({ [attr2]: this.$$d[attr2] });
     }
     disconnectedCallback() {
       this.$$cn = false;
       Promise.resolve().then(() => {
         if (!this.$$cn && this.$$c) {
           this.$$c.$destroy();
+          this.$$me();
           this.$$c = void 0;
         }
       });
     }
+    /**
+     * @param {string} attribute_name
+     */
     $$g_p(attribute_name) {
-      return Object.keys(this.$$p_d).find(
-        (key) => this.$$p_d[key].attribute === attribute_name || !this.$$p_d[key].attribute && key.toLowerCase() === attribute_name
+      return object_keys(this.$$p_d).find(
+        (key2) => this.$$p_d[key2].attribute === attribute_name || !this.$$p_d[key2].attribute && key2.toLowerCase() === attribute_name
       ) || attribute_name;
     }
   };
 }
-function get_custom_element_value(prop, value, props_definition, transform) {
-  var _a;
-  const type = (_a = props_definition[prop]) == null ? void 0 : _a.type;
+function get_custom_element_value(prop2, value, props_definition, transform) {
+  var _a5;
+  const type = (_a5 = props_definition[prop2]) == null ? void 0 : _a5.type;
   value = type === "Boolean" && typeof value !== "boolean" ? value != null : value;
-  if (!transform || !props_definition[prop]) {
+  if (!transform || !props_definition[prop2]) {
     return value;
   } else if (transform === "toAttribute") {
     switch (type) {
@@ -1066,302 +7072,73 @@ function get_custom_element_value(prop, value, props_definition, transform) {
     }
   }
 }
-var SvelteComponent = class {
-  constructor() {
-    /**
-     * ### PRIVATE API
-     *
-     * Do not use, may change at any time
-     *
-     * @type {any}
-     */
-    __publicField(this, "$$");
-    /**
-     * ### PRIVATE API
-     *
-     * Do not use, may change at any time
-     *
-     * @type {any}
-     */
-    __publicField(this, "$$set");
-  }
-  /** @returns {void} */
-  $destroy() {
-    destroy_component(this, 1);
-    this.$destroy = noop;
-  }
-  /**
-   * @template {Extract<keyof Events, string>} K
-   * @param {K} type
-   * @param {((e: Events[K]) => void) | null | undefined} callback
-   * @returns {() => void}
-   */
-  $on(type, callback) {
-    if (!is_function(callback)) {
-      return noop;
-    }
-    const callbacks = this.$$.callbacks[type] || (this.$$.callbacks[type] = []);
-    callbacks.push(callback);
-    return () => {
-      const index = callbacks.indexOf(callback);
-      if (index !== -1)
-        callbacks.splice(index, 1);
-    };
-  }
-  /**
-   * @param {Partial<Props>} props
-   * @returns {void}
-   */
-  $set(props) {
-    if (this.$$set && !is_empty(props)) {
-      this.$$.skip_bound = true;
-      this.$$set(props);
-      this.$$.skip_bound = false;
-    }
-  }
-};
-
-// node_modules/svelte/src/shared/version.js
-var PUBLIC_VERSION = "4";
-
-// node_modules/svelte/src/runtime/internal/disclose-version/index.js
-if (typeof window !== "undefined")
-  (window.__svelte || (window.__svelte = { v: /* @__PURE__ */ new Set() })).v.add(PUBLIC_VERSION);
+function get_custom_elements_slots(element2) {
+  const result = {};
+  element2.childNodes.forEach((node) => {
+    result[
+      /** @type {Element} node */
+      node.slot || "default"
+    ] = true;
+  });
+  return result;
+}
 
 // src/OneNoteView.svelte
-var import_obsidian5 = require("obsidian");
+var import_obsidian6 = require("obsidian");
 
-// src/NotebookTreeItem.svelte
-function create_fragment(ctx) {
-  let div1;
-  let div0;
-  let span0;
-  let t0;
-  let span1;
-  let t1_value = (
-    /*notebook*/
-    ctx[0].name + ""
-  );
-  let t1;
-  let t2;
-  let span2;
-  let t3_value = (
-    /*notebook*/
-    ctx[0].sections.length + ""
-  );
-  let t3;
-  let mounted;
-  let dispose;
-  return {
-    c() {
-      div1 = element("div");
-      div0 = element("div");
-      span0 = element("span");
-      span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>`;
-      t0 = space();
-      span1 = element("span");
-      t1 = text(t1_value);
-      t2 = space();
-      span2 = element("span");
-      t3 = text(t3_value);
-      attr(span0, "class", "on-icon");
-      attr(span1, "class", "on-name");
-      attr(span2, "class", "on-count");
-      attr(div0, "class", "on-item on-notebook-item");
-      attr(div0, "draggable", "true");
-      attr(div0, "role", "button");
-      attr(div0, "tabindex", "0");
-      toggle_class(
-        div0,
-        "active",
-        /*$selectedNotebook*/
-        ctx[1] && /*$selectedNotebook*/
-        ctx[1].folderPath === /*notebook*/
-        ctx[0].folderPath
-      );
-      toggle_class(
-        div0,
-        "drag-over-top",
-        /*$dragOverId*/
-        ctx[2] === /*notebook*/
-        ctx[0].folderPath && /*$dragPosition*/
-        ctx[3] === "top"
-      );
-      toggle_class(
-        div0,
-        "drag-over-bottom",
-        /*$dragOverId*/
-        ctx[2] === /*notebook*/
-        ctx[0].folderPath && /*$dragPosition*/
-        ctx[3] === "bottom"
-      );
-      toggle_class(
-        div0,
-        "is-dragging",
-        /*$draggedItemId*/
-        ctx[4] === /*notebook*/
-        ctx[0].folderPath
-      );
-      attr(div1, "class", "on-notebook-wrapper");
-    },
-    m(target, anchor) {
-      insert(target, div1, anchor);
-      append(div1, div0);
-      append(div0, span0);
-      append(div0, t0);
-      append(div0, span1);
-      append(span1, t1);
-      append(div0, t2);
-      append(div0, span2);
-      append(span2, t3);
-      if (!mounted) {
-        dispose = [
-          listen(
-            div0,
-            "dragstart",
-            /*dragstart_handler*/
-            ctx[10]
-          ),
-          listen(div0, "dragover", stop_propagation(
-            /*dragover_handler*/
-            ctx[11]
-          )),
-          listen(div0, "drop", stop_propagation(
-            /*drop_handler*/
-            ctx[12]
-          )),
-          listen(
-            div0,
-            "dragend",
-            /*dragend_handler*/
-            ctx[13]
-          ),
-          listen(
-            div0,
-            "click",
-            /*click_handler*/
-            ctx[14]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, [dirty]) {
-      if (dirty & /*notebook*/
-      1 && t1_value !== (t1_value = /*notebook*/
-      ctx2[0].name + ""))
-        set_data(t1, t1_value);
-      if (dirty & /*notebook*/
-      1 && t3_value !== (t3_value = /*notebook*/
-      ctx2[0].sections.length + ""))
-        set_data(t3, t3_value);
-      if (dirty & /*$selectedNotebook, notebook*/
-      3) {
-        toggle_class(
-          div0,
-          "active",
-          /*$selectedNotebook*/
-          ctx2[1] && /*$selectedNotebook*/
-          ctx2[1].folderPath === /*notebook*/
-          ctx2[0].folderPath
-        );
-      }
-      if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      13) {
-        toggle_class(
-          div0,
-          "drag-over-top",
-          /*$dragOverId*/
-          ctx2[2] === /*notebook*/
-          ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[3] === "top"
-        );
-      }
-      if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      13) {
-        toggle_class(
-          div0,
-          "drag-over-bottom",
-          /*$dragOverId*/
-          ctx2[2] === /*notebook*/
-          ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[3] === "bottom"
-        );
-      }
-      if (dirty & /*$draggedItemId, notebook*/
-      17) {
-        toggle_class(
-          div0,
-          "is-dragging",
-          /*$draggedItemId*/
-          ctx2[4] === /*notebook*/
-          ctx2[0].folderPath
-        );
-      }
-    },
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div1);
-      }
-      mounted = false;
-      run_all(dispose);
+// src/EventBus.ts
+var EventBusImpl = class {
+  constructor() {
+    this.listeners = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Subscribe to an event. Returns the handler for easy cleanup.
+   */
+  on(event2, handler) {
+    if (!this.listeners.has(event2)) {
+      this.listeners.set(event2, /* @__PURE__ */ new Set());
     }
-  };
-}
-function instance($$self, $$props, $$invalidate) {
-  let $selectedNotebook;
-  let $dragOverId;
-  let $dragPosition;
-  let $draggedItemId;
-  let { notebook } = $$props;
-  const vm = getContext("vm");
-  const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(1, $selectedNotebook = value));
-  const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(4, $draggedItemId = value));
-  const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(2, $dragOverId = value));
-  const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(3, $dragPosition = value));
-  const dragstart_handler = (e) => vm.handleDragStart(e, notebook.folderPath, "notebook");
-  const dragover_handler = (e) => vm.handleDragOver(e, notebook.folderPath, "notebook");
-  const drop_handler = (e) => vm.handleDrop(e, notebook.folderPath, "notebook");
-  const dragend_handler = () => vm.handleDragEnd();
-  const click_handler = () => vm.selectNotebook(notebook);
-  $$self.$$set = ($$props2) => {
-    if ("notebook" in $$props2)
-      $$invalidate(0, notebook = $$props2.notebook);
-  };
-  return [
-    notebook,
-    $selectedNotebook,
-    $dragOverId,
-    $dragPosition,
-    $draggedItemId,
-    vm,
-    selectedNotebook,
-    draggedItemId,
-    dragOverId,
-    dragPosition,
-    dragstart_handler,
-    dragover_handler,
-    drop_handler,
-    dragend_handler,
-    click_handler
-  ];
-}
-var NotebookTreeItem = class extends SvelteComponent {
-  constructor(options) {
-    super();
-    init(this, options, instance, create_fragment, safe_not_equal, { notebook: 0 });
+    this.listeners.get(event2).add(handler);
+    return handler;
+  }
+  /**
+   * Unsubscribe a specific handler from an event.
+   */
+  off(event2, handler) {
+    const handlers = this.listeners.get(event2);
+    if (handlers) {
+      handlers.delete(handler);
+      if (handlers.size === 0) {
+        this.listeners.delete(event2);
+      }
+    }
+  }
+  /**
+   * Emit an event with a payload. All registered handlers are invoked synchronously.
+   */
+  emit(event2, payload) {
+    const handlers = this.listeners.get(event2);
+    if (handlers) {
+      handlers.forEach((handler) => {
+        try {
+          handler(payload);
+        } catch (e) {
+          console.error(`[EventBus] Error in handler for "${event2}":`, e);
+        }
+      });
+    }
+  }
+  /**
+   * Remove ALL listeners. Called on plugin unload to prevent memory leaks.
+   */
+  destroy() {
+    this.listeners.clear();
   }
 };
-var NotebookTreeItem_default = NotebookTreeItem;
+var EventBus = new EventBusImpl();
 
 // src/ContextMenuHelper.ts
-var import_obsidian2 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 var ContextMenuHelper = class _ContextMenuHelper {
   /**
    * Show right-click context menu for a Section (folder)
@@ -1369,7 +7146,7 @@ var ContextMenuHelper = class _ContextMenuHelper {
   static showSectionContextMenu(e, app, sec, onRefresh) {
     e.preventDefault();
     e.stopPropagation();
-    const menu = new import_obsidian2.Menu();
+    const menu = new import_obsidian3.Menu();
     menu.addItem((item) => {
       item.setTitle("New page").setIcon("file-plus").onClick(async () => {
         await _ContextMenuHelper.createNewPage(app, sec.folderPath);
@@ -1385,8 +7162,8 @@ var ContextMenuHelper = class _ContextMenuHelper {
     menu.addSeparator();
     menu.addItem((item) => {
       item.setTitle("Copy section path").setIcon("link").onClick(() => {
-        navigator.clipboard.writeText(sec.folderPath);
-        new import_obsidian2.Notice("Copied section path to clipboard");
+        void navigator.clipboard.writeText(sec.folderPath);
+        new import_obsidian3.Notice("Copied section path to clipboard");
       });
     });
     menu.addItem((item) => {
@@ -1400,9 +7177,9 @@ var ContextMenuHelper = class _ContextMenuHelper {
     menu.addItem((item) => {
       item.setTitle("Delete section").setIcon("trash").onClick(async () => {
         const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
-        if (abstractFile && abstractFile instanceof import_obsidian2.TFolder) {
-          await app.vault.trash(abstractFile, true);
-          new import_obsidian2.Notice(`Moved section "${sec.name}" to trash`);
+        if (abstractFile && abstractFile instanceof import_obsidian3.TFolder) {
+          await app.fileManager.trashFile(abstractFile);
+          new import_obsidian3.Notice(`Moved section "${sec.name}" to trash`);
           onRefresh();
         }
       });
@@ -1415,7 +7192,7 @@ var ContextMenuHelper = class _ContextMenuHelper {
   static showPageContextMenu(e, app, page, secFolderPath, onRefresh) {
     e.preventDefault();
     e.stopPropagation();
-    const menu = new import_obsidian2.Menu();
+    const menu = new import_obsidian3.Menu();
     menu.addItem((item) => {
       item.setTitle("New sub page").setIcon("file-plus").onClick(async () => {
         await _ContextMenuHelper.createNewSubPage(app, page);
@@ -1433,8 +7210,8 @@ var ContextMenuHelper = class _ContextMenuHelper {
     menu.addItem((item) => {
       item.setTitle("Copy Obsidian link").setIcon("link").onClick(() => {
         const wikiLink = `[[${page.name}]]`;
-        navigator.clipboard.writeText(wikiLink);
-        new import_obsidian2.Notice(`Copied ${wikiLink} to clipboard`);
+        void navigator.clipboard.writeText(wikiLink);
+        new import_obsidian3.Notice(`Copied ${wikiLink} to clipboard`);
       });
     });
     menu.addSeparator();
@@ -1475,7 +7252,7 @@ var ContextMenuHelper = class _ContextMenuHelper {
     let targetFolderPath = page.folderPath;
     if (!targetFolderPath) {
       const file = app.vault.getAbstractFileByPath(page.filepath);
-      if (!(file instanceof import_obsidian2.TFile))
+      if (!(file instanceof import_obsidian3.TFile))
         return null;
       const parentFolderPath = file.parent ? file.parent.path : "";
       const folderName = page.name;
@@ -1536,7 +7313,7 @@ var ContextMenuHelper = class _ContextMenuHelper {
       }
     }
     const newFolder = await app.vault.createFolder(targetPath);
-    return newFolder instanceof import_obsidian2.TFolder ? newFolder : null;
+    return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
   }
   /**
    * Delete a page safely. If it is a Folder-Note with sub-pages:
@@ -1546,33 +7323,33 @@ var ContextMenuHelper = class _ContextMenuHelper {
    */
   static async deletePageSafely(app, page) {
     const file = app.vault.getAbstractFileByPath(page.filepath);
-    if (!file || !(file instanceof import_obsidian2.TFile))
+    if (!file || !(file instanceof import_obsidian3.TFile))
       return;
     if (page.folderPath) {
       const folder = app.vault.getAbstractFileByPath(page.folderPath);
-      if (folder && folder instanceof import_obsidian2.TFolder) {
+      if (folder && folder instanceof import_obsidian3.TFolder) {
         const parentSectionFolder = folder.parent;
         const targetParentPath = parentSectionFolder ? parentSectionFolder.path : "";
-        for (const child of [...folder.children]) {
-          if (child instanceof import_obsidian2.TFile && child.path !== file.path) {
-            const newChildPath = !targetParentPath || targetParentPath === "/" ? child.name : `${targetParentPath}/${child.name}`;
+        for (const child2 of [...folder.children]) {
+          if (child2 instanceof import_obsidian3.TFile && child2.path !== file.path) {
+            const newChildPath = !targetParentPath || targetParentPath === "/" ? child2.name : `${targetParentPath}/${child2.name}`;
             let destPath = newChildPath;
             let counter = 1;
             while (app.vault.getAbstractFileByPath(destPath)) {
-              destPath = !targetParentPath || targetParentPath === "/" ? `${child.basename} ${counter}.${child.extension}` : `${targetParentPath}/${child.basename} ${counter}.${child.extension}`;
+              destPath = !targetParentPath || targetParentPath === "/" ? `${child2.basename} ${counter}.${child2.extension}` : `${targetParentPath}/${child2.basename} ${counter}.${child2.extension}`;
               counter++;
             }
-            await app.fileManager.renameFile(child, destPath);
+            await app.fileManager.renameFile(child2, destPath);
           }
         }
-        await app.vault.trash(file, true);
+        await app.fileManager.trashFile(file);
         if (folder.children.length === 0) {
           await app.vault.adapter.rmdir(folder.path, true);
         }
         return;
       }
     }
-    await app.vault.trash(file, true);
+    await app.fileManager.trashFile(file);
   }
   /**
    * Delete a page and all its child sub-pages by moving the folder to trash.
@@ -1580,8 +7357,8 @@ var ContextMenuHelper = class _ContextMenuHelper {
   static async deletePageAndAllSubPages(app, page) {
     if (page.folderPath) {
       const folder = app.vault.getAbstractFileByPath(page.folderPath);
-      if (folder && folder instanceof import_obsidian2.TFolder) {
-        await app.vault.trash(folder, true);
+      if (folder && folder instanceof import_obsidian3.TFolder) {
+        await app.fileManager.trashFile(folder);
         return;
       }
     }
@@ -1589,1075 +7366,11 @@ var ContextMenuHelper = class _ContextMenuHelper {
   }
 };
 
-// src/SectionTreeItem.svelte
-function create_fragment2(ctx) {
-  let div1;
-  let div0;
-  let span0;
-  let t0;
-  let span1;
-  let t1_value = (
-    /*sec*/
-    ctx[0].name + ""
-  );
-  let t1;
-  let t2;
-  let span2;
-  let t3_value = (
-    /*sec*/
-    ctx[0].pages.length + ""
-  );
-  let t3;
-  let mounted;
-  let dispose;
-  return {
-    c() {
-      div1 = element("div");
-      div0 = element("div");
-      span0 = element("span");
-      span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>`;
-      t0 = space();
-      span1 = element("span");
-      t1 = text(t1_value);
-      t2 = space();
-      span2 = element("span");
-      t3 = text(t3_value);
-      attr(span0, "class", "on-icon");
-      attr(span1, "class", "on-name");
-      attr(span2, "class", "on-count");
-      attr(div0, "class", "on-item on-section-item");
-      attr(div0, "draggable", "true");
-      attr(div0, "role", "button");
-      attr(div0, "tabindex", "0");
-      toggle_class(
-        div0,
-        "active",
-        /*$selectedSection*/
-        ctx[3] && /*$selectedSection*/
-        ctx[3].folderPath === /*sec*/
-        ctx[0].folderPath
-      );
-      toggle_class(
-        div0,
-        "on-focused",
-        /*focusPane*/
-        ctx[1] === "sections" && /*focusedFolderPath*/
-        ctx[2] === /*sec*/
-        ctx[0].folderPath
-      );
-      toggle_class(
-        div0,
-        "drag-over-top",
-        /*$dragOverId*/
-        ctx[4] === /*sec*/
-        ctx[0].folderPath && /*$dragPosition*/
-        ctx[5] === "top"
-      );
-      toggle_class(
-        div0,
-        "drag-over-bottom",
-        /*$dragOverId*/
-        ctx[4] === /*sec*/
-        ctx[0].folderPath && /*$dragPosition*/
-        ctx[5] === "bottom"
-      );
-      toggle_class(
-        div0,
-        "is-dragging",
-        /*$draggedItemId*/
-        ctx[6] === /*sec*/
-        ctx[0].folderPath
-      );
-      attr(div1, "class", "on-section-wrapper");
-    },
-    m(target, anchor) {
-      insert(target, div1, anchor);
-      append(div1, div0);
-      append(div0, span0);
-      append(div0, t0);
-      append(div0, span1);
-      append(span1, t1);
-      append(div0, t2);
-      append(div0, span2);
-      append(span2, t3);
-      if (!mounted) {
-        dispose = [
-          listen(
-            div0,
-            "dragstart",
-            /*dragstart_handler*/
-            ctx[14]
-          ),
-          listen(div0, "dragover", stop_propagation(
-            /*dragover_handler*/
-            ctx[15]
-          )),
-          listen(div0, "drop", stop_propagation(
-            /*drop_handler*/
-            ctx[16]
-          )),
-          listen(
-            div0,
-            "dragend",
-            /*dragend_handler*/
-            ctx[17]
-          ),
-          listen(
-            div0,
-            "click",
-            /*handleRowClick*/
-            ctx[12]
-          ),
-          listen(
-            div0,
-            "contextmenu",
-            /*handleContextMenu*/
-            ctx[13]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, [dirty]) {
-      if (dirty & /*sec*/
-      1 && t1_value !== (t1_value = /*sec*/
-      ctx2[0].name + ""))
-        set_data(t1, t1_value);
-      if (dirty & /*sec*/
-      1 && t3_value !== (t3_value = /*sec*/
-      ctx2[0].pages.length + ""))
-        set_data(t3, t3_value);
-      if (dirty & /*$selectedSection, sec*/
-      9) {
-        toggle_class(
-          div0,
-          "active",
-          /*$selectedSection*/
-          ctx2[3] && /*$selectedSection*/
-          ctx2[3].folderPath === /*sec*/
-          ctx2[0].folderPath
-        );
-      }
-      if (dirty & /*focusPane, focusedFolderPath, sec*/
-      7) {
-        toggle_class(
-          div0,
-          "on-focused",
-          /*focusPane*/
-          ctx2[1] === "sections" && /*focusedFolderPath*/
-          ctx2[2] === /*sec*/
-          ctx2[0].folderPath
-        );
-      }
-      if (dirty & /*$dragOverId, sec, $dragPosition*/
-      49) {
-        toggle_class(
-          div0,
-          "drag-over-top",
-          /*$dragOverId*/
-          ctx2[4] === /*sec*/
-          ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[5] === "top"
-        );
-      }
-      if (dirty & /*$dragOverId, sec, $dragPosition*/
-      49) {
-        toggle_class(
-          div0,
-          "drag-over-bottom",
-          /*$dragOverId*/
-          ctx2[4] === /*sec*/
-          ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[5] === "bottom"
-        );
-      }
-      if (dirty & /*$draggedItemId, sec*/
-      65) {
-        toggle_class(
-          div0,
-          "is-dragging",
-          /*$draggedItemId*/
-          ctx2[6] === /*sec*/
-          ctx2[0].folderPath
-        );
-      }
-    },
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div1);
-      }
-      mounted = false;
-      run_all(dispose);
-    }
-  };
-}
-function instance2($$self, $$props, $$invalidate) {
-  let $selectedSection;
-  let $dragOverId;
-  let $dragPosition;
-  let $draggedItemId;
-  let { sec } = $$props;
-  let { focusPane = "sections" } = $$props;
-  let { focusedFolderPath = "" } = $$props;
-  const vm = getContext("vm");
-  const selectedSection = vm.selectedSection;
-  component_subscribe($$self, selectedSection, (value) => $$invalidate(3, $selectedSection = value));
-  const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(6, $draggedItemId = value));
-  const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(4, $dragOverId = value));
-  const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(5, $dragPosition = value));
-  function handleRowClick() {
-    vm.selectSection(sec);
-  }
-  function handleContextMenu(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    const activeApp = vm.app || window.app;
-    if (activeApp) {
-      ContextMenuHelper.showSectionContextMenu(e, activeApp, sec, () => vm.loadNotebooks());
-    }
-  }
-  const dragstart_handler = (e) => vm.handleDragStart(e, sec.folderPath, "section");
-  const dragover_handler = (e) => vm.handleDragOver(e, sec.folderPath, "section");
-  const drop_handler = (e) => vm.handleDrop(e, sec.folderPath, "section");
-  const dragend_handler = () => vm.handleDragEnd();
-  $$self.$$set = ($$props2) => {
-    if ("sec" in $$props2)
-      $$invalidate(0, sec = $$props2.sec);
-    if ("focusPane" in $$props2)
-      $$invalidate(1, focusPane = $$props2.focusPane);
-    if ("focusedFolderPath" in $$props2)
-      $$invalidate(2, focusedFolderPath = $$props2.focusedFolderPath);
-  };
-  return [
-    sec,
-    focusPane,
-    focusedFolderPath,
-    $selectedSection,
-    $dragOverId,
-    $dragPosition,
-    $draggedItemId,
-    vm,
-    selectedSection,
-    draggedItemId,
-    dragOverId,
-    dragPosition,
-    handleRowClick,
-    handleContextMenu,
-    dragstart_handler,
-    dragover_handler,
-    drop_handler,
-    dragend_handler
-  ];
-}
-var SectionTreeItem = class extends SvelteComponent {
-  constructor(options) {
-    super();
-    init(this, options, instance2, create_fragment2, safe_not_equal, {
-      sec: 0,
-      focusPane: 1,
-      focusedFolderPath: 2
-    });
-  }
-};
-var SectionTreeItem_default = SectionTreeItem;
-
-// src/PageTreeItem.svelte
-function get_each_context(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[25] = list[i];
-  return child_ctx;
-}
-function create_if_block_1(ctx) {
-  let span;
-  let t_value = (
-    /*page*/
-    ctx[0].sectionName + ""
-  );
-  let t;
-  return {
-    c() {
-      span = element("span");
-      t = text(t_value);
-      attr(span, "class", "on-section-tag");
-    },
-    m(target, anchor) {
-      insert(target, span, anchor);
-      append(span, t);
-    },
-    p(ctx2, dirty) {
-      if (dirty & /*page*/
-      1 && t_value !== (t_value = /*page*/
-      ctx2[0].sectionName + ""))
-        set_data(t, t_value);
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(span);
-      }
-    }
-  };
-}
-function create_if_block(ctx) {
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let each_1_anchor;
-  let current;
-  let each_value = ensure_array_like(
-    /*page*/
-    ctx[0].children
-  );
-  const get_key = (ctx2) => (
-    /*child*/
-    ctx2[25].filepath
-  );
-  for (let i = 0; i < each_value.length; i += 1) {
-    let child_ctx = get_each_context(ctx, each_value, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block(key, child_ctx));
-  }
-  return {
-    c() {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      each_1_anchor = empty();
-    },
-    m(target, anchor) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(target, anchor);
-        }
-      }
-      insert(target, each_1_anchor, anchor);
-      current = true;
-    },
-    p(ctx2, dirty) {
-      if (dirty & /*page, depth, focusPane, focusedPagePath, onClick, onAuxClick, onContextMenu*/
-      127) {
-        each_value = ensure_array_like(
-          /*page*/
-          ctx2[0].children
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, each_1_anchor.parentNode, outro_and_destroy_block, create_each_block, each_1_anchor, get_each_context);
-        check_outros();
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      for (let i = 0; i < each_value.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      current = true;
-    },
-    o(local) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(each_1_anchor);
-      }
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d(detaching);
-      }
-    }
-  };
-}
-function create_each_block(key_1, ctx) {
-  let first;
-  let pagetreeitem;
-  let current;
-  pagetreeitem = new PageTreeItem({
-    props: {
-      page: (
-        /*child*/
-        ctx[25]
-      ),
-      depth: (
-        /*depth*/
-        ctx[1] + 1
-      ),
-      focusPane: (
-        /*focusPane*/
-        ctx[2]
-      ),
-      focusedPagePath: (
-        /*focusedPagePath*/
-        ctx[3]
-      ),
-      onClick: (
-        /*onClick*/
-        ctx[4]
-      ),
-      onAuxClick: (
-        /*onAuxClick*/
-        ctx[5]
-      ),
-      onContextMenu: (
-        /*onContextMenu*/
-        ctx[6]
-      )
-    }
-  });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(pagetreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(pagetreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const pagetreeitem_changes = {};
-      if (dirty & /*page*/
-      1)
-        pagetreeitem_changes.page = /*child*/
-        ctx[25];
-      if (dirty & /*depth*/
-      2)
-        pagetreeitem_changes.depth = /*depth*/
-        ctx[1] + 1;
-      if (dirty & /*focusPane*/
-      4)
-        pagetreeitem_changes.focusPane = /*focusPane*/
-        ctx[2];
-      if (dirty & /*focusedPagePath*/
-      8)
-        pagetreeitem_changes.focusedPagePath = /*focusedPagePath*/
-        ctx[3];
-      if (dirty & /*onClick*/
-      16)
-        pagetreeitem_changes.onClick = /*onClick*/
-        ctx[4];
-      if (dirty & /*onAuxClick*/
-      32)
-        pagetreeitem_changes.onAuxClick = /*onAuxClick*/
-        ctx[5];
-      if (dirty & /*onContextMenu*/
-      64)
-        pagetreeitem_changes.onContextMenu = /*onContextMenu*/
-        ctx[6];
-      pagetreeitem.$set(pagetreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(pagetreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(pagetreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(pagetreeitem, detaching);
-    }
-  };
-}
-function create_fragment3(ctx) {
-  let div1;
-  let div0;
-  let span0;
-  let t0;
-  let span1;
-  let t1;
-  let span2;
-  let t2_value = (
-    /*page*/
-    ctx[0].name + ""
-  );
-  let t2;
-  let t3;
-  let t4;
-  let current;
-  let mounted;
-  let dispose;
-  let if_block0 = (
-    /*page*/
-    ctx[0].sectionName && create_if_block_1(ctx)
-  );
-  let if_block1 = (
-    /*page*/
-    ctx[0].isExpanded && /*page*/
-    ctx[0].children && /*page*/
-    ctx[0].children.length > 0 && create_if_block(ctx)
-  );
-  return {
-    c() {
-      div1 = element("div");
-      div0 = element("div");
-      span0 = element("span");
-      span0.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
-      t0 = space();
-      span1 = element("span");
-      span1.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
-      t1 = space();
-      span2 = element("span");
-      t2 = text(t2_value);
-      t3 = space();
-      if (if_block0)
-        if_block0.c();
-      t4 = space();
-      if (if_block1)
-        if_block1.c();
-      attr(span0, "class", "on-chevron");
-      attr(span0, "role", "button");
-      attr(span0, "tabindex", "0");
-      toggle_class(
-        span0,
-        "expanded",
-        /*page*/
-        ctx[0].isExpanded
-      );
-      toggle_class(
-        span0,
-        "visible",
-        /*page*/
-        ctx[0].children && /*page*/
-        ctx[0].children.length > 0
-      );
-      attr(span1, "class", "on-icon");
-      attr(span2, "class", "on-name");
-      attr(div0, "class", "on-item on-page-item");
-      set_style(
-        div0,
-        "padding-left",
-        /*depth*/
-        ctx[1] * 14 + 10 + "px"
-      );
-      attr(div0, "draggable", "true");
-      attr(div0, "role", "button");
-      attr(div0, "tabindex", "0");
-      toggle_class(
-        div0,
-        "active",
-        /*$activePagePath*/
-        ctx[8] === /*page*/
-        ctx[0].filepath
-      );
-      toggle_class(
-        div0,
-        "on-focused",
-        /*isFocused*/
-        ctx[7]
-      );
-      toggle_class(
-        div0,
-        "drag-over-top",
-        /*$dragOverId*/
-        ctx[9] === /*page*/
-        ctx[0].filepath && /*$dragPosition*/
-        ctx[10] === "top"
-      );
-      toggle_class(
-        div0,
-        "drag-over-bottom",
-        /*$dragOverId*/
-        ctx[9] === /*page*/
-        ctx[0].filepath && /*$dragPosition*/
-        ctx[10] === "bottom"
-      );
-      toggle_class(
-        div0,
-        "is-dragging",
-        /*$draggedItemId*/
-        ctx[11] === /*page*/
-        ctx[0].filepath
-      );
-      attr(div1, "class", "on-page-wrapper");
-    },
-    m(target, anchor) {
-      insert(target, div1, anchor);
-      append(div1, div0);
-      append(div0, span0);
-      append(div0, t0);
-      append(div0, span1);
-      append(div0, t1);
-      append(div0, span2);
-      append(span2, t2);
-      append(div0, t3);
-      if (if_block0)
-        if_block0.m(div0, null);
-      append(div1, t4);
-      if (if_block1)
-        if_block1.m(div1, null);
-      current = true;
-      if (!mounted) {
-        dispose = [
-          listen(
-            span0,
-            "click",
-            /*handleChevronClick*/
-            ctx[17]
-          ),
-          listen(
-            div0,
-            "dragstart",
-            /*dragstart_handler*/
-            ctx[18]
-          ),
-          listen(div0, "dragover", stop_propagation(
-            /*dragover_handler*/
-            ctx[19]
-          )),
-          listen(div0, "drop", stop_propagation(
-            /*drop_handler*/
-            ctx[20]
-          )),
-          listen(
-            div0,
-            "dragend",
-            /*dragend_handler*/
-            ctx[21]
-          ),
-          listen(
-            div0,
-            "click",
-            /*click_handler*/
-            ctx[22]
-          ),
-          listen(
-            div0,
-            "auxclick",
-            /*auxclick_handler*/
-            ctx[23]
-          ),
-          listen(
-            div0,
-            "contextmenu",
-            /*contextmenu_handler*/
-            ctx[24]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, [dirty]) {
-      if (!current || dirty & /*page*/
-      1) {
-        toggle_class(
-          span0,
-          "expanded",
-          /*page*/
-          ctx2[0].isExpanded
-        );
-      }
-      if (!current || dirty & /*page*/
-      1) {
-        toggle_class(
-          span0,
-          "visible",
-          /*page*/
-          ctx2[0].children && /*page*/
-          ctx2[0].children.length > 0
-        );
-      }
-      if ((!current || dirty & /*page*/
-      1) && t2_value !== (t2_value = /*page*/
-      ctx2[0].name + ""))
-        set_data(t2, t2_value);
-      if (
-        /*page*/
-        ctx2[0].sectionName
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-        } else {
-          if_block0 = create_if_block_1(ctx2);
-          if_block0.c();
-          if_block0.m(div0, null);
-        }
-      } else if (if_block0) {
-        if_block0.d(1);
-        if_block0 = null;
-      }
-      if (!current || dirty & /*depth*/
-      2) {
-        set_style(
-          div0,
-          "padding-left",
-          /*depth*/
-          ctx2[1] * 14 + 10 + "px"
-        );
-      }
-      if (!current || dirty & /*$activePagePath, page*/
-      257) {
-        toggle_class(
-          div0,
-          "active",
-          /*$activePagePath*/
-          ctx2[8] === /*page*/
-          ctx2[0].filepath
-        );
-      }
-      if (!current || dirty & /*isFocused*/
-      128) {
-        toggle_class(
-          div0,
-          "on-focused",
-          /*isFocused*/
-          ctx2[7]
-        );
-      }
-      if (!current || dirty & /*$dragOverId, page, $dragPosition*/
-      1537) {
-        toggle_class(
-          div0,
-          "drag-over-top",
-          /*$dragOverId*/
-          ctx2[9] === /*page*/
-          ctx2[0].filepath && /*$dragPosition*/
-          ctx2[10] === "top"
-        );
-      }
-      if (!current || dirty & /*$dragOverId, page, $dragPosition*/
-      1537) {
-        toggle_class(
-          div0,
-          "drag-over-bottom",
-          /*$dragOverId*/
-          ctx2[9] === /*page*/
-          ctx2[0].filepath && /*$dragPosition*/
-          ctx2[10] === "bottom"
-        );
-      }
-      if (!current || dirty & /*$draggedItemId, page*/
-      2049) {
-        toggle_class(
-          div0,
-          "is-dragging",
-          /*$draggedItemId*/
-          ctx2[11] === /*page*/
-          ctx2[0].filepath
-        );
-      }
-      if (
-        /*page*/
-        ctx2[0].isExpanded && /*page*/
-        ctx2[0].children && /*page*/
-        ctx2[0].children.length > 0
-      ) {
-        if (if_block1) {
-          if_block1.p(ctx2, dirty);
-          if (dirty & /*page*/
-          1) {
-            transition_in(if_block1, 1);
-          }
-        } else {
-          if_block1 = create_if_block(ctx2);
-          if_block1.c();
-          transition_in(if_block1, 1);
-          if_block1.m(div1, null);
-        }
-      } else if (if_block1) {
-        group_outros();
-        transition_out(if_block1, 1, 1, () => {
-          if_block1 = null;
-        });
-        check_outros();
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block1);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block1);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div1);
-      }
-      if (if_block0)
-        if_block0.d();
-      if (if_block1)
-        if_block1.d();
-      mounted = false;
-      run_all(dispose);
-    }
-  };
-}
-function instance3($$self, $$props, $$invalidate) {
-  let isFocused;
-  let $activePagePath;
-  let $dragOverId;
-  let $dragPosition;
-  let $draggedItemId;
-  let { page } = $$props;
-  let { depth = 0 } = $$props;
-  let { focusPane = "sections" } = $$props;
-  let { focusedPagePath = "" } = $$props;
-  let { onClick = () => {
-  } } = $$props;
-  let { onAuxClick = () => {
-  } } = $$props;
-  let { onContextMenu = () => {
-  } } = $$props;
-  const vm = getContext("vm");
-  const activePagePath = vm.activePagePath;
-  component_subscribe($$self, activePagePath, (value) => $$invalidate(8, $activePagePath = value));
-  const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(11, $draggedItemId = value));
-  const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(9, $dragOverId = value));
-  const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(10, $dragPosition = value));
-  function handleChevronClick(e) {
-    e.stopPropagation();
-    $$invalidate(0, page.isExpanded = !page.isExpanded, page);
-    $$invalidate(0, page = { ...page });
-  }
-  const dragstart_handler = (e) => vm.handleDragStart(e, page.filepath, "page");
-  const dragover_handler = (e) => vm.handleDragOver(e, page.filepath, "page");
-  const drop_handler = (e) => vm.handleDrop(e, page.filepath, "page");
-  const dragend_handler = () => vm.handleDragEnd();
-  const click_handler = (e) => {
-    const inNewTab = e.ctrlKey || e.metaKey;
-    onClick(page, inNewTab);
-  };
-  const auxclick_handler = (e) => onAuxClick(e, page);
-  const contextmenu_handler = (e) => onContextMenu(e, page);
-  $$self.$$set = ($$props2) => {
-    if ("page" in $$props2)
-      $$invalidate(0, page = $$props2.page);
-    if ("depth" in $$props2)
-      $$invalidate(1, depth = $$props2.depth);
-    if ("focusPane" in $$props2)
-      $$invalidate(2, focusPane = $$props2.focusPane);
-    if ("focusedPagePath" in $$props2)
-      $$invalidate(3, focusedPagePath = $$props2.focusedPagePath);
-    if ("onClick" in $$props2)
-      $$invalidate(4, onClick = $$props2.onClick);
-    if ("onAuxClick" in $$props2)
-      $$invalidate(5, onAuxClick = $$props2.onAuxClick);
-    if ("onContextMenu" in $$props2)
-      $$invalidate(6, onContextMenu = $$props2.onContextMenu);
-  };
-  $$self.$$.update = () => {
-    if ($$self.$$.dirty & /*focusPane, focusedPagePath, page*/
-    13) {
-      $:
-        $$invalidate(7, isFocused = focusPane === "pages" && focusedPagePath === page.filepath);
-    }
-  };
-  return [
-    page,
-    depth,
-    focusPane,
-    focusedPagePath,
-    onClick,
-    onAuxClick,
-    onContextMenu,
-    isFocused,
-    $activePagePath,
-    $dragOverId,
-    $dragPosition,
-    $draggedItemId,
-    vm,
-    activePagePath,
-    draggedItemId,
-    dragOverId,
-    dragPosition,
-    handleChevronClick,
-    dragstart_handler,
-    dragover_handler,
-    drop_handler,
-    dragend_handler,
-    click_handler,
-    auxclick_handler,
-    contextmenu_handler
-  ];
-}
-var PageTreeItem = class extends SvelteComponent {
-  constructor(options) {
-    super();
-    init(this, options, instance3, create_fragment3, safe_not_equal, {
-      page: 0,
-      depth: 1,
-      focusPane: 2,
-      focusedPagePath: 3,
-      onClick: 4,
-      onAuxClick: 5,
-      onContextMenu: 6
-    });
-  }
-};
-var PageTreeItem_default = PageTreeItem;
-
-// src/EventBus.ts
-var EventBusImpl = class {
-  constructor() {
-    this.listeners = /* @__PURE__ */ new Map();
-  }
-  /**
-   * Subscribe to an event. Returns the handler for easy cleanup.
-   */
-  on(event, handler) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, /* @__PURE__ */ new Set());
-    }
-    this.listeners.get(event).add(handler);
-    return handler;
-  }
-  /**
-   * Unsubscribe a specific handler from an event.
-   */
-  off(event, handler) {
-    const handlers = this.listeners.get(event);
-    if (handlers) {
-      handlers.delete(handler);
-      if (handlers.size === 0) {
-        this.listeners.delete(event);
-      }
-    }
-  }
-  /**
-   * Emit an event with a payload. All registered handlers are invoked synchronously.
-   */
-  emit(event, payload) {
-    const handlers = this.listeners.get(event);
-    if (handlers) {
-      handlers.forEach((handler) => {
-        try {
-          handler(payload);
-        } catch (e) {
-          console.error(`[EventBus] Error in handler for "${event}":`, e);
-        }
-      });
-    }
-  }
-  /**
-   * Remove ALL listeners. Called on plugin unload to prevent memory leaks.
-   */
-  destroy() {
-    this.listeners.clear();
-  }
-};
-var EventBus = new EventBusImpl();
-
-// node_modules/svelte/src/runtime/store/index.js
-var subscriber_queue = [];
-function readable(value, start) {
-  return {
-    subscribe: writable(value, start).subscribe
-  };
-}
-function writable(value, start = noop) {
-  let stop;
-  const subscribers = /* @__PURE__ */ new Set();
-  function set(new_value) {
-    if (safe_not_equal(value, new_value)) {
-      value = new_value;
-      if (stop) {
-        const run_queue = !subscriber_queue.length;
-        for (const subscriber of subscribers) {
-          subscriber[1]();
-          subscriber_queue.push(subscriber, value);
-        }
-        if (run_queue) {
-          for (let i = 0; i < subscriber_queue.length; i += 2) {
-            subscriber_queue[i][0](subscriber_queue[i + 1]);
-          }
-          subscriber_queue.length = 0;
-        }
-      }
-    }
-  }
-  function update2(fn) {
-    set(fn(value));
-  }
-  function subscribe2(run2, invalidate = noop) {
-    const subscriber = [run2, invalidate];
-    subscribers.add(subscriber);
-    if (subscribers.size === 1) {
-      stop = start(set, update2) || noop;
-    }
-    run2(value);
-    return () => {
-      subscribers.delete(subscriber);
-      if (subscribers.size === 0 && stop) {
-        stop();
-        stop = null;
-      }
-    };
-  }
-  return { set, update: update2, subscribe: subscribe2 };
-}
-function derived(stores, fn, initial_value) {
-  const single = !Array.isArray(stores);
-  const stores_array = single ? [stores] : stores;
-  if (!stores_array.every(Boolean)) {
-    throw new Error("derived() expects stores as input, got a falsy value");
-  }
-  const auto = fn.length < 2;
-  return readable(initial_value, (set, update2) => {
-    let started = false;
-    const values = [];
-    let pending = 0;
-    let cleanup = noop;
-    const sync = () => {
-      if (pending) {
-        return;
-      }
-      cleanup();
-      const result = fn(single ? values[0] : values, set, update2);
-      if (auto) {
-        set(result);
-      } else {
-        cleanup = is_function(result) ? result : noop;
-      }
-    };
-    const unsubscribers = stores_array.map(
-      (store, i) => subscribe(
-        store,
-        (value) => {
-          values[i] = value;
-          pending &= ~(1 << i);
-          if (started) {
-            sync();
-          }
-        },
-        () => {
-          pending |= 1 << i;
-        }
-      )
-    );
-    started = true;
-    sync();
-    return function stop() {
-      run_all(unsubscribers);
-      cleanup();
-      started = false;
-    };
-  });
-}
-
 // src/store/OneNoteViewModel.ts
-var import_obsidian4 = require("obsidian");
+var import_obsidian5 = require("obsidian");
 
 // src/DragDropHelper.ts
-var import_obsidian3 = require("obsidian");
+var import_obsidian4 = require("obsidian");
 var activeDragData = null;
 var DragDropHelper = class {
   static setDragData(data) {
@@ -2670,7 +7383,6 @@ var DragDropHelper = class {
    * Reorder Notebook within root list and save to customNotebookOrder settings
    */
   static async reorderNotebook(pluginSettings, saveSettings, sourceNotebookPath, targetNotebookPath, position, allNotebooks) {
-    console.log(`[A1OneNote DnD] reorderNotebook: source = ${sourceNotebookPath}, target = ${targetNotebookPath}, pos = ${position}`);
     if (!sourceNotebookPath || !targetNotebookPath || PathUtils.isEqual(sourceNotebookPath, targetNotebookPath)) {
       return;
     }
@@ -2693,36 +7405,31 @@ var DragDropHelper = class {
    * Move a Page file or Folder to a target Section or Notebook folder
    */
   static async movePageToSection(app, page, targetSectionFolderPath) {
-    console.log(`[A1OneNote DnD] movePageToSection START: page = ${page.filepath}, targetSection = ${targetSectionFolderPath}`);
     let abstractFile = app.vault.getAbstractFileByPath(page.filepath);
     if (!abstractFile && page.folderPath) {
       abstractFile = app.vault.getAbstractFileByPath(page.folderPath);
     }
     if (!abstractFile) {
-      console.warn(`[A1OneNote DnD] movePageToSection ABORT: file/folder not found: ${page.filepath}`);
       return;
     }
     const targetFolder = app.vault.getAbstractFileByPath(targetSectionFolderPath);
-    if (!targetFolder || !(targetFolder instanceof import_obsidian3.TFolder)) {
-      console.warn(`[A1OneNote DnD] movePageToSection ABORT: target folder not found: ${targetSectionFolderPath}`);
+    if (!targetFolder || !(targetFolder instanceof import_obsidian4.TFolder)) {
       return;
     }
     if (abstractFile.parent && PathUtils.isEqual(abstractFile.parent.path, targetFolder.path)) {
-      console.log(`[A1OneNote DnD] movePageToSection SKIP: file already in target folder ${targetFolder.path}`);
       return;
     }
     const newPath = targetFolder.path === "/" || !targetFolder.path ? abstractFile.name : `${targetFolder.path}/${abstractFile.name}`;
     let destPath = newPath;
     let counter = 1;
     while (app.vault.getAbstractFileByPath(destPath)) {
-      if (abstractFile instanceof import_obsidian3.TFile) {
+      if (abstractFile instanceof import_obsidian4.TFile) {
         destPath = targetFolder.path === "/" || !targetFolder.path ? `${abstractFile.basename} ${counter}.${abstractFile.extension}` : `${targetFolder.path}/${abstractFile.basename} ${counter}.${abstractFile.extension}`;
       } else {
         destPath = targetFolder.path === "/" || !targetFolder.path ? `${abstractFile.name} ${counter}` : `${targetFolder.path}/${abstractFile.name} ${counter}`;
       }
       counter++;
     }
-    console.log(`[A1OneNote DnD] movePageToSection RENAMING ${abstractFile.path} -> ${destPath}`);
     await app.fileManager.renameFile(abstractFile, destPath);
   }
   /**
@@ -2730,9 +7437,7 @@ var DragDropHelper = class {
    * Supports multi-level nested page (sub-page) reordering.
    */
   static async reorderPage(pluginSettings, saveSettings, sourcePagePath, targetPagePath, position, currentPages, sectionFolderPath) {
-    console.log(`[A1OneNote DnD] reorderPage START: source = ${sourcePagePath}, target = ${targetPagePath}, pos = ${position}, sectionFolder = ${sectionFolderPath}`);
     if (!sourcePagePath || !targetPagePath || PathUtils.isEqual(sourcePagePath, targetPagePath)) {
-      console.warn(`[A1OneNote DnD] reorderPage ABORT: identical or missing paths`);
       return;
     }
     const normSource = PathUtils.normalize(sourcePagePath);
@@ -2744,7 +7449,7 @@ var DragDropHelper = class {
       }
       for (const p of list) {
         if (p.children && p.children.length > 0) {
-          if (p.children.some((child) => PathUtils.isEqual(child.filepath, tPath))) {
+          if (p.children.some((child2) => PathUtils.isEqual(child2.filepath, tPath))) {
             return { siblings: p.children, parentKey: PathUtils.normalize(p.filepath) };
           }
           const res = findPageSiblingsAndParent(p.children, tPath);
@@ -2765,7 +7470,6 @@ var DragDropHelper = class {
     const filtered = currentPaths.filter((p) => p !== normSource);
     const targetIndex = filtered.indexOf(normTarget);
     if (targetIndex === -1) {
-      console.warn(`[A1OneNote DnD] reorderPage ABORT: targetIndex is -1`);
       return;
     }
     const insertIndex = position === "top" ? targetIndex : targetIndex + 1;
@@ -2774,14 +7478,12 @@ var DragDropHelper = class {
       pluginSettings.customPageOrder = {};
     }
     pluginSettings.customPageOrder[targetParentKey] = filtered;
-    console.log(`[A1OneNote DnD] reorderPage SAVED customPageOrder[${targetParentKey}] =`, filtered);
     await saveSettings();
   }
   /**
    * Reorder Section within list and save to customSectionOrder settings
    */
   static async reorderSection(pluginSettings, saveSettings, sourceFolderPath, targetFolderPath, position, allSections, notebookFolderPath) {
-    console.log(`[A1OneNote DnD] reorderSection START: source = ${sourceFolderPath}, target = ${targetFolderPath}, pos = ${position}, notebook = ${notebookFolderPath}`);
     if (!sourceFolderPath || !targetFolderPath || PathUtils.isEqual(sourceFolderPath, targetFolderPath)) {
       return;
     }
@@ -2790,7 +7492,6 @@ var DragDropHelper = class {
     const normNotebook = PathUtils.normalize(notebookFolderPath);
     const currentPaths = allSections.map((s) => PathUtils.normalize(s.folderPath));
     if (!currentPaths.includes(normSource) || !currentPaths.includes(normTarget)) {
-      console.warn(`[A1OneNote DnD] reorderSection ABORT: source or target not in sections list`);
       return;
     }
     const filtered = currentPaths.filter((p) => p !== normSource);
@@ -2804,10 +7505,8 @@ var DragDropHelper = class {
     }
     if (normNotebook) {
       pluginSettings.customSectionOrderMap[normNotebook] = filtered;
-      console.log(`[A1OneNote DnD] reorderSection SAVED customSectionOrderMap[${normNotebook}] =`, filtered);
     } else {
       pluginSettings.customSectionOrder = filtered;
-      console.log(`[A1OneNote DnD] reorderSection SAVED customSectionOrder =`, filtered);
     }
     await saveSettings();
   }
@@ -2847,21 +7546,20 @@ var OneNoteViewModel = class {
         }
       }
     );
-    this.dragEndTimeout = null;
     this.expandedSections.set(new Set(initialExpandedPaths));
     if (initialSelectedSectionPath) {
     }
   }
   destroy() {
     if (this.dragEndTimeout) {
-      clearTimeout(this.dragEndTimeout);
+      window.clearTimeout(this.dragEndTimeout);
     }
   }
   // =============================================
   // Data Loading & Selection
   // =============================================
   loadNotebooks(autoSelectSectionPath) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+    var _a5, _b3, _c2, _d, _e, _f, _g, _h, _i;
     const exists = this.checkFolderExists(this.rootFolder);
     this.rootFolderExists.set(exists);
     if (!exists) {
@@ -2873,19 +7571,19 @@ var OneNoteViewModel = class {
     }
     const nbs = this.dataService.getNotebooks(
       this.rootFolder,
-      (_c = (_b = (_a = this.plugin) == null ? void 0 : _a.settings) == null ? void 0 : _b.customNotebookOrder) != null ? _c : [],
+      (_c2 = (_b3 = (_a5 = this.plugin) == null ? void 0 : _a5.settings) == null ? void 0 : _b3.customNotebookOrder) != null ? _c2 : [],
       (_f = (_e = (_d = this.plugin) == null ? void 0 : _d.settings) == null ? void 0 : _e.customSectionOrderMap) != null ? _f : {},
       (_i = (_h = (_g = this.plugin) == null ? void 0 : _g.settings) == null ? void 0 : _h.customPageOrder) != null ? _i : {}
     );
     this.notebooks.set(nbs);
-    const currentSelectedNb = get_store_value(this.selectedNotebook);
+    const currentSelectedNb = get(this.selectedNotebook);
     if (nbs.length > 0) {
       let nextNb = currentSelectedNb ? nbs.find((n) => n.folderPath === currentSelectedNb.folderPath) : nbs[0];
       if (!nextNb)
         nextNb = nbs[0];
       this.selectedNotebook.set(nextNb);
       this.sections.set(nextNb.sections);
-      const currentSelectedSec = get_store_value(this.selectedSection);
+      const currentSelectedSec = get(this.selectedSection);
       let targetSecPath = autoSelectSectionPath || (currentSelectedSec ? currentSelectedSec.folderPath : null);
       let targetSec = null;
       if (targetSecPath) {
@@ -2938,7 +7636,7 @@ var OneNoteViewModel = class {
     });
   }
   autoRevealActivePage(filepath) {
-    const currentNbs = get_store_value(this.notebooks);
+    const currentNbs = get(this.notebooks);
     let targetNb = null;
     let targetSecPath = null;
     for (const nb of currentNbs) {
@@ -2958,8 +7656,7 @@ var OneNoteViewModel = class {
           newSet.add(a);
         return newSet;
       });
-      const currentExpanded = get_store_value(this.expandedSections);
-      const isTargetExpanded = currentExpanded.has(targetSecPath);
+      const currentExpanded = get(this.expandedSections);
       this.sections.update((secs) => {
         const updateExp = (items) => {
           return items.map((item) => {
@@ -2977,7 +7674,7 @@ var OneNoteViewModel = class {
         s.add(targetSecPath);
         return s;
       });
-      const currentSecs = get_store_value(this.sections);
+      const currentSecs = get(this.sections);
       const targetSec = this.findSectionByPath(currentSecs, targetSecPath);
       if (targetSec) {
         this.selectSection(targetSec);
@@ -2989,7 +7686,7 @@ var OneNoteViewModel = class {
   // =============================================
   handleDragStart(e, itemId, itemType) {
     if (this.dragEndTimeout)
-      clearTimeout(this.dragEndTimeout);
+      window.clearTimeout(this.dragEndTimeout);
     this.draggedItemId.set(itemId);
     this.draggedItemType.set(itemType);
     if (e.dataTransfer) {
@@ -3002,7 +7699,7 @@ var OneNoteViewModel = class {
     e.preventDefault();
     if (e.dataTransfer)
       e.dataTransfer.dropEffect = "move";
-    const draggedId = get_store_value(this.draggedItemId);
+    const draggedId = get(this.draggedItemId);
     if (itemId === draggedId) {
       this.dragOverId.set("");
       this.dragPosition.set(null);
@@ -3016,13 +7713,13 @@ var OneNoteViewModel = class {
   }
   async handleDrop(e, targetId, targetType) {
     e.preventDefault();
-    const pos = get_store_value(this.dragPosition);
-    const dId = get_store_value(this.draggedItemId);
-    const dType = get_store_value(this.draggedItemType);
+    const pos = get(this.dragPosition);
+    const dId = get(this.draggedItemId);
+    const dType = get(this.draggedItemType);
     const movedId = dId || (e.dataTransfer ? e.dataTransfer.getData("text/plain") : "");
     const movedType = dType || (e.dataTransfer ? e.dataTransfer.getData("text/type") : null);
     if (this.dragEndTimeout)
-      clearTimeout(this.dragEndTimeout);
+      window.clearTimeout(this.dragEndTimeout);
     this.draggedItemId.set("");
     this.draggedItemType.set(null);
     this.dragOverId.set("");
@@ -3031,7 +7728,7 @@ var OneNoteViewModel = class {
       return;
     if (movedType === "notebook" && targetType === "notebook") {
       this.notebooks.update((nbs) => this.reorderNotebookTree(nbs, movedId, targetId, pos));
-      const currentNbs = get_store_value(this.notebooks);
+      const currentNbs = get(this.notebooks);
       await DragDropHelper.reorderNotebook(
         this.plugin.settings,
         () => this.plugin.saveSettings(),
@@ -3044,11 +7741,11 @@ var OneNoteViewModel = class {
       return;
     }
     if (movedType === "section" && targetType === "section") {
-      const nb = get_store_value(this.selectedNotebook);
+      const nb = get(this.selectedNotebook);
       if (!nb)
         return;
       this.sections.update((secs) => this.reorderSectionTree(secs, movedId, targetId, pos));
-      const currentSecs = get_store_value(this.sections);
+      const currentSecs = get(this.sections);
       await DragDropHelper.reorderSection(
         this.plugin.settings,
         () => this.plugin.saveSettings(),
@@ -3062,12 +7759,12 @@ var OneNoteViewModel = class {
       return;
     }
     if (movedType === "page" && targetType === "page") {
-      const sec = get_store_value(this.selectedSection);
+      const sec = get(this.selectedSection);
       if (!sec)
         return;
       const isSibling = this.checkPagesAreSiblings(sec.pages, movedId, targetId);
       if (!isSibling) {
-        new import_obsidian4.Notice("\u5FC5\u987B\u540C\u7EA7\u624D\u80FD\u62D6\u62FD / Only sibling pages can be reordered");
+        new import_obsidian5.Notice("\u5FC5\u987B\u540C\u7EA7\u624D\u80FD\u62D6\u62FD / Only sibling pages can be reordered");
         return;
       }
       const newPages = this.reorderPageTree(sec.pages, movedId, targetId, pos);
@@ -3095,8 +7792,8 @@ var OneNoteViewModel = class {
   }
   handleDragEnd() {
     if (this.dragEndTimeout)
-      clearTimeout(this.dragEndTimeout);
-    this.dragEndTimeout = setTimeout(() => {
+      window.clearTimeout(this.dragEndTimeout);
+    this.dragEndTimeout = window.setTimeout(() => {
       this.draggedItemId.set("");
       this.draggedItemType.set(null);
       this.dragOverId.set("");
@@ -3255,1187 +7952,83 @@ var OneNoteViewModel = class {
 };
 
 // src/OneNoteView.svelte
-var { window: window_1 } = globals;
-function get_each_context2(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[45] = list[i];
-  return child_ctx;
-}
-function get_each_context_1(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[48] = list[i];
-  return child_ctx;
-}
-function get_each_context_2(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[51] = list[i];
-  return child_ctx;
-}
-function create_else_block(ctx) {
-  let div2;
-  let div0;
-  let button0;
-  let span0;
-  let t1;
-  let span1;
-  let t2_value = (
-    /*$selectedNotebook*/
-    (ctx[6] ? (
-      /*$selectedNotebook*/
-      ctx[6].name
-    ) : "Select Notebook") + ""
-  );
-  let t2;
-  let t3;
-  let span2;
-  let t5;
-  let button1;
-  let t7;
-  let t8;
-  let div1;
-  let t9;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let t10;
-  let div5;
-  let div3;
-  let span3;
-  let t12;
-  let button2;
-  let t14;
-  let div4;
-  let current_block_type_index;
-  let if_block2;
-  let current;
-  let mounted;
-  let dispose;
-  let if_block0 = (
-    /*showNotebookDropdown*/
-    ctx[3] && create_if_block_6(ctx)
-  );
-  let if_block1 = (
-    /*$sections*/
-    ctx[8].length === 0 && create_if_block_5(ctx)
-  );
-  let each_value_1 = ensure_array_like(
-    /*$sections*/
-    ctx[8]
-  );
-  const get_key = (ctx2) => (
-    /*sec*/
-    ctx2[48].folderPath
-  );
-  for (let i = 0; i < each_value_1.length; i += 1) {
-    let child_ctx = get_each_context_1(ctx, each_value_1, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block_1(key, child_ctx));
-  }
-  const if_block_creators = [create_if_block_12, create_else_block_2];
-  const if_blocks = [];
-  function select_block_type_1(ctx2, dirty) {
-    if (
-      /*$selectedSection*/
-      ctx2[2]
-    )
-      return 0;
-    return 1;
-  }
-  current_block_type_index = select_block_type_1(ctx, [-1, -1]);
-  if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      button0 = element("button");
-      span0 = element("span");
-      span0.textContent = "\u{1F4D4}";
-      t1 = space();
-      span1 = element("span");
-      t2 = text(t2_value);
-      t3 = space();
-      span2 = element("span");
-      span2.textContent = "\u25BE";
-      t5 = space();
-      button1 = element("button");
-      button1.textContent = "+ New";
-      t7 = space();
-      if (if_block0)
-        if_block0.c();
-      t8 = space();
-      div1 = element("div");
-      if (if_block1)
-        if_block1.c();
-      t9 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      t10 = space();
-      div5 = element("div");
-      div3 = element("div");
-      span3 = element("span");
-      span3.textContent = "Pages";
-      t12 = space();
-      button2 = element("button");
-      button2.textContent = "+ New Page";
-      t14 = space();
-      div4 = element("div");
-      if_block2.c();
-      attr(span0, "class", "on-notebook-icon");
-      attr(span1, "class", "on-notebook-name");
-      attr(span2, "class", "on-caret");
-      attr(button0, "class", "on-notebook-select-btn");
-      attr(button0, "title", "Switch notebook");
-      toggle_class(
-        button0,
-        "active",
-        /*showNotebookDropdown*/
-        ctx[3]
-      );
-      attr(button1, "class", "on-btn-quick-add");
-      attr(button1, "title", "Create new section");
-      attr(div0, "class", "on-pane-header on-pane-header-with-action on-notebook-popover-container");
-      attr(div1, "class", "on-list");
-      attr(div2, "class", "on-sections-pane");
-      attr(button2, "class", "on-btn-quick-add");
-      attr(button2, "title", "New Note in section");
-      attr(div3, "class", "on-pane-header on-pane-header-with-action");
-      attr(div4, "class", "on-list");
-      attr(div5, "class", "on-pages-pane");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div0, button0);
-      append(button0, span0);
-      append(button0, t1);
-      append(button0, span1);
-      append(span1, t2);
-      append(button0, t3);
-      append(button0, span2);
-      append(div0, t5);
-      append(div0, button1);
-      append(div0, t7);
-      if (if_block0)
-        if_block0.m(div0, null);
-      ctx[34](div0);
-      append(div2, t8);
-      append(div2, div1);
-      if (if_block1)
-        if_block1.m(div1, null);
-      append(div1, t9);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(div1, null);
-        }
-      }
-      insert(target, t10, anchor);
-      insert(target, div5, anchor);
-      append(div5, div3);
-      append(div3, span3);
-      append(div3, t12);
-      append(div3, button2);
-      append(div5, t14);
-      append(div5, div4);
-      if_blocks[current_block_type_index].m(div4, null);
-      current = true;
-      if (!mounted) {
-        dispose = [
-          listen(
-            button0,
-            "click",
-            /*toggleNotebookDropdown*/
-            ctx[14]
-          ),
-          listen(
-            button1,
-            "click",
-            /*click_handler*/
-            ctx[32]
-          ),
-          listen(
-            button2,
-            "click",
-            /*click_handler_2*/
-            ctx[35]
-          ),
-          listen(
-            div4,
-            "scroll",
-            /*scroll_handler*/
-            ctx[36]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if ((!current || dirty[0] & /*$selectedNotebook*/
-      64) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[6] ? (
-        /*$selectedNotebook*/
-        ctx2[6].name
-      ) : "Select Notebook") + ""))
-        set_data(t2, t2_value);
-      if (!current || dirty[0] & /*showNotebookDropdown*/
-      8) {
-        toggle_class(
-          button0,
-          "active",
-          /*showNotebookDropdown*/
-          ctx2[3]
-        );
-      }
-      if (
-        /*showNotebookDropdown*/
-        ctx2[3]
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-          if (dirty[0] & /*showNotebookDropdown*/
-          8) {
-            transition_in(if_block0, 1);
-          }
-        } else {
-          if_block0 = create_if_block_6(ctx2);
-          if_block0.c();
-          transition_in(if_block0, 1);
-          if_block0.m(div0, null);
-        }
-      } else if (if_block0) {
-        group_outros();
-        transition_out(if_block0, 1, 1, () => {
-          if_block0 = null;
-        });
-        check_outros();
-      }
-      if (
-        /*$sections*/
-        ctx2[8].length === 0
-      ) {
-        if (if_block1) {
-        } else {
-          if_block1 = create_if_block_5(ctx2);
-          if_block1.c();
-          if_block1.m(div1, t9);
-        }
-      } else if (if_block1) {
-        if_block1.d(1);
-        if_block1 = null;
-      }
-      if (dirty[0] & /*$sections*/
-      256) {
-        each_value_1 = ensure_array_like(
-          /*$sections*/
-          ctx2[8]
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, div1, outro_and_destroy_block, create_each_block_1, null, get_each_context_1);
-        check_outros();
-      }
-      let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type_1(ctx2, dirty);
-      if (current_block_type_index === previous_block_index) {
-        if_blocks[current_block_type_index].p(ctx2, dirty);
-      } else {
-        group_outros();
-        transition_out(if_blocks[previous_block_index], 1, 1, () => {
-          if_blocks[previous_block_index] = null;
-        });
-        check_outros();
-        if_block2 = if_blocks[current_block_type_index];
-        if (!if_block2) {
-          if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
-          if_block2.c();
-        } else {
-          if_block2.p(ctx2, dirty);
-        }
-        transition_in(if_block2, 1);
-        if_block2.m(div4, null);
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block0);
-      for (let i = 0; i < each_value_1.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      transition_in(if_block2);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block0);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      transition_out(if_block2);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-        detach(t10);
-        detach(div5);
-      }
-      if (if_block0)
-        if_block0.d();
-      ctx[34](null);
-      if (if_block1)
-        if_block1.d();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d();
-      }
-      if_blocks[current_block_type_index].d();
-      mounted = false;
-      run_all(dispose);
-    }
-  };
-}
-function create_if_block2(ctx) {
-  let div2;
-  let div0;
-  let t3;
-  let div1;
-  let t4;
-  let code;
-  let t5;
-  let t6;
-  let t7;
-  let t8;
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      div0.innerHTML = `<span class="on-error-icon">\u26A0\uFE0F</span> <span class="on-error-title">OneNote Root Not Found</span>`;
-      t3 = space();
-      div1 = element("div");
-      t4 = text("The configured root folder ");
-      code = element("code");
-      t5 = text('"');
-      t6 = text(
-        /*rootFolder*/
-        ctx[0]
-      );
-      t7 = text('"');
-      t8 = text(" does not exist in your vault.");
-      attr(div0, "class", "on-error-header");
-      attr(div1, "class", "on-error-body");
-      attr(div2, "class", "on-error-container");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div2, t3);
-      append(div2, div1);
-      append(div1, t4);
-      append(div1, code);
-      append(code, t5);
-      append(code, t6);
-      append(code, t7);
-      append(div1, t8);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*rootFolder*/
-      1)
-        set_data(
-          t6,
-          /*rootFolder*/
-          ctx2[0]
-        );
-    },
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-      }
-    }
-  };
-}
-function create_if_block_6(ctx) {
-  let div2;
-  let div0;
-  let span0;
-  let t0;
-  let t1_value = (
-    /*$notebooks*/
-    ctx[7].length + ""
-  );
-  let t1;
-  let t2;
-  let t3;
-  let span1;
-  let t5;
-  let div1;
-  let t6;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let current;
-  let mounted;
-  let dispose;
-  let if_block = (
-    /*$notebooks*/
-    ctx[7].length === 0 && create_if_block_7(ctx)
-  );
-  let each_value_2 = ensure_array_like(
-    /*$notebooks*/
-    ctx[7]
-  );
-  const get_key = (ctx2) => (
-    /*nb*/
-    ctx2[51].folderPath
-  );
-  for (let i = 0; i < each_value_2.length; i += 1) {
-    let child_ctx = get_each_context_2(ctx, each_value_2, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block_2(key, child_ctx));
-  }
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      span0 = element("span");
-      t0 = text("Notebooks (");
-      t1 = text(t1_value);
-      t2 = text(")");
-      t3 = space();
-      span1 = element("span");
-      span1.textContent = "+ New";
-      t5 = space();
-      div1 = element("div");
-      if (if_block)
-        if_block.c();
-      t6 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      attr(span1, "class", "on-btn-quick-add");
-      set_style(span1, "cursor", "pointer");
-      attr(div0, "class", "on-popover-header");
-      attr(div1, "class", "on-popover-list");
-      attr(div2, "class", "on-notebook-popover");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div0, span0);
-      append(span0, t0);
-      append(span0, t1);
-      append(span0, t2);
-      append(div0, t3);
-      append(div0, span1);
-      append(div2, t5);
-      append(div2, div1);
-      if (if_block)
-        if_block.m(div1, null);
-      append(div1, t6);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(div1, null);
-        }
-      }
-      current = true;
-      if (!mounted) {
-        dispose = listen(span1, "click", stop_propagation(
-          /*click_handler_1*/
-          ctx[33]
-        ));
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if ((!current || dirty[0] & /*$notebooks*/
-      128) && t1_value !== (t1_value = /*$notebooks*/
-      ctx2[7].length + ""))
-        set_data(t1, t1_value);
-      if (
-        /*$notebooks*/
-        ctx2[7].length === 0
-      ) {
-        if (if_block) {
-        } else {
-          if_block = create_if_block_7(ctx2);
-          if_block.c();
-          if_block.m(div1, t6);
-        }
-      } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
-      }
-      if (dirty[0] & /*$notebooks*/
-      128) {
-        each_value_2 = ensure_array_like(
-          /*$notebooks*/
-          ctx2[7]
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_2, each_1_lookup, div1, outro_and_destroy_block, create_each_block_2, null, get_each_context_2);
-        check_outros();
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      for (let i = 0; i < each_value_2.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      current = true;
-    },
-    o(local) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-      }
-      if (if_block)
-        if_block.d();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d();
-      }
-      mounted = false;
-      dispose();
-    }
-  };
-}
-function create_if_block_7(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No notebooks found.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block_2(key_1, ctx) {
-  let first;
-  let notebooktreeitem;
-  let current;
-  notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
-    /*nb*/
-    ctx[51]
-  ) } });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(notebooktreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(notebooktreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const notebooktreeitem_changes = {};
-      if (dirty[0] & /*$notebooks*/
-      128)
-        notebooktreeitem_changes.notebook = /*nb*/
-        ctx[51];
-      notebooktreeitem.$set(notebooktreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(notebooktreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(notebooktreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(notebooktreeitem, detaching);
-    }
-  };
-}
-function create_if_block_5(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No sections in this notebook.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block_1(key_1, ctx) {
-  let first;
-  let sectiontreeitem;
-  let current;
-  sectiontreeitem = new SectionTreeItem_default({ props: { sec: (
-    /*sec*/
-    ctx[48]
-  ) } });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(sectiontreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(sectiontreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const sectiontreeitem_changes = {};
-      if (dirty[0] & /*$sections*/
-      256)
-        sectiontreeitem_changes.sec = /*sec*/
-        ctx[48];
-      sectiontreeitem.$set(sectiontreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(sectiontreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(sectiontreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(sectiontreeitem, detaching);
-    }
-  };
-}
-function create_else_block_2(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "Select a section to view pages.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p: noop,
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_12(ctx) {
-  let current_block_type_index;
-  let if_block;
-  let if_block_anchor;
-  let current;
-  const if_block_creators = [create_if_block_2, create_else_block_1];
-  const if_blocks = [];
-  function select_block_type_2(ctx2, dirty) {
-    if (
-      /*$selectedSection*/
-      ctx2[2].pages.length === 0
-    )
-      return 0;
-    return 1;
-  }
-  current_block_type_index = select_block_type_2(ctx, [-1, -1]);
-  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-  return {
-    c() {
-      if_block.c();
-      if_block_anchor = empty();
-    },
-    m(target, anchor) {
-      if_blocks[current_block_type_index].m(target, anchor);
-      insert(target, if_block_anchor, anchor);
-      current = true;
-    },
-    p(ctx2, dirty) {
-      let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type_2(ctx2, dirty);
-      if (current_block_type_index === previous_block_index) {
-        if_blocks[current_block_type_index].p(ctx2, dirty);
-      } else {
-        group_outros();
-        transition_out(if_blocks[previous_block_index], 1, 1, () => {
-          if_blocks[previous_block_index] = null;
-        });
-        check_outros();
-        if_block = if_blocks[current_block_type_index];
-        if (!if_block) {
-          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
-          if_block.c();
-        } else {
-          if_block.p(ctx2, dirty);
-        }
-        transition_in(if_block, 1);
-        if_block.m(if_block_anchor.parentNode, if_block_anchor);
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(if_block_anchor);
-      }
-      if_blocks[current_block_type_index].d(detaching);
-    }
-  };
-}
-function create_else_block_1(ctx) {
-  let t0;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let t1;
-  let if_block1_anchor;
-  let current;
-  let if_block0 = (
-    /*visibleRange*/
-    ctx[5].topPadding > 0 && create_if_block_4(ctx)
-  );
-  let each_value = ensure_array_like(
-    /*visibleRange*/
-    ctx[5].pages
-  );
-  const get_key = (ctx2) => (
-    /*page*/
-    ctx2[45].filepath
-  );
-  for (let i = 0; i < each_value.length; i += 1) {
-    let child_ctx = get_each_context2(ctx, each_value, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block2(key, child_ctx));
-  }
-  let if_block1 = (
-    /*visibleRange*/
-    ctx[5].bottomPadding > 0 && create_if_block_3(ctx)
-  );
-  return {
-    c() {
-      if (if_block0)
-        if_block0.c();
-      t0 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      t1 = space();
-      if (if_block1)
-        if_block1.c();
-      if_block1_anchor = empty();
-    },
-    m(target, anchor) {
-      if (if_block0)
-        if_block0.m(target, anchor);
-      insert(target, t0, anchor);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(target, anchor);
-        }
-      }
-      insert(target, t1, anchor);
-      if (if_block1)
-        if_block1.m(target, anchor);
-      insert(target, if_block1_anchor, anchor);
-      current = true;
-    },
-    p(ctx2, dirty) {
-      if (
-        /*visibleRange*/
-        ctx2[5].topPadding > 0
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-        } else {
-          if_block0 = create_if_block_4(ctx2);
-          if_block0.c();
-          if_block0.m(t0.parentNode, t0);
-        }
-      } else if (if_block0) {
-        if_block0.d(1);
-        if_block0 = null;
-      }
-      if (dirty[0] & /*visibleRange, openPage, handlePageAuxClick, handlePageContextMenu*/
-      458784) {
-        each_value = ensure_array_like(
-          /*visibleRange*/
-          ctx2[5].pages
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, t1.parentNode, outro_and_destroy_block, create_each_block2, t1, get_each_context2);
-        check_outros();
-      }
-      if (
-        /*visibleRange*/
-        ctx2[5].bottomPadding > 0
-      ) {
-        if (if_block1) {
-          if_block1.p(ctx2, dirty);
-        } else {
-          if_block1 = create_if_block_3(ctx2);
-          if_block1.c();
-          if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
-        }
-      } else if (if_block1) {
-        if_block1.d(1);
-        if_block1 = null;
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      for (let i = 0; i < each_value.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      current = true;
-    },
-    o(local) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(t0);
-        detach(t1);
-        detach(if_block1_anchor);
-      }
-      if (if_block0)
-        if_block0.d(detaching);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d(detaching);
-      }
-      if (if_block1)
-        if_block1.d(detaching);
-    }
-  };
-}
-function create_if_block_2(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No pages in this section.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p: noop,
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_4(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      set_style(
-        div,
-        "height",
-        /*visibleRange*/
-        ctx[5].topPadding + "px"
-      );
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*visibleRange*/
-      32) {
-        set_style(
-          div,
-          "height",
-          /*visibleRange*/
-          ctx2[5].topPadding + "px"
-        );
-      }
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block2(key_1, ctx) {
-  let first;
-  let pagetreeitem;
-  let current;
-  pagetreeitem = new PageTreeItem_default({
-    props: {
-      page: (
-        /*page*/
-        ctx[45]
-      ),
-      depth: 0,
-      onClick: (
-        /*openPage*/
-        ctx[16]
-      ),
-      onAuxClick: (
-        /*handlePageAuxClick*/
-        ctx[17]
-      ),
-      onContextMenu: (
-        /*handlePageContextMenu*/
-        ctx[18]
-      )
-    }
+var root = from_html(`<div class="on-error-container"><div class="on-error-header"><span class="on-error-icon">\u26A0\uFE0F</span> <span class="on-error-title">OneNote Root Not Found</span></div> <div class="on-error-body">The configured root folder <code> </code> does not exist in your vault.</div></div>`);
+var root_1 = from_html(`<div class="on-empty-msg">No notebooks found.</div>`);
+var root_2 = from_html(`<div class="on-notebook-popover"><div class="on-popover-header"><span> </span> <span class="on-btn-quick-add" style="cursor: pointer;" role="button" tabindex="0">+ New</span></div> <div class="on-popover-list"><!> <!></div></div>`);
+var root_3 = from_html(`<div class="on-empty-msg">No sections in this notebook.</div>`);
+var root_4 = from_html(`<div class="on-empty-msg">No pages in this section.</div>`);
+var root_5 = from_html(`<div></div>`);
+var root_6 = from_html(`<!> <!> <!>`, 1);
+var root_7 = from_html(`<div class="on-empty-msg">Select a section to view pages.</div>`);
+var root_8 = from_html(`<div class="on-sections-pane"><div class="on-pane-header on-pane-header-with-action on-notebook-popover-container"><button title="Switch notebook"><span class="on-notebook-icon">\u{1F4D4}</span> <span class="on-notebook-name"> </span> <span class="on-caret">\u25BE</span></button> <button class="on-btn-quick-add" title="Create new section">+ New</button> <!></div> <div class="on-list"><!> <!></div></div> <div class="on-pages-pane"><div class="on-pane-header on-pane-header-with-action"><span>Pages</span> <button class="on-btn-quick-add" title="New Note in section">+ New Page</button></div> <div class="on-list"><!></div></div>`, 1);
+var root_9 = from_html(`<div class="on-container"><!></div>`);
+function OneNoteView($$anchor, $$props) {
+  push($$props, false);
+  const $selectedSection = () => store_get(selectedSection, "$selectedSection", $$stores);
+  const $selectedNotebook = () => store_get(selectedNotebook, "$selectedNotebook", $$stores);
+  const $notebooks = () => store_get(notebooks, "$notebooks", $$stores);
+  const $sections = () => store_get(sections, "$sections", $$stores);
+  const [$$stores, $$cleanup] = setup_stores();
+  const visibleRange = mutable_source();
+  let app = prop($$props, "app", 8);
+  let plugin = prop($$props, "plugin", 8, null);
+  let dataService = prop($$props, "dataService", 8);
+  let rootFolder = prop($$props, "rootFolder", 8, "OneNote");
+  let enableVirtualization = prop($$props, "enableVirtualization", 8, false);
+  let initialExpandedPaths = prop($$props, "initialExpandedPaths", 24, () => []);
+  let initialSelectedSectionPath = prop($$props, "initialSelectedSectionPath", 8, "");
+  let onSectionSelectedChanged = prop($$props, "onSectionSelectedChanged", 8, () => {
   });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(pagetreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(pagetreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const pagetreeitem_changes = {};
-      if (dirty[0] & /*visibleRange*/
-      32)
-        pagetreeitem_changes.page = /*page*/
-        ctx[45];
-      pagetreeitem.$set(pagetreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(pagetreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(pagetreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(pagetreeitem, detaching);
-    }
-  };
-}
-function create_if_block_3(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      set_style(
-        div,
-        "height",
-        /*visibleRange*/
-        ctx[5].bottomPadding + "px"
-      );
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*visibleRange*/
-      32) {
-        set_style(
-          div,
-          "height",
-          /*visibleRange*/
-          ctx2[5].bottomPadding + "px"
-        );
-      }
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_fragment4(ctx) {
-  let div;
-  let current_block_type_index;
-  let if_block;
-  let current;
-  let mounted;
-  let dispose;
-  const if_block_creators = [create_if_block2, create_else_block];
-  const if_blocks = [];
-  function select_block_type(ctx2, dirty) {
-    if (!/*rootFolderExists*/
-    ctx2[13])
-      return 0;
-    return 1;
-  }
-  current_block_type_index = select_block_type(ctx, [-1, -1]);
-  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-  return {
-    c() {
-      div = element("div");
-      if_block.c();
-      attr(div, "class", "on-container");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-      if_blocks[current_block_type_index].m(div, null);
-      current = true;
-      if (!mounted) {
-        dispose = listen(
-          window_1,
-          "click",
-          /*handleWindowClick*/
-          ctx[15]
-        );
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if_block.p(ctx2, dirty);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-      if_blocks[current_block_type_index].d();
-      mounted = false;
-      dispose();
-    }
-  };
-}
-var ITEM_HEIGHT = 32;
-var BUFFER_ITEMS = 10;
-function handleExpandedChanged(payload) {
-}
-function handleSectionSelected(payload) {
-}
-function instance4($$self, $$props, $$invalidate) {
-  let visibleRange;
-  let $selectedNotebook;
-  let $selectedSection;
-  let $notebooks;
-  let $sections;
-  let { app } = $$props;
-  let { plugin = null } = $$props;
-  let { dataService } = $$props;
-  let { rootFolder = "OneNote" } = $$props;
-  let { enableVirtualization = false } = $$props;
-  let { initialExpandedPaths = [] } = $$props;
-  let { initialSelectedSectionPath = "" } = $$props;
-  let { onExpandedChanged = () => {
-  } } = $$props;
-  let { onSectionSelectedChanged = () => {
-  } } = $$props;
-  let { onPageOpened = () => {
-  } } = $$props;
-  const vm = new OneNoteViewModel(app, plugin, dataService, rootFolder, initialExpandedPaths, initialSelectedSectionPath);
-  setContext("vm", vm);
-  const notebooks = vm.notebooks;
-  component_subscribe($$self, notebooks, (value) => $$invalidate(7, $notebooks = value));
-  const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(6, $selectedNotebook = value));
-  const sections = vm.sections;
-  component_subscribe($$self, sections, (value) => $$invalidate(8, $sections = value));
-  const selectedSection = vm.selectedSection;
-  component_subscribe($$self, selectedSection, (value) => $$invalidate(2, $selectedSection = value));
-  const activePagePath = vm.activePagePath;
-  const rootFolderExists = vm.rootFolderExists;
-  const draggedItemId = vm.draggedItemId;
-  const dragOverId = vm.dragOverId;
-  const dragPosition = vm.dragPosition;
+  let onPageOpened = prop($$props, "onPageOpened", 8, () => {
+  });
+  const vm = mutable_source(new OneNoteViewModel(app(), plugin(), dataService(), rootFolder(), initialExpandedPaths(), initialSelectedSectionPath()));
+  setContext("vm", get2(vm));
+  const notebooks = get2(vm).notebooks;
+  const selectedNotebook = get2(vm).selectedNotebook;
+  const sections = get2(vm).sections;
+  const selectedSection = get2(vm).selectedSection;
+  const activePagePath = get2(vm).activePagePath;
+  const rootFolderExists = get2(vm).rootFolderExists;
+  const draggedItemId = get2(vm).draggedItemId;
+  const dragOverId = get2(vm).dragOverId;
+  const dragPosition = get2(vm).dragPosition;
   const instanceId = "sidebar-" + Math.random().toString(36).substring(2, 9);
-  let scrollTop = 0;
-  let showNotebookDropdown = false;
-  let popoverContainerEl;
+  let scrollTop = mutable_source(0);
+  const ITEM_HEIGHT = 32;
+  const BUFFER_ITEMS = 10;
+  let showNotebookDropdown = mutable_source(false);
+  let popoverContainerEl = mutable_source();
   function toggleNotebookDropdown(e) {
     e.stopPropagation();
-    $$invalidate(3, showNotebookDropdown = !showNotebookDropdown);
+    set(showNotebookDropdown, !get2(showNotebookDropdown));
   }
   function handleWindowClick(e) {
-    if (showNotebookDropdown && popoverContainerEl && !popoverContainerEl.contains(e.target)) {
-      $$invalidate(3, showNotebookDropdown = false);
+    if (get2(showNotebookDropdown) && get2(popoverContainerEl) && !get2(popoverContainerEl).contains(e.target)) {
+      set(showNotebookDropdown, false);
     }
   }
   function handleGlobalCapturePointerDown(e) {
-    if (!showNotebookDropdown)
+    if (!get2(showNotebookDropdown))
       return;
     const target = e.target;
-    if (target && popoverContainerEl && !popoverContainerEl.contains(target)) {
-      $$invalidate(3, showNotebookDropdown = false);
+    if (target && get2(popoverContainerEl) && !get2(popoverContainerEl).contains(target)) {
+      set(showNotebookDropdown, false);
     }
   }
   let vaultEventRefs = [];
   onMount(() => {
-    vm.loadNotebooks();
+    get2(vm).loadNotebooks();
     window.addEventListener("pointerdown", handleGlobalCapturePointerDown, true);
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
-      const refModify = activeApp.vault.on("modify", () => vm.loadNotebooks());
-      const refDelete = activeApp.vault.on("delete", () => vm.loadNotebooks());
-      const refCreate = activeApp.vault.on("create", () => vm.loadNotebooks());
-      const refRename = activeApp.vault.on("rename", () => vm.loadNotebooks());
+      const refModify = activeApp.vault.on("modify", () => get2(vm).loadNotebooks());
+      const refDelete = activeApp.vault.on("delete", () => get2(vm).loadNotebooks());
+      const refCreate = activeApp.vault.on("create", () => get2(vm).loadNotebooks());
+      const refRename = activeApp.vault.on("rename", () => get2(vm).loadNotebooks());
       vaultEventRefs.push(refModify, refDelete, refCreate, refRename);
       const activeLeaf = activeApp.workspace.getActiveFile();
       if (activeLeaf) {
-        vm.activePagePath.set(activeLeaf.path);
+        get2(vm).activePagePath.set(activeLeaf.path);
       }
       activeApp.workspace.on("file-open", handleActiveLeafChange);
     }
@@ -4444,19 +8037,19 @@ function instance4($$self, $$props, $$invalidate) {
   });
   onDestroy(() => {
     window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
-    vaultEventRefs.forEach((ref) => app.vault.offref(ref));
-    app.workspace.off("file-open", handleActiveLeafChange);
+    vaultEventRefs.forEach((ref) => app().vault.offref(ref));
+    app().workspace.off("file-open", handleActiveLeafChange);
     EventBus.off("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged);
     EventBus.off("section:selected" /* SECTION_SELECTED */, handleSectionSelected);
-    vm.destroy();
+    get2(vm).destroy();
   });
   function openPage(page, inNewTab = false) {
-    vm.activePagePath.set(page.filepath);
-    onPageOpened(page.filepath);
-    const activeApp = app || window.app;
+    get2(vm).activePagePath.set(page.filepath);
+    onPageOpened()(page.filepath);
+    const activeApp = app() || window.app;
     if (activeApp) {
       const file = activeApp.vault.getAbstractFileByPath(page.filepath);
-      if (file && file instanceof import_obsidian5.TFolder)
+      if (file && file instanceof import_obsidian6.TFolder)
         return;
       if (file) {
         if (inNewTab) {
@@ -4470,7 +8063,11 @@ function instance4($$self, $$props, $$invalidate) {
   function handleActiveLeafChange(file) {
     if (!file)
       return;
-    vm.activePagePath.set(file.path);
+    get2(vm).activePagePath.set(file.path);
+  }
+  function handleExpandedChanged(payload) {
+  }
+  function handleSectionSelected(payload) {
   }
   function handlePageAuxClick(e, page) {
     if (e.button === 1) {
@@ -4478,1715 +8075,463 @@ function instance4($$self, $$props, $$invalidate) {
     }
   }
   function handlePageContextMenu(e, page) {
+    var _a5;
     e.preventDefault();
     e.stopPropagation();
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
-      ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => vm.loadNotebooks());
+      ContextMenuHelper.showPageContextMenu(e, activeApp, page, ((_a5 = $selectedSection()) == null ? void 0 : _a5.folderPath) || "", () => get2(vm).loadNotebooks());
     }
   }
   async function handleQuickNewNote() {
-    let targetFolderPath = $selectedSection == null ? void 0 : $selectedSection.folderPath;
+    var _a5;
+    let targetFolderPath = (_a5 = $selectedSection()) == null ? void 0 : _a5.folderPath;
     if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
+      targetFolderPath = rootFolder().trim() !== "" ? rootFolder() : "";
     }
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
       const newFile = await ContextMenuHelper.createNewPage(activeApp, targetFolderPath);
       if (newFile) {
-        vm.loadNotebooks();
-        vm.activePagePath.set(newFile.path);
-        onPageOpened(newFile.path);
+        get2(vm).loadNotebooks();
+        get2(vm).activePagePath.set(newFile.path);
+        onPageOpened()(newFile.path);
       }
     }
   }
   async function handleQuickNewSection() {
-    let targetFolderPath = $selectedNotebook == null ? void 0 : $selectedNotebook.folderPath;
+    var _a5;
+    let targetFolderPath = (_a5 = $selectedNotebook()) == null ? void 0 : _a5.folderPath;
     if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
+      targetFolderPath = rootFolder().trim() !== "" ? rootFolder() : "";
     }
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
       const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
       if (newFolder) {
-        vm.loadNotebooks();
+        get2(vm).loadNotebooks();
       }
     }
   }
   async function handleQuickNewNotebook() {
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder());
       if (newFolder) {
-        vm.loadNotebooks();
+        get2(vm).loadNotebooks();
       }
     }
   }
-  const click_handler = () => handleQuickNewSection();
-  const click_handler_1 = () => {
-    handleQuickNewNotebook();
-    $$invalidate(3, showNotebookDropdown = false);
-  };
-  function div0_binding($$value) {
-    binding_callbacks[$$value ? "unshift" : "push"](() => {
-      popoverContainerEl = $$value;
-      $$invalidate(4, popoverContainerEl);
+  legacy_pre_effect(
+    () => ($selectedSection(), deep_read_state(enableVirtualization()), get2(scrollTop)),
+    () => {
+      set(visibleRange, (() => {
+        const pages = $selectedSection() ? $selectedSection().pages : [];
+        if (!enableVirtualization() || pages.length < 100) {
+          return { pages, topPadding: 0, bottomPadding: 0, startIndex: 0 };
+        }
+        const visibleCount = Math.ceil(400 / ITEM_HEIGHT);
+        const start = Math.max(0, Math.floor(get2(scrollTop) / ITEM_HEIGHT) - BUFFER_ITEMS);
+        const end = Math.min(pages.length, start + visibleCount + BUFFER_ITEMS * 2);
+        return {
+          pages: pages.slice(start, end),
+          topPadding: start * ITEM_HEIGHT,
+          bottomPadding: (pages.length - end) * ITEM_HEIGHT,
+          startIndex: start
+        };
+      })());
+    }
+  );
+  legacy_pre_effect(() => (deep_read_state(rootFolder()), get2(vm)), () => {
+    if (rootFolder() !== void 0) {
+      mutate(vm, get2(vm).rootFolder = rootFolder());
+      get2(vm).loadNotebooks();
+    }
+  });
+  legacy_pre_effect(
+    () => ($selectedSection(), deep_read_state(onSectionSelectedChanged())),
+    () => {
+      if ($selectedSection()) {
+        onSectionSelectedChanged()($selectedSection().folderPath);
+      }
+    }
+  );
+  legacy_pre_effect_reset();
+  init();
+  var div = root_9();
+  event("click", $window, handleWindowClick);
+  var node = child(div);
+  {
+    var consequent = ($$anchor2) => {
+      var div_1 = root();
+      var div_2 = sibling(child(div_1), 2);
+      var code = sibling(child(div_2));
+      var text2 = child(code);
+      reset(code);
+      next();
+      reset(div_2);
+      reset(div_1);
+      template_effect(() => {
+        var _a5;
+        return set_text(text2, `"${(_a5 = rootFolder()) != null ? _a5 : ""}"`);
+      });
+      append($$anchor2, div_1);
+    };
+    var alternate_2 = ($$anchor2) => {
+      var fragment = root_8();
+      var div_3 = first_child(fragment);
+      var div_4 = child(div_3);
+      var button = child(div_4);
+      let classes;
+      var span = sibling(child(button), 2);
+      var text_1 = child(span, true);
+      reset(span);
+      next(2);
+      reset(button);
+      var button_1 = sibling(button, 2);
+      var node_1 = sibling(button_1, 2);
+      {
+        var consequent_2 = ($$anchor3) => {
+          var div_5 = root_2();
+          var div_6 = child(div_5);
+          var span_1 = child(div_6);
+          var text_2 = child(span_1);
+          reset(span_1);
+          var span_2 = sibling(span_1, 2);
+          reset(div_6);
+          var div_7 = sibling(div_6, 2);
+          var node_2 = child(div_7);
+          {
+            var consequent_1 = ($$anchor4) => {
+              var div_8 = root_1();
+              append($$anchor4, div_8);
+            };
+            if_block(node_2, ($$render) => {
+              if ($notebooks(), untrack(() => $notebooks().length === 0))
+                $$render(consequent_1);
+            });
+          }
+          var node_3 = sibling(node_2, 2);
+          each(node_3, 1, $notebooks, (nb) => nb.folderPath, ($$anchor4, nb) => {
+            NotebookTreeItem($$anchor4, {
+              get notebook() {
+                return get2(nb);
+              }
+            });
+          });
+          reset(div_7);
+          reset(div_5);
+          template_effect(() => {
+            var _a5;
+            return set_text(text_2, `Notebooks (${(_a5 = ($notebooks(), untrack(() => $notebooks().length))) != null ? _a5 : ""})`);
+          });
+          event("keydown", span_2, (e) => {
+            if (e.key === "Enter") {
+              handleQuickNewNotebook();
+              set(showNotebookDropdown, false);
+            }
+          });
+          event("click", span_2, stopPropagation(() => {
+            handleQuickNewNotebook();
+            set(showNotebookDropdown, false);
+          }));
+          append($$anchor3, div_5);
+        };
+        if_block(node_1, ($$render) => {
+          if (get2(showNotebookDropdown))
+            $$render(consequent_2);
+        });
+      }
+      reset(div_4);
+      bind_this(div_4, ($$value) => set(popoverContainerEl, $$value), () => get2(popoverContainerEl));
+      var div_9 = sibling(div_4, 2);
+      var node_4 = child(div_9);
+      {
+        var consequent_3 = ($$anchor3) => {
+          var div_10 = root_3();
+          append($$anchor3, div_10);
+        };
+        if_block(node_4, ($$render) => {
+          if ($sections(), untrack(() => $sections().length === 0))
+            $$render(consequent_3);
+        });
+      }
+      var node_5 = sibling(node_4, 2);
+      each(node_5, 1, $sections, (sec) => sec.folderPath, ($$anchor3, sec) => {
+        SectionTreeItem($$anchor3, {
+          get sec() {
+            return get2(sec);
+          }
+        });
+      });
+      reset(div_9);
+      reset(div_3);
+      var div_11 = sibling(div_3, 2);
+      var div_12 = child(div_11);
+      var button_2 = sibling(child(div_12), 2);
+      reset(div_12);
+      var div_13 = sibling(div_12, 2);
+      var node_6 = child(div_13);
+      {
+        var consequent_7 = ($$anchor3) => {
+          var fragment_3 = comment();
+          var node_7 = first_child(fragment_3);
+          {
+            var consequent_4 = ($$anchor4) => {
+              var div_14 = root_4();
+              append($$anchor4, div_14);
+            };
+            var alternate = ($$anchor4) => {
+              var fragment_4 = root_6();
+              var node_8 = first_child(fragment_4);
+              {
+                var consequent_5 = ($$anchor5) => {
+                  var div_15 = root_5();
+                  template_effect(() => {
+                    var _a5;
+                    return set_style(div_15, `height: ${(_a5 = (get2(visibleRange), untrack(() => get2(visibleRange).topPadding))) != null ? _a5 : ""}px;`);
+                  });
+                  append($$anchor5, div_15);
+                };
+                if_block(node_8, ($$render) => {
+                  if (get2(visibleRange), untrack(() => get2(visibleRange).topPadding > 0))
+                    $$render(consequent_5);
+                });
+              }
+              var node_9 = sibling(node_8, 2);
+              each(
+                node_9,
+                1,
+                () => (get2(visibleRange), untrack(() => get2(visibleRange).pages)),
+                (page) => page.filepath,
+                ($$anchor5, page) => {
+                  PageTreeItem($$anchor5, {
+                    get page() {
+                      return get2(page);
+                    },
+                    depth: 0,
+                    onClick: openPage,
+                    onAuxClick: handlePageAuxClick,
+                    onContextMenu: handlePageContextMenu
+                  });
+                }
+              );
+              var node_10 = sibling(node_9, 2);
+              {
+                var consequent_6 = ($$anchor5) => {
+                  var div_16 = root_5();
+                  template_effect(() => {
+                    var _a5;
+                    return set_style(div_16, `height: ${(_a5 = (get2(visibleRange), untrack(() => get2(visibleRange).bottomPadding))) != null ? _a5 : ""}px;`);
+                  });
+                  append($$anchor5, div_16);
+                };
+                if_block(node_10, ($$render) => {
+                  if (get2(visibleRange), untrack(() => get2(visibleRange).bottomPadding > 0))
+                    $$render(consequent_6);
+                });
+              }
+              append($$anchor4, fragment_4);
+            };
+            if_block(node_7, ($$render) => {
+              if ($selectedSection(), untrack(() => $selectedSection().pages.length === 0))
+                $$render(consequent_4);
+              else
+                $$render(alternate, -1);
+            });
+          }
+          append($$anchor3, fragment_3);
+        };
+        var alternate_1 = ($$anchor3) => {
+          var div_17 = root_7();
+          append($$anchor3, div_17);
+        };
+        if_block(node_6, ($$render) => {
+          if ($selectedSection())
+            $$render(consequent_7);
+          else
+            $$render(alternate_1, -1);
+        });
+      }
+      reset(div_13);
+      reset(div_11);
+      template_effect(() => {
+        classes = set_class(button, 1, "on-notebook-select-btn", null, classes, { active: get2(showNotebookDropdown) });
+        set_text(text_1, ($selectedNotebook(), untrack(() => $selectedNotebook() ? $selectedNotebook().name : "Select Notebook")));
+      });
+      event("click", button, toggleNotebookDropdown);
+      event("click", button_1, () => handleQuickNewSection());
+      event("click", button_2, () => handleQuickNewNote());
+      event("scroll", div_13, (e) => set(scrollTop, e.currentTarget.scrollTop));
+      append($$anchor2, fragment);
+    };
+    if_block(node, ($$render) => {
+      if (!rootFolderExists)
+        $$render(consequent);
+      else
+        $$render(alternate_2, -1);
     });
   }
-  const click_handler_2 = () => handleQuickNewNote();
-  const scroll_handler = (e) => $$invalidate(1, scrollTop = e.currentTarget.scrollTop);
-  $$self.$$set = ($$props2) => {
-    if ("app" in $$props2)
-      $$invalidate(22, app = $$props2.app);
-    if ("plugin" in $$props2)
-      $$invalidate(23, plugin = $$props2.plugin);
-    if ("dataService" in $$props2)
-      $$invalidate(24, dataService = $$props2.dataService);
-    if ("rootFolder" in $$props2)
-      $$invalidate(0, rootFolder = $$props2.rootFolder);
-    if ("enableVirtualization" in $$props2)
-      $$invalidate(25, enableVirtualization = $$props2.enableVirtualization);
-    if ("initialExpandedPaths" in $$props2)
-      $$invalidate(26, initialExpandedPaths = $$props2.initialExpandedPaths);
-    if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(27, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
-    if ("onExpandedChanged" in $$props2)
-      $$invalidate(28, onExpandedChanged = $$props2.onExpandedChanged);
-    if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(29, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
-    if ("onPageOpened" in $$props2)
-      $$invalidate(30, onPageOpened = $$props2.onPageOpened);
-  };
-  $$self.$$.update = () => {
-    if ($$self.$$.dirty[0] & /*$selectedSection, enableVirtualization, scrollTop*/
-    33554438) {
-      $:
-        $$invalidate(5, visibleRange = (() => {
-          const pages = $selectedSection ? $selectedSection.pages : [];
-          if (!enableVirtualization || pages.length < 100) {
-            return {
-              pages,
-              topPadding: 0,
-              bottomPadding: 0,
-              startIndex: 0
-            };
-          }
-          const visibleCount = Math.ceil(400 / ITEM_HEIGHT);
-          const start = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER_ITEMS);
-          const end = Math.min(pages.length, start + visibleCount + BUFFER_ITEMS * 2);
-          return {
-            pages: pages.slice(start, end),
-            topPadding: start * ITEM_HEIGHT,
-            bottomPadding: (pages.length - end) * ITEM_HEIGHT,
-            startIndex: start
-          };
-        })());
-    }
-    if ($$self.$$.dirty[0] & /*rootFolder*/
-    1 | $$self.$$.dirty[1] & /*vm*/
-    1) {
-      $:
-        if (rootFolder !== void 0) {
-          $$invalidate(31, vm.rootFolder = rootFolder, vm);
-          vm.loadNotebooks();
-        }
-    }
-    if ($$self.$$.dirty[0] & /*$selectedSection, onSectionSelectedChanged*/
-    536870916) {
-      $: {
-        if ($selectedSection) {
-          onSectionSelectedChanged($selectedSection.folderPath);
-        }
-      }
-    }
-  };
-  return [
-    rootFolder,
-    scrollTop,
-    $selectedSection,
-    showNotebookDropdown,
-    popoverContainerEl,
-    visibleRange,
-    $selectedNotebook,
-    $notebooks,
-    $sections,
-    notebooks,
-    selectedNotebook,
-    sections,
-    selectedSection,
-    rootFolderExists,
-    toggleNotebookDropdown,
-    handleWindowClick,
-    openPage,
-    handlePageAuxClick,
-    handlePageContextMenu,
-    handleQuickNewNote,
-    handleQuickNewSection,
-    handleQuickNewNotebook,
-    app,
-    plugin,
-    dataService,
-    enableVirtualization,
-    initialExpandedPaths,
-    initialSelectedSectionPath,
-    onExpandedChanged,
-    onSectionSelectedChanged,
-    onPageOpened,
-    vm,
-    click_handler,
-    click_handler_1,
-    div0_binding,
-    click_handler_2,
-    scroll_handler
-  ];
+  reset(div);
+  append($$anchor, div);
+  pop();
+  $$cleanup();
 }
-var OneNoteView = class extends SvelteComponent {
-  constructor(options) {
-    super();
-    init(
-      this,
-      options,
-      instance4,
-      create_fragment4,
-      safe_not_equal,
-      {
-        app: 22,
-        plugin: 23,
-        dataService: 24,
-        rootFolder: 0,
-        enableVirtualization: 25,
-        initialExpandedPaths: 26,
-        initialSelectedSectionPath: 27,
-        onExpandedChanged: 28,
-        onSectionSelectedChanged: 29,
-        onPageOpened: 30
-      },
-      null,
-      [-1, -1]
-    );
-  }
-};
-var OneNoteView_default = OneNoteView;
 
 // src/OneNoteModal.ts
-var import_obsidian6 = require("obsidian");
+var import_obsidian7 = require("obsidian");
 
 // src/OneNoteModalView.svelte
-var { window: window_12 } = globals;
-function get_each_context3(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[73] = list[i];
-  return child_ctx;
-}
-function get_each_context_12(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[76] = list[i];
-  return child_ctx;
-}
-function get_each_context_22(ctx, list, i) {
-  const child_ctx = ctx.slice();
-  child_ctx[79] = list[i];
-  return child_ctx;
-}
-function create_if_block_10(ctx) {
-  let div;
-  let t0;
-  let t1;
-  let t2;
-  return {
-    c() {
-      div = element("div");
-      t0 = text('\u{1F4A1} Tip: Set a hotkey under Settings \u2192 Hotkeys \u2192 "A1 OneNote: Open navigation popup" for instant access (');
-      t1 = text(
-        /*remainingTips*/
-        ctx[2]
-      );
-      t2 = text(" reminders left)");
-      attr(div, "class", "on-tip-banner");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-      append(div, t0);
-      append(div, t1);
-      append(div, t2);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*remainingTips*/
-      4)
-        set_data(
-          t1,
-          /*remainingTips*/
-          ctx2[2]
-        );
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_9(ctx) {
-  let span;
-  let mounted;
-  let dispose;
-  return {
-    c() {
-      span = element("span");
-      span.textContent = "\u2715";
-      attr(span, "class", "on-filter-clear");
-      attr(span, "role", "button");
-      attr(span, "tabindex", "0");
-    },
-    m(target, anchor) {
-      insert(target, span, anchor);
-      if (!mounted) {
-        dispose = listen(
-          span,
-          "click",
-          /*click_handler*/
-          ctx[51]
-        );
-        mounted = true;
-      }
-    },
-    p: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(span);
-      }
-      mounted = false;
-      dispose();
-    }
-  };
-}
-function create_else_block2(ctx) {
-  let div2;
-  let div0;
-  let button0;
-  let span0;
-  let t1;
-  let span1;
-  let t2_value = (
-    /*$selectedNotebook*/
-    (ctx[18] ? (
-      /*$selectedNotebook*/
-      ctx[18].name
-    ) : "Select Notebook") + ""
-  );
-  let t2;
-  let t3;
-  let span2;
-  let t5;
-  let button1;
-  let t7;
-  let t8;
-  let div1;
-  let t9;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let t10;
-  let div5;
-  let div3;
-  let span3;
-  let t11_value = (
-    /*trimmedQuery*/
-    ctx[4] ? `Matches (${/*$filteredPages*/
-    ctx[5].length})` : "Pages"
-  );
-  let t11;
-  let t12;
-  let button2;
-  let t14;
-  let div4;
-  let current_block_type_index;
-  let if_block2;
-  let current;
-  let mounted;
-  let dispose;
-  let if_block0 = (
-    /*showNotebookDropdown*/
-    ctx[7] && create_if_block_72(ctx)
-  );
-  let if_block1 = (
-    /*$sections*/
-    ctx[20].length === 0 && create_if_block_62(ctx)
-  );
-  let each_value_1 = ensure_array_like(
-    /*$sections*/
-    ctx[20]
-  );
-  const get_key = (ctx2) => (
-    /*sec*/
-    ctx2[76].folderPath
-  );
-  for (let i = 0; i < each_value_1.length; i += 1) {
-    let child_ctx = get_each_context_12(ctx, each_value_1, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block_12(key, child_ctx));
-  }
-  const if_block_creators = [create_if_block_13, create_if_block_42, create_if_block_52, create_else_block_12];
-  const if_blocks = [];
-  function select_block_type_1(ctx2, dirty) {
-    if (
-      /*$filteredPages*/
-      ctx2[5].length > 0
-    )
-      return 0;
-    if (
-      /*trimmedQuery*/
-      ctx2[4]
-    )
-      return 1;
-    if (
-      /*$selectedSection*/
-      ctx2[15]
-    )
-      return 2;
-    return 3;
-  }
-  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1]);
-  if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      button0 = element("button");
-      span0 = element("span");
-      span0.textContent = "\u{1F4D4}";
-      t1 = space();
-      span1 = element("span");
-      t2 = text(t2_value);
-      t3 = space();
-      span2 = element("span");
-      span2.textContent = "\u25BE";
-      t5 = space();
-      button1 = element("button");
-      button1.textContent = "+ New";
-      t7 = space();
-      if (if_block0)
-        if_block0.c();
-      t8 = space();
-      div1 = element("div");
-      if (if_block1)
-        if_block1.c();
-      t9 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      t10 = space();
-      div5 = element("div");
-      div3 = element("div");
-      span3 = element("span");
-      t11 = text(t11_value);
-      t12 = space();
-      button2 = element("button");
-      button2.textContent = "+ New Page";
-      t14 = space();
-      div4 = element("div");
-      if_block2.c();
-      attr(span0, "class", "on-notebook-icon");
-      attr(span1, "class", "on-notebook-name");
-      attr(span2, "class", "on-caret");
-      attr(button0, "class", "on-notebook-select-btn");
-      attr(button0, "title", "Switch notebook");
-      toggle_class(
-        button0,
-        "active",
-        /*showNotebookDropdown*/
-        ctx[7]
-      );
-      attr(button1, "class", "on-btn-quick-add");
-      attr(button1, "title", "Create new section");
-      attr(div0, "class", "on-pane-header on-pane-header-with-action on-notebook-popover-container");
-      attr(div1, "class", "on-list");
-      attr(div2, "class", "on-sections-pane");
-      attr(button2, "class", "on-btn-quick-add");
-      attr(button2, "title", "New Note in section (Ctrl+N)");
-      attr(div3, "class", "on-pane-header on-pane-header-with-action");
-      attr(div4, "class", "on-list");
-      attr(div5, "class", "on-pages-pane");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div0, button0);
-      append(button0, span0);
-      append(button0, t1);
-      append(button0, span1);
-      append(span1, t2);
-      append(button0, t3);
-      append(button0, span2);
-      append(div0, t5);
-      append(div0, button1);
-      append(div0, t7);
-      if (if_block0)
-        if_block0.m(div0, null);
-      ctx[54](div0);
-      append(div2, t8);
-      append(div2, div1);
-      if (if_block1)
-        if_block1.m(div1, null);
-      append(div1, t9);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(div1, null);
-        }
-      }
-      insert(target, t10, anchor);
-      insert(target, div5, anchor);
-      append(div5, div3);
-      append(div3, span3);
-      append(span3, t11);
-      append(div3, t12);
-      append(div3, button2);
-      append(div5, t14);
-      append(div5, div4);
-      if_blocks[current_block_type_index].m(div4, null);
-      current = true;
-      if (!mounted) {
-        dispose = [
-          listen(
-            button0,
-            "click",
-            /*toggleNotebookDropdown*/
-            ctx[30]
-          ),
-          listen(
-            button1,
-            "click",
-            /*click_handler_1*/
-            ctx[52]
-          ),
-          listen(
-            button2,
-            "click",
-            /*click_handler_3*/
-            ctx[55]
-          ),
-          listen(
-            div4,
-            "scroll",
-            /*scroll_handler*/
-            ctx[56]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if ((!current || dirty[0] & /*$selectedNotebook*/
-      262144) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[18] ? (
-        /*$selectedNotebook*/
-        ctx2[18].name
-      ) : "Select Notebook") + ""))
-        set_data(t2, t2_value);
-      if (!current || dirty[0] & /*showNotebookDropdown*/
-      128) {
-        toggle_class(
-          button0,
-          "active",
-          /*showNotebookDropdown*/
-          ctx2[7]
-        );
-      }
-      if (
-        /*showNotebookDropdown*/
-        ctx2[7]
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-          if (dirty[0] & /*showNotebookDropdown*/
-          128) {
-            transition_in(if_block0, 1);
-          }
-        } else {
-          if_block0 = create_if_block_72(ctx2);
-          if_block0.c();
-          transition_in(if_block0, 1);
-          if_block0.m(div0, null);
-        }
-      } else if (if_block0) {
-        group_outros();
-        transition_out(if_block0, 1, 1, () => {
-          if_block0 = null;
-        });
-        check_outros();
-      }
-      if (
-        /*$sections*/
-        ctx2[20].length === 0
-      ) {
-        if (if_block1) {
-        } else {
-          if_block1 = create_if_block_62(ctx2);
-          if_block1.c();
-          if_block1.m(div1, t9);
-        }
-      } else if (if_block1) {
-        if_block1.d(1);
-        if_block1 = null;
-      }
-      if (dirty[0] & /*$sections, focusPane, $visibleSections, focusedSectionIndex*/
-      1117184) {
-        each_value_1 = ensure_array_like(
-          /*$sections*/
-          ctx2[20]
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, div1, outro_and_destroy_block, create_each_block_12, null, get_each_context_12);
-        check_outros();
-      }
-      if ((!current || dirty[0] & /*trimmedQuery, $filteredPages*/
-      48) && t11_value !== (t11_value = /*trimmedQuery*/
-      ctx2[4] ? `Matches (${/*$filteredPages*/
-      ctx2[5].length})` : "Pages"))
-        set_data(t11, t11_value);
-      let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type_1(ctx2, dirty);
-      if (current_block_type_index === previous_block_index) {
-        if_blocks[current_block_type_index].p(ctx2, dirty);
-      } else {
-        group_outros();
-        transition_out(if_blocks[previous_block_index], 1, 1, () => {
-          if_blocks[previous_block_index] = null;
-        });
-        check_outros();
-        if_block2 = if_blocks[current_block_type_index];
-        if (!if_block2) {
-          if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
-          if_block2.c();
-        } else {
-          if_block2.p(ctx2, dirty);
-        }
-        transition_in(if_block2, 1);
-        if_block2.m(div4, null);
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block0);
-      for (let i = 0; i < each_value_1.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      transition_in(if_block2);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block0);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      transition_out(if_block2);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-        detach(t10);
-        detach(div5);
-      }
-      if (if_block0)
-        if_block0.d();
-      ctx[54](null);
-      if (if_block1)
-        if_block1.d();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d();
-      }
-      if_blocks[current_block_type_index].d();
-      mounted = false;
-      run_all(dispose);
-    }
-  };
-}
-function create_if_block3(ctx) {
-  let div2;
-  let div0;
-  let t3;
-  let div1;
-  let t4;
-  let code;
-  let t5;
-  let t6;
-  let t7;
-  let t8;
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      div0.innerHTML = `<span class="on-error-icon">\u26A0\uFE0F</span> <span class="on-error-title">OneNote Root Not Found</span>`;
-      t3 = space();
-      div1 = element("div");
-      t4 = text("The configured root folder ");
-      code = element("code");
-      t5 = text('"');
-      t6 = text(
-        /*rootFolder*/
-        ctx[0]
-      );
-      t7 = text('"');
-      t8 = text(" does not exist in your vault.");
-      attr(div0, "class", "on-error-header");
-      attr(div1, "class", "on-error-body");
-      attr(div2, "class", "on-error-container");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div2, t3);
-      append(div2, div1);
-      append(div1, t4);
-      append(div1, code);
-      append(code, t5);
-      append(code, t6);
-      append(code, t7);
-      append(div1, t8);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*rootFolder*/
-      1)
-        set_data(
-          t6,
-          /*rootFolder*/
-          ctx2[0]
-        );
-    },
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-      }
-    }
-  };
-}
-function create_if_block_72(ctx) {
-  let div2;
-  let div0;
-  let span0;
-  let t0;
-  let t1_value = (
-    /*$notebooks*/
-    ctx[19].length + ""
-  );
-  let t1;
-  let t2;
-  let t3;
-  let span1;
-  let t5;
-  let div1;
-  let t6;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let current;
-  let mounted;
-  let dispose;
-  let if_block = (
-    /*$notebooks*/
-    ctx[19].length === 0 && create_if_block_8(ctx)
-  );
-  let each_value_2 = ensure_array_like(
-    /*$notebooks*/
-    ctx[19]
-  );
-  const get_key = (ctx2) => (
-    /*nb*/
-    ctx2[79].folderPath
-  );
-  for (let i = 0; i < each_value_2.length; i += 1) {
-    let child_ctx = get_each_context_22(ctx, each_value_2, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block_22(key, child_ctx));
-  }
-  return {
-    c() {
-      div2 = element("div");
-      div0 = element("div");
-      span0 = element("span");
-      t0 = text("Notebooks (");
-      t1 = text(t1_value);
-      t2 = text(")");
-      t3 = space();
-      span1 = element("span");
-      span1.textContent = "+ New";
-      t5 = space();
-      div1 = element("div");
-      if (if_block)
-        if_block.c();
-      t6 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      attr(span1, "class", "on-btn-quick-add");
-      set_style(span1, "cursor", "pointer");
-      attr(div0, "class", "on-popover-header");
-      attr(div1, "class", "on-popover-list");
-      attr(div2, "class", "on-notebook-popover");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
-      append(div0, span0);
-      append(span0, t0);
-      append(span0, t1);
-      append(span0, t2);
-      append(div0, t3);
-      append(div0, span1);
-      append(div2, t5);
-      append(div2, div1);
-      if (if_block)
-        if_block.m(div1, null);
-      append(div1, t6);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(div1, null);
-        }
-      }
-      current = true;
-      if (!mounted) {
-        dispose = listen(span1, "click", stop_propagation(
-          /*click_handler_2*/
-          ctx[53]
-        ));
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if ((!current || dirty[0] & /*$notebooks*/
-      524288) && t1_value !== (t1_value = /*$notebooks*/
-      ctx2[19].length + ""))
-        set_data(t1, t1_value);
-      if (
-        /*$notebooks*/
-        ctx2[19].length === 0
-      ) {
-        if (if_block) {
-        } else {
-          if_block = create_if_block_8(ctx2);
-          if_block.c();
-          if_block.m(div1, t6);
-        }
-      } else if (if_block) {
-        if_block.d(1);
-        if_block = null;
-      }
-      if (dirty[0] & /*$notebooks*/
-      524288) {
-        each_value_2 = ensure_array_like(
-          /*$notebooks*/
-          ctx2[19]
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_2, each_1_lookup, div1, outro_and_destroy_block, create_each_block_22, null, get_each_context_22);
-        check_outros();
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      for (let i = 0; i < each_value_2.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      current = true;
-    },
-    o(local) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-      }
-      if (if_block)
-        if_block.d();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d();
-      }
-      mounted = false;
-      dispose();
-    }
-  };
-}
-function create_if_block_8(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No notebooks found.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block_22(key_1, ctx) {
-  let first;
-  let notebooktreeitem;
-  let current;
-  notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
-    /*nb*/
-    ctx[79]
-  ) } });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(notebooktreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(notebooktreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const notebooktreeitem_changes = {};
-      if (dirty[0] & /*$notebooks*/
-      524288)
-        notebooktreeitem_changes.notebook = /*nb*/
-        ctx[79];
-      notebooktreeitem.$set(notebooktreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(notebooktreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(notebooktreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(notebooktreeitem, detaching);
-    }
-  };
-}
-function create_if_block_62(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No sections found.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block_12(key_1, ctx) {
-  let first;
-  let sectiontreeitem;
-  let current;
-  sectiontreeitem = new SectionTreeItem_default({
-    props: {
-      sec: (
-        /*sec*/
-        ctx[76]
-      ),
-      focusPane: (
-        /*focusPane*/
-        ctx[10]
-      ),
-      focusedFolderPath: (
-        /*focusPane*/
-        ctx[10] === "sections" && /*$visibleSections*/
-        ctx[16][
-          /*focusedSectionIndex*/
-          ctx[11]
-        ] ? (
-          /*$visibleSections*/
-          ctx[16][
-            /*focusedSectionIndex*/
-            ctx[11]
-          ].folderPath
-        ) : ""
-      )
-    }
+var root2 = from_html(`<div class="on-tip-banner"> </div>`);
+var root_12 = from_html(`<span class="on-filter-clear" role="button" tabindex="0">\u2715</span>`);
+var root_22 = from_html(`<div class="on-error-container"><div class="on-error-header"><span class="on-error-icon">\u26A0\uFE0F</span> <span class="on-error-title">OneNote Root Not Found</span></div> <div class="on-error-body">The configured root folder <code> </code> does not exist in your vault.</div></div>`);
+var root_32 = from_html(`<div class="on-empty-msg">No notebooks found.</div>`);
+var root_42 = from_html(`<div class="on-notebook-popover"><div class="on-popover-header"><span> </span> <span class="on-btn-quick-add" style="cursor: pointer;" role="button" tabindex="0">+ New</span></div> <div class="on-popover-list"><!> <!></div></div>`);
+var root_52 = from_html(`<div class="on-empty-msg">No sections found.</div>`);
+var root_62 = from_html(`<div></div>`);
+var root_72 = from_html(`<!> <!> <!>`, 1);
+var root_82 = from_html(`<div class="on-empty-msg"> </div>`);
+var root_92 = from_html(`<div class="on-empty-msg">No pages in this section.</div>`);
+var root_10 = from_html(`<div class="on-empty-msg">Select a section to view pages.</div>`);
+var root_11 = from_html(`<div class="on-sections-pane"><div class="on-pane-header on-pane-header-with-action on-notebook-popover-container"><button title="Switch notebook"><span class="on-notebook-icon">\u{1F4D4}</span> <span class="on-notebook-name"> </span> <span class="on-caret">\u25BE</span></button> <button class="on-btn-quick-add" title="Create new section">+ New</button> <!></div> <div class="on-list"><!> <!></div></div> <div class="on-pages-pane"><div class="on-pane-header on-pane-header-with-action"><span> </span> <button class="on-btn-quick-add" title="New Note in section (Ctrl+N)">+ New Page</button></div> <div class="on-list"><!></div></div>`, 1);
+var root_122 = from_html(`<div class="on-modal-container" tabindex="0" style="outline: none;" role="region"><!> <div class="on-filter-bar"><span class="on-filter-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> <input type="text" class="on-filter-input" placeholder="Type to search page or section..."/> <!></div> <div class="on-dual-pane"><!></div></div>`);
+function OneNoteModalView($$anchor, $$props) {
+  push($$props, false);
+  const $filteredPages = () => store_get(filteredPages, "$filteredPages", $$stores);
+  const $filterQueryStore = () => store_get(filterQueryStore, "$filterQueryStore", $$stores);
+  const $activePagePath = () => store_get(activePagePath, "$activePagePath", $$stores);
+  const $selectedSection = () => store_get(selectedSection, "$selectedSection", $$stores);
+  const $visibleSections = () => store_get(visibleSections, "$visibleSections", $$stores);
+  const $rootFolderExists = () => store_get(rootFolderExists, "$rootFolderExists", $$stores);
+  const $selectedNotebook = () => store_get(selectedNotebook, "$selectedNotebook", $$stores);
+  const $notebooks = () => store_get(notebooks, "$notebooks", $$stores);
+  const $sections = () => store_get(sections, "$sections", $$stores);
+  const [$$stores, $$cleanup] = setup_stores();
+  const visibleRange = mutable_source();
+  const trimmedQuery = mutable_source();
+  let app = prop($$props, "app", 8);
+  let plugin = prop($$props, "plugin", 8, null);
+  let dataService = prop($$props, "dataService", 8);
+  let rootFolder = prop($$props, "rootFolder", 8, "OneNote");
+  let enableVirtualization = prop($$props, "enableVirtualization", 8, false);
+  let showTip = prop($$props, "showTip", 8, false);
+  let remainingTips = prop($$props, "remainingTips", 8, 0);
+  let onPageOpened = prop($$props, "onPageOpened", 8, () => {
   });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(sectiontreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(sectiontreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const sectiontreeitem_changes = {};
-      if (dirty[0] & /*$sections*/
-      1048576)
-        sectiontreeitem_changes.sec = /*sec*/
-        ctx[76];
-      if (dirty[0] & /*focusPane*/
-      1024)
-        sectiontreeitem_changes.focusPane = /*focusPane*/
-        ctx[10];
-      if (dirty[0] & /*focusPane, $visibleSections, focusedSectionIndex*/
-      68608)
-        sectiontreeitem_changes.focusedFolderPath = /*focusPane*/
-        ctx[10] === "sections" && /*$visibleSections*/
-        ctx[16][
-          /*focusedSectionIndex*/
-          ctx[11]
-        ] ? (
-          /*$visibleSections*/
-          ctx[16][
-            /*focusedSectionIndex*/
-            ctx[11]
-          ].folderPath
-        ) : "";
-      sectiontreeitem.$set(sectiontreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(sectiontreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(sectiontreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(sectiontreeitem, detaching);
-    }
-  };
-}
-function create_else_block_12(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "Select a section to view pages.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p: noop,
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_52(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      div.textContent = "No pages in this section.";
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p: noop,
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_42(ctx) {
-  let div;
-  let t0;
-  let t1;
-  let t2;
-  return {
-    c() {
-      div = element("div");
-      t0 = text('No matching pages for "');
-      t1 = text(
-        /*$filterQueryStore*/
-        ctx[6]
-      );
-      t2 = text('".');
-      attr(div, "class", "on-empty-msg");
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-      append(div, t0);
-      append(div, t1);
-      append(div, t2);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*$filterQueryStore*/
-      64)
-        set_data(
-          t1,
-          /*$filterQueryStore*/
-          ctx2[6]
-        );
-    },
-    i: noop,
-    o: noop,
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_if_block_13(ctx) {
-  let t0;
-  let each_blocks = [];
-  let each_1_lookup = /* @__PURE__ */ new Map();
-  let t1;
-  let if_block1_anchor;
-  let current;
-  let if_block0 = (
-    /*visibleRange*/
-    ctx[14].topPadding > 0 && create_if_block_32(ctx)
-  );
-  let each_value = ensure_array_like(
-    /*visibleRange*/
-    ctx[14].pages
-  );
-  const get_key = (ctx2) => (
-    /*page*/
-    ctx2[73].filepath
-  );
-  for (let i = 0; i < each_value.length; i += 1) {
-    let child_ctx = get_each_context3(ctx, each_value, i);
-    let key = get_key(child_ctx);
-    each_1_lookup.set(key, each_blocks[i] = create_each_block3(key, child_ctx));
-  }
-  let if_block1 = (
-    /*visibleRange*/
-    ctx[14].bottomPadding > 0 && create_if_block_22(ctx)
-  );
-  return {
-    c() {
-      if (if_block0)
-        if_block0.c();
-      t0 = space();
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].c();
-      }
-      t1 = space();
-      if (if_block1)
-        if_block1.c();
-      if_block1_anchor = empty();
-    },
-    m(target, anchor) {
-      if (if_block0)
-        if_block0.m(target, anchor);
-      insert(target, t0, anchor);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        if (each_blocks[i]) {
-          each_blocks[i].m(target, anchor);
-        }
-      }
-      insert(target, t1, anchor);
-      if (if_block1)
-        if_block1.m(target, anchor);
-      insert(target, if_block1_anchor, anchor);
-      current = true;
-    },
-    p(ctx2, dirty) {
-      if (
-        /*visibleRange*/
-        ctx2[14].topPadding > 0
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-        } else {
-          if_block0 = create_if_block_32(ctx2);
-          if_block0.c();
-          if_block0.m(t0.parentNode, t0);
-        }
-      } else if (if_block0) {
-        if_block0.d(1);
-        if_block0 = null;
-      }
-      if (dirty[0] & /*visibleRange, focusPane, focusedPagePath*/
-      21504 | dirty[1] & /*openPage, handlePageAuxClick, handlePageContextMenu*/
-      56) {
-        each_value = ensure_array_like(
-          /*visibleRange*/
-          ctx2[14].pages
-        );
-        group_outros();
-        each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, t1.parentNode, outro_and_destroy_block, create_each_block3, t1, get_each_context3);
-        check_outros();
-      }
-      if (
-        /*visibleRange*/
-        ctx2[14].bottomPadding > 0
-      ) {
-        if (if_block1) {
-          if_block1.p(ctx2, dirty);
-        } else {
-          if_block1 = create_if_block_22(ctx2);
-          if_block1.c();
-          if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
-        }
-      } else if (if_block1) {
-        if_block1.d(1);
-        if_block1 = null;
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      for (let i = 0; i < each_value.length; i += 1) {
-        transition_in(each_blocks[i]);
-      }
-      current = true;
-    },
-    o(local) {
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        transition_out(each_blocks[i]);
-      }
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(t0);
-        detach(t1);
-        detach(if_block1_anchor);
-      }
-      if (if_block0)
-        if_block0.d(detaching);
-      for (let i = 0; i < each_blocks.length; i += 1) {
-        each_blocks[i].d(detaching);
-      }
-      if (if_block1)
-        if_block1.d(detaching);
-    }
-  };
-}
-function create_if_block_32(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      set_style(
-        div,
-        "height",
-        /*visibleRange*/
-        ctx[14].topPadding + "px"
-      );
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*visibleRange*/
-      16384) {
-        set_style(
-          div,
-          "height",
-          /*visibleRange*/
-          ctx2[14].topPadding + "px"
-        );
-      }
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_each_block3(key_1, ctx) {
-  let first;
-  let pagetreeitem;
-  let current;
-  pagetreeitem = new PageTreeItem_default({
-    props: {
-      page: (
-        /*page*/
-        ctx[73]
-      ),
-      depth: 0,
-      focusPane: (
-        /*focusPane*/
-        ctx[10]
-      ),
-      focusedPagePath: (
-        /*focusedPagePath*/
-        ctx[12]
-      ),
-      onClick: (
-        /*openPage*/
-        ctx[34]
-      ),
-      onAuxClick: (
-        /*handlePageAuxClick*/
-        ctx[35]
-      ),
-      onContextMenu: (
-        /*handlePageContextMenu*/
-        ctx[36]
-      )
-    }
+  let initialExpandedPaths = prop($$props, "initialExpandedPaths", 24, () => []);
+  let initialSelectedSectionPath = prop($$props, "initialSelectedSectionPath", 8, "");
+  let onExpandedChanged = prop($$props, "onExpandedChanged", 8, () => {
   });
-  return {
-    key: key_1,
-    first: null,
-    c() {
-      first = empty();
-      create_component(pagetreeitem.$$.fragment);
-      this.first = first;
-    },
-    m(target, anchor) {
-      insert(target, first, anchor);
-      mount_component(pagetreeitem, target, anchor);
-      current = true;
-    },
-    p(new_ctx, dirty) {
-      ctx = new_ctx;
-      const pagetreeitem_changes = {};
-      if (dirty[0] & /*visibleRange*/
-      16384)
-        pagetreeitem_changes.page = /*page*/
-        ctx[73];
-      if (dirty[0] & /*focusPane*/
-      1024)
-        pagetreeitem_changes.focusPane = /*focusPane*/
-        ctx[10];
-      if (dirty[0] & /*focusedPagePath*/
-      4096)
-        pagetreeitem_changes.focusedPagePath = /*focusedPagePath*/
-        ctx[12];
-      pagetreeitem.$set(pagetreeitem_changes);
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(pagetreeitem.$$.fragment, local);
-      current = true;
-    },
-    o(local) {
-      transition_out(pagetreeitem.$$.fragment, local);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(first);
-      }
-      destroy_component(pagetreeitem, detaching);
-    }
-  };
-}
-function create_if_block_22(ctx) {
-  let div;
-  return {
-    c() {
-      div = element("div");
-      set_style(
-        div,
-        "height",
-        /*visibleRange*/
-        ctx[14].bottomPadding + "px"
-      );
-    },
-    m(target, anchor) {
-      insert(target, div, anchor);
-    },
-    p(ctx2, dirty) {
-      if (dirty[0] & /*visibleRange*/
-      16384) {
-        set_style(
-          div,
-          "height",
-          /*visibleRange*/
-          ctx2[14].bottomPadding + "px"
-        );
-      }
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div);
-      }
-    }
-  };
-}
-function create_fragment5(ctx) {
-  let div2;
-  let t0;
-  let div0;
-  let span;
-  let t1;
-  let input;
-  let t2;
-  let t3;
-  let div1;
-  let current_block_type_index;
-  let if_block2;
-  let current;
-  let mounted;
-  let dispose;
-  let if_block0 = (
-    /*showTip*/
-    ctx[1] && create_if_block_10(ctx)
-  );
-  let if_block1 = (
-    /*$filterQueryStore*/
-    ctx[6] && create_if_block_9(ctx)
-  );
-  const if_block_creators = [create_if_block3, create_else_block2];
-  const if_blocks = [];
-  function select_block_type(ctx2, dirty) {
-    if (!/*$rootFolderExists*/
-    ctx2[17])
-      return 0;
-    return 1;
-  }
-  current_block_type_index = select_block_type(ctx, [-1, -1, -1]);
-  if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-  return {
-    c() {
-      div2 = element("div");
-      if (if_block0)
-        if_block0.c();
-      t0 = space();
-      div0 = element("div");
-      span = element("span");
-      span.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
-      t1 = space();
-      input = element("input");
-      t2 = space();
-      if (if_block1)
-        if_block1.c();
-      t3 = space();
-      div1 = element("div");
-      if_block2.c();
-      attr(span, "class", "on-filter-icon");
-      attr(input, "type", "text");
-      attr(input, "class", "on-filter-input");
-      attr(input, "placeholder", "Type to search page or section...");
-      attr(div0, "class", "on-filter-bar");
-      attr(div1, "class", "on-dual-pane");
-      attr(div2, "class", "on-modal-container");
-      attr(div2, "tabindex", "0");
-      set_style(div2, "outline", "none");
-      attr(div2, "role", "region");
-    },
-    m(target, anchor) {
-      insert(target, div2, anchor);
-      if (if_block0)
-        if_block0.m(div2, null);
-      append(div2, t0);
-      append(div2, div0);
-      append(div0, span);
-      append(div0, t1);
-      append(div0, input);
-      set_input_value(
-        input,
-        /*$filterQueryStore*/
-        ctx[6]
-      );
-      ctx[50](input);
-      append(div0, t2);
-      if (if_block1)
-        if_block1.m(div0, null);
-      append(div2, t3);
-      append(div2, div1);
-      if_blocks[current_block_type_index].m(div1, null);
-      ctx[57](div2);
-      current = true;
-      if (!mounted) {
-        dispose = [
-          listen(
-            window_12,
-            "click",
-            /*handleWindowClick*/
-            ctx[31]
-          ),
-          listen(
-            input,
-            "input",
-            /*input_input_handler*/
-            ctx[49]
-          ),
-          listen(
-            div2,
-            "keydown",
-            /*handleKeydown*/
-            ctx[39]
-          ),
-          listen(
-            div2,
-            "pointerdown",
-            /*handleContainerPointerDown*/
-            ctx[32]
-          )
-        ];
-        mounted = true;
-      }
-    },
-    p(ctx2, dirty) {
-      if (
-        /*showTip*/
-        ctx2[1]
-      ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
-        } else {
-          if_block0 = create_if_block_10(ctx2);
-          if_block0.c();
-          if_block0.m(div2, t0);
-        }
-      } else if (if_block0) {
-        if_block0.d(1);
-        if_block0 = null;
-      }
-      if (dirty[0] & /*$filterQueryStore*/
-      64 && input.value !== /*$filterQueryStore*/
-      ctx2[6]) {
-        set_input_value(
-          input,
-          /*$filterQueryStore*/
-          ctx2[6]
-        );
-      }
-      if (
-        /*$filterQueryStore*/
-        ctx2[6]
-      ) {
-        if (if_block1) {
-          if_block1.p(ctx2, dirty);
-        } else {
-          if_block1 = create_if_block_9(ctx2);
-          if_block1.c();
-          if_block1.m(div0, null);
-        }
-      } else if (if_block1) {
-        if_block1.d(1);
-        if_block1 = null;
-      }
-      let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type(ctx2, dirty);
-      if (current_block_type_index === previous_block_index) {
-        if_blocks[current_block_type_index].p(ctx2, dirty);
-      } else {
-        group_outros();
-        transition_out(if_blocks[previous_block_index], 1, 1, () => {
-          if_blocks[previous_block_index] = null;
-        });
-        check_outros();
-        if_block2 = if_blocks[current_block_type_index];
-        if (!if_block2) {
-          if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
-          if_block2.c();
-        } else {
-          if_block2.p(ctx2, dirty);
-        }
-        transition_in(if_block2, 1);
-        if_block2.m(div1, null);
-      }
-    },
-    i(local) {
-      if (current)
-        return;
-      transition_in(if_block2);
-      current = true;
-    },
-    o(local) {
-      transition_out(if_block2);
-      current = false;
-    },
-    d(detaching) {
-      if (detaching) {
-        detach(div2);
-      }
-      if (if_block0)
-        if_block0.d();
-      ctx[50](null);
-      if (if_block1)
-        if_block1.d();
-      if_blocks[current_block_type_index].d();
-      ctx[57](null);
-      mounted = false;
-      run_all(dispose);
-    }
-  };
-}
-function instance5($$self, $$props, $$invalidate) {
-  let visibleRange;
-  let trimmedQuery;
-  let $selectedSection;
-  let $filteredPages;
-  let $visibleSections;
-  let $filterQueryStore;
-  let $activePagePath;
-  let $rootFolderExists;
-  let $selectedNotebook;
-  let $notebooks;
-  let $sections;
-  let { app } = $$props;
-  let { plugin = null } = $$props;
-  let { dataService } = $$props;
-  let { rootFolder = "OneNote" } = $$props;
-  let { enableVirtualization = false } = $$props;
-  let { showTip = false } = $$props;
-  let { remainingTips = 0 } = $$props;
-  let { onPageOpened = () => {
-  } } = $$props;
-  let { initialExpandedPaths = [] } = $$props;
-  let { initialSelectedSectionPath = "" } = $$props;
-  let { onExpandedChanged = () => {
-  } } = $$props;
-  let { onSectionSelectedChanged = () => {
-  } } = $$props;
+  let onSectionSelectedChanged = prop($$props, "onSectionSelectedChanged", 8, () => {
+  });
   const instanceId = "modal-" + Math.random().toString(36).substring(2, 9);
-  const vm = new OneNoteViewModel(app, plugin, dataService, rootFolder, initialExpandedPaths, initialSelectedSectionPath);
+  const vm = new OneNoteViewModel(app(), plugin(), dataService(), rootFolder(), initialExpandedPaths(), initialSelectedSectionPath());
   setContext("vm", vm);
   const notebooks = vm.notebooks;
-  component_subscribe($$self, notebooks, (value) => $$invalidate(19, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(18, $selectedNotebook = value));
   const sections = vm.sections;
-  component_subscribe($$self, sections, (value) => $$invalidate(20, $sections = value));
   const selectedSection = vm.selectedSection;
-  component_subscribe($$self, selectedSection, (value) => $$invalidate(15, $selectedSection = value));
   const activePagePath = vm.activePagePath;
-  component_subscribe($$self, activePagePath, (value) => $$invalidate(58, $activePagePath = value));
   const rootFolderExists = vm.rootFolderExists;
-  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(17, $rootFolderExists = value));
   const filterQueryStore = vm.filterQuery;
-  component_subscribe($$self, filterQueryStore, (value) => $$invalidate(6, $filterQueryStore = value));
   const visibleSections = vm.visibleSections;
-  component_subscribe($$self, visibleSections, (value) => $$invalidate(16, $visibleSections = value));
   const filteredPages = vm.filteredPages;
-  component_subscribe($$self, filteredPages, (value) => $$invalidate(5, $filteredPages = value));
-  let scrollTop = 0;
-  let showNotebookDropdown = false;
-  let popoverContainerEl;
+  let scrollTop = mutable_source(0);
+  let showNotebookDropdown = mutable_source(false);
+  let popoverContainerEl = mutable_source();
   function toggleNotebookDropdown(e) {
     e.stopPropagation();
-    $$invalidate(7, showNotebookDropdown = !showNotebookDropdown);
+    set(showNotebookDropdown, !get2(showNotebookDropdown));
   }
   function handleWindowClick(e) {
-    if (showNotebookDropdown && popoverContainerEl && !popoverContainerEl.contains(e.target)) {
-      $$invalidate(7, showNotebookDropdown = false);
+    if (get2(showNotebookDropdown) && get2(popoverContainerEl) && !get2(popoverContainerEl).contains(e.target)) {
+      set(showNotebookDropdown, false);
     }
   }
   function handleContainerPointerDown(e) {
-    if (showNotebookDropdown && popoverContainerEl && !popoverContainerEl.contains(e.target)) {
-      $$invalidate(7, showNotebookDropdown = false);
+    if (get2(showNotebookDropdown) && get2(popoverContainerEl) && !get2(popoverContainerEl).contains(e.target)) {
+      set(showNotebookDropdown, false);
     }
   }
-  let searchInputEl;
-  let focusPane = "sections";
-  let focusedSectionIndex = 0;
-  let focusedPagePath = "";
-  let modalContainerEl;
+  let searchInputEl = mutable_source();
+  let focusPane = mutable_source("sections");
+  let focusedSectionIndex = mutable_source(0);
+  let focusedPagePath = mutable_source("");
+  let modalContainerEl = mutable_source();
   function handleGlobalCapturePointerDown(e) {
-    if (!showNotebookDropdown)
+    if (!get2(showNotebookDropdown))
       return;
     const target = e.target;
-    if (target && popoverContainerEl && !popoverContainerEl.contains(target)) {
-      $$invalidate(7, showNotebookDropdown = false);
+    if (target && get2(popoverContainerEl) && !get2(popoverContainerEl).contains(target)) {
+      set(showNotebookDropdown, false);
     }
   }
   onMount(() => {
     vm.loadNotebooks();
     window.addEventListener("pointerdown", handleGlobalCapturePointerDown, true);
-    const activeFile = app.workspace.getActiveFile();
+    const activeFile = app().workspace.getActiveFile();
     const activeFilePath = activeFile ? activeFile.path : "";
     if (activeFilePath) {
-      set_store_value(activePagePath, $activePagePath = activeFilePath, $activePagePath);
+      store_set(activePagePath, activeFilePath);
       vm.autoRevealActivePage(activeFilePath);
-      $$invalidate(10, focusPane = "pages");
-      $$invalidate(12, focusedPagePath = activeFilePath);
+      set(focusPane, "pages");
+      set(focusedPagePath, activeFilePath);
     }
     syncSectionIndexToSelectedSection();
     setTimeout(
       () => {
-        if (modalContainerEl) {
-          modalContainerEl.focus();
+        if (get2(modalContainerEl)) {
+          get2(modalContainerEl).focus();
         }
         scrollFocusedIntoView();
       },
       50
     );
-    EventBus.on("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged2);
-    EventBus.on("section:selected" /* SECTION_SELECTED */, handleSectionSelected2);
+    EventBus.on("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged);
+    EventBus.on("section:selected" /* SECTION_SELECTED */, handleSectionSelected);
   });
-  function handleExpandedChanged2(payload) {
+  function handleExpandedChanged(payload) {
     if (payload.sourceId !== instanceId && payload.paths) {
       vm.expandedSections.set(new Set(payload.paths));
       vm.loadNotebooks();
     }
   }
-  function handleSectionSelected2(payload) {
+  function handleSectionSelected(payload) {
     if (payload.sourceId !== instanceId && payload.section !== void 0) {
       if (payload.section) {
-        set_store_value(selectedSection, $selectedSection = payload.section, $selectedSection);
+        store_set(selectedSection, payload.section);
       } else {
-        set_store_value(selectedSection, $selectedSection = null, $selectedSection);
+        store_set(selectedSection, null);
       }
     }
   }
   onDestroy(() => {
     window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
-    EventBus.off("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged2);
-    EventBus.off("section:selected" /* SECTION_SELECTED */, handleSectionSelected2);
+    EventBus.off("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged);
+    EventBus.off("section:selected" /* SECTION_SELECTED */, handleSectionSelected);
     vm.destroy();
   });
   function selectNotebook(nb) {
     vm.selectNotebook(nb);
-    if ($selectedSection) {
-      onSectionSelectedChanged($selectedSection.folderPath);
+    if ($selectedSection()) {
+      onSectionSelectedChanged()($selectedSection().folderPath);
     }
-    $$invalidate(7, showNotebookDropdown = false);
+    set(showNotebookDropdown, false);
   }
   function selectSection(sec) {
     vm.selectSection(sec);
-    $$invalidate(10, focusPane = "sections");
-    const index = $visibleSections.findIndex((s) => s.folderPath === sec.folderPath);
-    if (index !== -1) {
-      $$invalidate(11, focusedSectionIndex = index);
+    set(focusPane, "sections");
+    const index2 = $visibleSections().findIndex((s) => s.folderPath === sec.folderPath);
+    if (index2 !== -1) {
+      set(focusedSectionIndex, index2);
     }
-    onSectionSelectedChanged(sec.folderPath);
+    onSectionSelectedChanged()(sec.folderPath);
     EventBus.emit("section:selected" /* SECTION_SELECTED */, { section: sec, sourceId: instanceId });
   }
   async function handleQuickNewNotebook() {
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder());
       if (newFolder) {
         vm.loadNotebooks();
       }
@@ -6194,17 +8539,17 @@ function instance5($$self, $$props, $$invalidate) {
   }
   function toggleSection(sec) {
     vm.toggleSection(sec, (paths) => {
-      onExpandedChanged(paths);
+      onExpandedChanged()(paths);
       EventBus.emit("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, { paths, sourceId: instanceId });
     });
   }
   function openPage(page, inNewTab = false) {
-    set_store_value(activePagePath, $activePagePath = page.filepath, $activePagePath);
+    store_set(activePagePath, page.filepath);
     if (inNewTab) {
-      app.workspace.openLinkText(page.filepath, "", "tab");
+      app().workspace.openLinkText(page.filepath, "", "tab");
     } else {
-      app.workspace.openLinkText(page.filepath, "", false);
-      onPageOpened(page.filepath);
+      app().workspace.openLinkText(page.filepath, "", false);
+      onPageOpened()(page.filepath);
     }
   }
   function handlePageAuxClick(e, page) {
@@ -6215,10 +8560,11 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   function handlePageContextMenu(e, page) {
+    var _a5;
     e.preventDefault();
     e.stopPropagation();
-    const activeApp = app || window.app;
-    const visibleFlatPages = trimmedQuery ? $filteredPages : $selectedSection ? DataService.getFlattenedPages($selectedSection.pages) : [];
+    const activeApp = app() || window.app;
+    const visibleFlatPages = get2(trimmedQuery) ? $filteredPages() : $selectedSection() ? DataService.getFlattenedPages($selectedSection().pages) : [];
     const currentIdx = visibleFlatPages.findIndex((p) => p.filepath === page.filepath);
     let nextFocusPath = "";
     if (currentIdx > 0) {
@@ -6226,25 +8572,25 @@ function instance5($$self, $$props, $$invalidate) {
     } else if (visibleFlatPages.length > 1) {
       nextFocusPath = visibleFlatPages[1].filepath;
     }
-    ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => {
+    ContextMenuHelper.showPageContextMenu(e, activeApp, page, ((_a5 = $selectedSection()) == null ? void 0 : _a5.folderPath) || "", () => {
       vm.loadNotebooks();
       if (nextFocusPath) {
-        $$invalidate(12, focusedPagePath = nextFocusPath);
-        $$invalidate(10, focusPane = "pages");
+        set(focusedPagePath, nextFocusPath);
+        set(focusPane, "pages");
         setTimeout(scrollFocusedIntoView, 10);
       }
     });
   }
   function openCurrentSelection(inNewTab = false) {
-    const visibleFlatPages = trimmedQuery ? $filteredPages : $selectedSection ? DataService.getFlattenedPages($selectedSection.pages) : [];
-    if (focusPane === "pages" && visibleFlatPages.length > 0) {
-      const page = visibleFlatPages.find((p) => p.filepath === focusedPagePath) || visibleFlatPages[0];
+    const visibleFlatPages = get2(trimmedQuery) ? $filteredPages() : $selectedSection() ? DataService.getFlattenedPages($selectedSection().pages) : [];
+    if (get2(focusPane) === "pages" && visibleFlatPages.length > 0) {
+      const page = visibleFlatPages.find((p) => p.filepath === get2(focusedPagePath)) || visibleFlatPages[0];
       if (page) {
         openPage(page, inNewTab);
         return;
       }
     }
-    const sec = $visibleSections[focusedSectionIndex];
+    const sec = $visibleSections()[get2(focusedSectionIndex)];
     if (sec && sec.pages.length > 0) {
       openPage(sec.pages[0], inNewTab);
       return;
@@ -6254,17 +8600,18 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   async function handleQuickNewNote() {
-    let targetFolderPath = $selectedSection == null ? void 0 : $selectedSection.folderPath;
+    var _a5;
+    let targetFolderPath = (_a5 = $selectedSection()) == null ? void 0 : _a5.folderPath;
     if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
+      targetFolderPath = rootFolder().trim() !== "" ? rootFolder() : "";
     }
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
       const newFile = await ContextMenuHelper.createNewPage(activeApp, targetFolderPath);
       if (newFile) {
         vm.loadNotebooks();
-        $$invalidate(10, focusPane = "pages");
-        $$invalidate(12, focusedPagePath = newFile.path);
+        set(focusPane, "pages");
+        set(focusedPagePath, newFile.path);
         openPage({
           name: newFile.basename,
           filepath: newFile.path,
@@ -6276,11 +8623,12 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   async function handleQuickNewSection() {
-    let targetFolderPath = $selectedSection == null ? void 0 : $selectedSection.folderPath;
+    var _a5;
+    let targetFolderPath = (_a5 = $selectedSection()) == null ? void 0 : _a5.folderPath;
     if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
+      targetFolderPath = rootFolder().trim() !== "" ? rootFolder() : "";
     }
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp) {
       const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
       if (newFolder) {
@@ -6291,19 +8639,19 @@ function instance5($$self, $$props, $$invalidate) {
           });
         }
         vm.loadNotebooks();
-        $$invalidate(10, focusPane = "sections");
-        const index = $visibleSections.findIndex((s) => s.folderPath === newFolder.path);
-        if (index !== -1) {
-          $$invalidate(11, focusedSectionIndex = index);
-          set_store_value(selectedSection, $selectedSection = $visibleSections[index], $selectedSection);
+        set(focusPane, "sections");
+        const index2 = $visibleSections().findIndex((s) => s.folderPath === newFolder.path);
+        if (index2 !== -1) {
+          set(focusedSectionIndex, index2);
+          store_set(selectedSection, $visibleSections()[index2]);
         }
         setTimeout(scrollFocusedIntoView, 50);
       }
     }
   }
   async function handleDeleteCurrentPage() {
-    const visibleFlatPages = trimmedQuery ? $filteredPages : $selectedSection ? DataService.getFlattenedPages($selectedSection.pages) : [];
-    const currentIdx = visibleFlatPages.findIndex((p) => p.filepath === focusedPagePath);
+    const visibleFlatPages = get2(trimmedQuery) ? $filteredPages() : $selectedSection() ? DataService.getFlattenedPages($selectedSection().pages) : [];
+    const currentIdx = visibleFlatPages.findIndex((p) => p.filepath === get2(focusedPagePath));
     if (currentIdx === -1)
       return;
     const pageToDelete = visibleFlatPages[currentIdx];
@@ -6313,40 +8661,41 @@ function instance5($$self, $$props, $$invalidate) {
     } else if (visibleFlatPages.length > 1) {
       nextFocusPath = visibleFlatPages[1].filepath;
     }
-    const activeApp = app || window.app;
+    const activeApp = app() || window.app;
     if (activeApp && pageToDelete) {
       await ContextMenuHelper.deletePageSafely(activeApp, pageToDelete);
       vm.loadNotebooks();
       if (nextFocusPath) {
-        $$invalidate(12, focusedPagePath = nextFocusPath);
-        $$invalidate(10, focusPane = "pages");
+        set(focusedPagePath, nextFocusPath);
+        set(focusPane, "pages");
         setTimeout(scrollFocusedIntoView, 10);
       }
     }
   }
   function handleKeydown(e) {
+    var _a5, _b3, _c2;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
       e.preventDefault();
       e.stopPropagation();
       handleQuickNewNote();
       return;
     }
-    if ((e.key === "Delete" || e.key === "Backspace") && focusPane === "pages" && document.activeElement !== searchInputEl) {
+    if ((e.key === "Delete" || e.key === "Backspace") && get2(focusPane) === "pages" && document.activeElement !== get2(searchInputEl)) {
       e.preventDefault();
       e.stopPropagation();
       handleDeleteCurrentPage();
       return;
     }
-    if (document.activeElement === searchInputEl) {
+    if (document.activeElement === get2(searchInputEl)) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
         e.stopPropagation();
-        searchInputEl.blur();
-        modalContainerEl == null ? void 0 : modalContainerEl.focus();
-        if (trimmedQuery) {
-          $$invalidate(10, focusPane = "pages");
+        get2(searchInputEl).blur();
+        (_a5 = get2(modalContainerEl)) == null ? void 0 : _a5.focus();
+        if (get2(trimmedQuery)) {
+          set(focusPane, "pages");
         }
-        if (focusPane === "sections") {
+        if (get2(focusPane) === "sections") {
           handleSectionsKeydown(e.key);
         } else {
           handlePagesKeydown(e.key);
@@ -6362,14 +8711,14 @@ function instance5($$self, $$props, $$invalidate) {
       } else if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();
-        if (showNotebookDropdown) {
-          $$invalidate(7, showNotebookDropdown = false);
+        if (get2(showNotebookDropdown)) {
+          set(showNotebookDropdown, false);
           return;
         }
-        if ($filterQueryStore) {
-          set_store_value(filterQueryStore, $filterQueryStore = "", $filterQueryStore);
-          searchInputEl.blur();
-          modalContainerEl == null ? void 0 : modalContainerEl.focus();
+        if ($filterQueryStore()) {
+          store_set(filterQueryStore, "");
+          get2(searchInputEl).blur();
+          (_b3 = get2(modalContainerEl)) == null ? void 0 : _b3.focus();
         }
         return;
       }
@@ -6385,7 +8734,7 @@ function instance5($$self, $$props, $$invalidate) {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
       e.preventDefault();
       e.stopPropagation();
-      if (focusPane === "sections") {
+      if (get2(focusPane) === "sections") {
         handleSectionsKeydown(e.key);
       } else {
         handlePagesKeydown(e.key);
@@ -6406,50 +8755,50 @@ function instance5($$self, $$props, $$invalidate) {
       return;
     }
     if (e.key.length === 1 || e.key === "Backspace" || e.key === "Unidentified") {
-      searchInputEl == null ? void 0 : searchInputEl.focus();
+      (_c2 = get2(searchInputEl)) == null ? void 0 : _c2.focus();
     }
   }
-  function handleSectionsKeydown(key) {
-    if ($visibleSections.length === 0)
+  function handleSectionsKeydown(key2) {
+    if ($visibleSections().length === 0)
       return;
-    switch (key) {
+    switch (key2) {
       case "ArrowUp": {
-        $$invalidate(11, focusedSectionIndex = Math.max(0, focusedSectionIndex - 1));
-        const sec = $visibleSections[focusedSectionIndex];
+        set(focusedSectionIndex, Math.max(0, get2(focusedSectionIndex) - 1));
+        const sec = $visibleSections()[get2(focusedSectionIndex)];
         if (sec) {
-          set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
+          store_set(selectedSection, sec);
           if (sec.pages.length > 0)
-            $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+            set(focusedPagePath, sec.pages[0].filepath);
         }
         break;
       }
       case "ArrowDown": {
-        $$invalidate(11, focusedSectionIndex = Math.min($visibleSections.length - 1, focusedSectionIndex + 1));
-        const sec = $visibleSections[focusedSectionIndex];
+        set(focusedSectionIndex, Math.min($visibleSections().length - 1, get2(focusedSectionIndex) + 1));
+        const sec = $visibleSections()[get2(focusedSectionIndex)];
         if (sec) {
-          set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
+          store_set(selectedSection, sec);
           if (sec.pages.length > 0)
-            $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+            set(focusedPagePath, sec.pages[0].filepath);
         }
         break;
       }
       case "ArrowRight": {
-        const sec = $visibleSections[focusedSectionIndex];
+        const sec = $visibleSections()[get2(focusedSectionIndex)];
         if (sec) {
           if (sec.children.length > 0 && !sec.isExpanded) {
             toggleSection(sec);
           } else {
-            set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
+            store_set(selectedSection, sec);
             if (sec.pages.length > 0) {
-              $$invalidate(10, focusPane = "pages");
-              $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+              set(focusPane, "pages");
+              set(focusedPagePath, sec.pages[0].filepath);
             }
           }
         }
         break;
       }
       case "ArrowLeft": {
-        const sec = $visibleSections[focusedSectionIndex];
+        const sec = $visibleSections()[get2(focusedSectionIndex)];
         if (sec && sec.isExpanded) {
           toggleSection(sec);
         }
@@ -6462,40 +8811,40 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   function syncSectionIndexToSelectedSection() {
-    if (!$selectedSection)
+    if (!$selectedSection())
       return;
-    const index = $visibleSections.findIndex((s) => s.folderPath === $selectedSection.folderPath);
-    if (index !== -1) {
-      $$invalidate(11, focusedSectionIndex = index);
+    const index2 = $visibleSections().findIndex((s) => s.folderPath === $selectedSection().folderPath);
+    if (index2 !== -1) {
+      set(focusedSectionIndex, index2);
     }
   }
-  function handlePagesKeydown(key) {
-    var _a, _b;
-    const visibleFlatPages = trimmedQuery ? $filteredPages : $selectedSection ? DataService.getFlattenedPages($selectedSection.pages) : [];
+  function handlePagesKeydown(key2) {
+    var _a5, _b3;
+    const visibleFlatPages = get2(trimmedQuery) ? $filteredPages() : $selectedSection() ? DataService.getFlattenedPages($selectedSection().pages) : [];
     if (visibleFlatPages.length === 0)
       return;
-    let currentIdx = visibleFlatPages.findIndex((p) => p.filepath === focusedPagePath);
+    let currentIdx = visibleFlatPages.findIndex((p) => p.filepath === get2(focusedPagePath));
     if (currentIdx === -1)
       currentIdx = 0;
-    switch (key) {
+    switch (key2) {
       case "ArrowUp": {
         const prevIdx = Math.max(0, currentIdx - 1);
-        $$invalidate(12, focusedPagePath = ((_a = visibleFlatPages[prevIdx]) == null ? void 0 : _a.filepath) || "");
+        set(focusedPagePath, ((_a5 = visibleFlatPages[prevIdx]) == null ? void 0 : _a5.filepath) || "");
         break;
       }
       case "ArrowDown": {
         const nextIdx = Math.min(visibleFlatPages.length - 1, currentIdx + 1);
-        $$invalidate(12, focusedPagePath = ((_b = visibleFlatPages[nextIdx]) == null ? void 0 : _b.filepath) || "");
+        set(focusedPagePath, ((_b3 = visibleFlatPages[nextIdx]) == null ? void 0 : _b3.filepath) || "");
         break;
       }
       case "ArrowLeft":
-        if (!trimmedQuery) {
-          $$invalidate(10, focusPane = "sections");
+        if (!get2(trimmedQuery)) {
+          set(focusPane, "sections");
           syncSectionIndexToSelectedSection();
         }
         break;
       case "Enter": {
-        const page = visibleFlatPages.find((p) => p.filepath === focusedPagePath) || visibleFlatPages[currentIdx];
+        const page = visibleFlatPages.find((p) => p.filepath === get2(focusedPagePath)) || visibleFlatPages[currentIdx];
         if (page) {
           openPage(page);
         }
@@ -6504,203 +8853,333 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   function scrollFocusedIntoView() {
-    const selector = focusPane === "sections" ? ".on-sections-pane .on-focused" : ".on-pages-pane .on-focused";
-    const el = modalContainerEl == null ? void 0 : modalContainerEl.querySelector(selector);
+    var _a5;
+    const selector = get2(focusPane) === "sections" ? ".on-sections-pane .on-focused" : ".on-pages-pane .on-focused";
+    const el = (_a5 = get2(modalContainerEl)) == null ? void 0 : _a5.querySelector(selector);
     if (el) {
       el.scrollIntoView({ block: "nearest", behavior: "auto" });
     }
   }
-  function input_input_handler() {
-    $filterQueryStore = this.value;
-    filterQueryStore.set($filterQueryStore);
-  }
-  function input_binding($$value) {
-    binding_callbacks[$$value ? "unshift" : "push"](() => {
-      searchInputEl = $$value;
-      $$invalidate(9, searchInputEl);
-    });
-  }
-  const click_handler = () => set_store_value(filterQueryStore, $filterQueryStore = "", $filterQueryStore);
-  const click_handler_1 = () => handleQuickNewSection();
-  const click_handler_2 = () => {
-    handleQuickNewNotebook();
-    $$invalidate(7, showNotebookDropdown = false);
-  };
-  function div0_binding($$value) {
-    binding_callbacks[$$value ? "unshift" : "push"](() => {
-      popoverContainerEl = $$value;
-      $$invalidate(8, popoverContainerEl);
-    });
-  }
-  const click_handler_3 = () => handleQuickNewNote();
-  const scroll_handler = (e) => $$invalidate(3, scrollTop = e.currentTarget.scrollTop);
-  function div2_binding($$value) {
-    binding_callbacks[$$value ? "unshift" : "push"](() => {
-      modalContainerEl = $$value;
-      $$invalidate(13, modalContainerEl);
-    });
-  }
-  $$self.$$set = ($$props2) => {
-    if ("app" in $$props2)
-      $$invalidate(40, app = $$props2.app);
-    if ("plugin" in $$props2)
-      $$invalidate(41, plugin = $$props2.plugin);
-    if ("dataService" in $$props2)
-      $$invalidate(42, dataService = $$props2.dataService);
-    if ("rootFolder" in $$props2)
-      $$invalidate(0, rootFolder = $$props2.rootFolder);
-    if ("enableVirtualization" in $$props2)
-      $$invalidate(43, enableVirtualization = $$props2.enableVirtualization);
-    if ("showTip" in $$props2)
-      $$invalidate(1, showTip = $$props2.showTip);
-    if ("remainingTips" in $$props2)
-      $$invalidate(2, remainingTips = $$props2.remainingTips);
-    if ("onPageOpened" in $$props2)
-      $$invalidate(44, onPageOpened = $$props2.onPageOpened);
-    if ("initialExpandedPaths" in $$props2)
-      $$invalidate(45, initialExpandedPaths = $$props2.initialExpandedPaths);
-    if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(46, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
-    if ("onExpandedChanged" in $$props2)
-      $$invalidate(47, onExpandedChanged = $$props2.onExpandedChanged);
-    if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(48, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
-  };
-  $$self.$$.update = () => {
-    if ($$self.$$.dirty[0] & /*$filteredPages, scrollTop*/
-    40 | $$self.$$.dirty[1] & /*enableVirtualization*/
-    4096) {
-      $:
-        $$invalidate(14, visibleRange = (() => {
-          if (!enableVirtualization || $filteredPages.length < 100) {
-            return {
-              pages: $filteredPages,
-              topPadding: 0,
-              bottomPadding: 0,
-              startIndex: 0
-            };
-          }
-          const visibleCount = Math.ceil(400 / PAGE_ITEM_HEIGHT);
-          const start = Math.max(0, Math.floor(scrollTop / PAGE_ITEM_HEIGHT) - VIRTUAL_BUFFER_ITEMS);
-          const end = Math.min($filteredPages.length, start + visibleCount + VIRTUAL_BUFFER_ITEMS * 2);
+  legacy_pre_effect(
+    () => (deep_read_state(enableVirtualization()), $filteredPages(), PAGE_ITEM_HEIGHT, get2(scrollTop), VIRTUAL_BUFFER_ITEMS),
+    () => {
+      set(visibleRange, (() => {
+        if (!enableVirtualization() || $filteredPages().length < 100) {
           return {
-            pages: $filteredPages.slice(start, end),
-            topPadding: start * PAGE_ITEM_HEIGHT,
-            bottomPadding: ($filteredPages.length - end) * PAGE_ITEM_HEIGHT,
-            startIndex: start
+            pages: $filteredPages(),
+            topPadding: 0,
+            bottomPadding: 0,
+            startIndex: 0
           };
-        })());
-    }
-    if ($$self.$$.dirty[0] & /*$filterQueryStore*/
-    64) {
-      $:
-        $$invalidate(4, trimmedQuery = $filterQueryStore.trim().toLowerCase());
-    }
-    if ($$self.$$.dirty[0] & /*trimmedQuery, $filteredPages*/
-    48) {
-      $:
-        if (trimmedQuery) {
-          $$invalidate(10, focusPane = "pages");
-          if ($filteredPages.length > 0) {
-            $$invalidate(12, focusedPagePath = $filteredPages[0].filepath);
-          }
         }
+        const visibleCount = Math.ceil(400 / PAGE_ITEM_HEIGHT);
+        const start = Math.max(0, Math.floor(get2(scrollTop) / PAGE_ITEM_HEIGHT) - VIRTUAL_BUFFER_ITEMS);
+        const end = Math.min($filteredPages().length, start + visibleCount + VIRTUAL_BUFFER_ITEMS * 2);
+        return {
+          pages: $filteredPages().slice(start, end),
+          topPadding: start * PAGE_ITEM_HEIGHT,
+          bottomPadding: ($filteredPages().length - end) * PAGE_ITEM_HEIGHT,
+          startIndex: start
+        };
+      })());
     }
-  };
-  return [
-    rootFolder,
-    showTip,
-    remainingTips,
-    scrollTop,
-    trimmedQuery,
-    $filteredPages,
-    $filterQueryStore,
-    showNotebookDropdown,
-    popoverContainerEl,
-    searchInputEl,
-    focusPane,
-    focusedSectionIndex,
-    focusedPagePath,
-    modalContainerEl,
-    visibleRange,
-    $selectedSection,
-    $visibleSections,
-    $rootFolderExists,
-    $selectedNotebook,
-    $notebooks,
-    $sections,
-    notebooks,
-    selectedNotebook,
-    sections,
-    selectedSection,
-    activePagePath,
-    rootFolderExists,
-    filterQueryStore,
-    visibleSections,
-    filteredPages,
-    toggleNotebookDropdown,
-    handleWindowClick,
-    handleContainerPointerDown,
-    handleQuickNewNotebook,
-    openPage,
-    handlePageAuxClick,
-    handlePageContextMenu,
-    handleQuickNewNote,
-    handleQuickNewSection,
-    handleKeydown,
-    app,
-    plugin,
-    dataService,
-    enableVirtualization,
-    onPageOpened,
-    initialExpandedPaths,
-    initialSelectedSectionPath,
-    onExpandedChanged,
-    onSectionSelectedChanged,
-    input_input_handler,
-    input_binding,
-    click_handler,
-    click_handler_1,
-    click_handler_2,
-    div0_binding,
-    click_handler_3,
-    scroll_handler,
-    div2_binding
-  ];
-}
-var OneNoteModalView = class extends SvelteComponent {
-  constructor(options) {
-    super();
-    init(
-      this,
-      options,
-      instance5,
-      create_fragment5,
-      safe_not_equal,
-      {
-        app: 40,
-        plugin: 41,
-        dataService: 42,
-        rootFolder: 0,
-        enableVirtualization: 43,
-        showTip: 1,
-        remainingTips: 2,
-        onPageOpened: 44,
-        initialExpandedPaths: 45,
-        initialSelectedSectionPath: 46,
-        onExpandedChanged: 47,
-        onSectionSelectedChanged: 48
-      },
-      null,
-      [-1, -1, -1]
-    );
+  );
+  legacy_pre_effect(() => $filterQueryStore(), () => {
+    set(trimmedQuery, $filterQueryStore().trim().toLowerCase());
+  });
+  legacy_pre_effect(() => (get2(trimmedQuery), $filteredPages()), () => {
+    if (get2(trimmedQuery)) {
+      set(focusPane, "pages");
+      if ($filteredPages().length > 0) {
+        set(focusedPagePath, $filteredPages()[0].filepath);
+      }
+    }
+  });
+  legacy_pre_effect_reset();
+  init();
+  var div = root_122();
+  event("click", $window, handleWindowClick);
+  var node = child(div);
+  {
+    var consequent = ($$anchor2) => {
+      var div_1 = root2();
+      var text2 = child(div_1);
+      reset(div_1);
+      template_effect(() => {
+        var _a5;
+        return set_text(text2, `\u{1F4A1} Tip: Set a hotkey under Settings \u2192 Hotkeys \u2192 "A1 OneNote: Open navigation popup" for instant access (${(_a5 = remainingTips()) != null ? _a5 : ""} reminders left)`);
+      });
+      append($$anchor2, div_1);
+    };
+    if_block(node, ($$render) => {
+      if (showTip())
+        $$render(consequent);
+    });
   }
-};
-var OneNoteModalView_default = OneNoteModalView;
+  var div_2 = sibling(node, 2);
+  var input = sibling(child(div_2), 2);
+  remove_input_defaults(input);
+  bind_this(input, ($$value) => set(searchInputEl, $$value), () => get2(searchInputEl));
+  var node_1 = sibling(input, 2);
+  {
+    var consequent_1 = ($$anchor2) => {
+      var span = root_12();
+      event("click", span, () => store_set(filterQueryStore, ""));
+      append($$anchor2, span);
+    };
+    if_block(node_1, ($$render) => {
+      if ($filterQueryStore())
+        $$render(consequent_1);
+    });
+  }
+  reset(div_2);
+  var div_3 = sibling(div_2, 2);
+  var node_2 = child(div_3);
+  {
+    var consequent_2 = ($$anchor2) => {
+      var div_4 = root_22();
+      var div_5 = sibling(child(div_4), 2);
+      var code = sibling(child(div_5));
+      var text_1 = child(code);
+      reset(code);
+      next();
+      reset(div_5);
+      reset(div_4);
+      template_effect(() => {
+        var _a5;
+        return set_text(text_1, `"${(_a5 = rootFolder()) != null ? _a5 : ""}"`);
+      });
+      append($$anchor2, div_4);
+    };
+    var alternate_1 = ($$anchor2) => {
+      var fragment = root_11();
+      var div_6 = first_child(fragment);
+      var div_7 = child(div_6);
+      var button = child(div_7);
+      let classes;
+      var span_1 = sibling(child(button), 2);
+      var text_2 = child(span_1, true);
+      reset(span_1);
+      next(2);
+      reset(button);
+      var button_1 = sibling(button, 2);
+      var node_3 = sibling(button_1, 2);
+      {
+        var consequent_4 = ($$anchor3) => {
+          var div_8 = root_42();
+          var div_9 = child(div_8);
+          var span_2 = child(div_9);
+          var text_3 = child(span_2);
+          reset(span_2);
+          var span_3 = sibling(span_2, 2);
+          reset(div_9);
+          var div_10 = sibling(div_9, 2);
+          var node_4 = child(div_10);
+          {
+            var consequent_3 = ($$anchor4) => {
+              var div_11 = root_32();
+              append($$anchor4, div_11);
+            };
+            if_block(node_4, ($$render) => {
+              if ($notebooks(), untrack(() => $notebooks().length === 0))
+                $$render(consequent_3);
+            });
+          }
+          var node_5 = sibling(node_4, 2);
+          each(node_5, 1, $notebooks, (nb) => nb.folderPath, ($$anchor4, nb) => {
+            NotebookTreeItem($$anchor4, {
+              get notebook() {
+                return get2(nb);
+              }
+            });
+          });
+          reset(div_10);
+          reset(div_8);
+          template_effect(() => {
+            var _a5;
+            return set_text(text_3, `Notebooks (${(_a5 = ($notebooks(), untrack(() => $notebooks().length))) != null ? _a5 : ""})`);
+          });
+          event("keydown", span_3, (e) => {
+            if (e.key === "Enter") {
+              handleQuickNewNotebook();
+              set(showNotebookDropdown, false);
+            }
+          });
+          event("click", span_3, stopPropagation(() => {
+            handleQuickNewNotebook();
+            set(showNotebookDropdown, false);
+          }));
+          append($$anchor3, div_8);
+        };
+        if_block(node_3, ($$render) => {
+          if (get2(showNotebookDropdown))
+            $$render(consequent_4);
+        });
+      }
+      reset(div_7);
+      bind_this(div_7, ($$value) => set(popoverContainerEl, $$value), () => get2(popoverContainerEl));
+      var div_12 = sibling(div_7, 2);
+      var node_6 = child(div_12);
+      {
+        var consequent_5 = ($$anchor3) => {
+          var div_13 = root_52();
+          append($$anchor3, div_13);
+        };
+        if_block(node_6, ($$render) => {
+          if ($sections(), untrack(() => $sections().length === 0))
+            $$render(consequent_5);
+        });
+      }
+      var node_7 = sibling(node_6, 2);
+      each(node_7, 1, $sections, (sec) => sec.folderPath, ($$anchor3, sec) => {
+        {
+          let $0 = derived_safe_equal(() => (get2(focusPane), $visibleSections(), get2(focusedSectionIndex), untrack(() => get2(focusPane) === "sections" && $visibleSections()[get2(focusedSectionIndex)] ? $visibleSections()[get2(focusedSectionIndex)].folderPath : "")));
+          SectionTreeItem($$anchor3, {
+            get sec() {
+              return get2(sec);
+            },
+            get focusPane() {
+              return get2(focusPane);
+            },
+            get focusedFolderPath() {
+              return get2($0);
+            }
+          });
+        }
+      });
+      reset(div_12);
+      reset(div_6);
+      var div_14 = sibling(div_6, 2);
+      var div_15 = child(div_14);
+      var span_4 = child(div_15);
+      var text_4 = child(span_4, true);
+      reset(span_4);
+      var button_2 = sibling(span_4, 2);
+      reset(div_15);
+      var div_16 = sibling(div_15, 2);
+      var node_8 = child(div_16);
+      {
+        var consequent_8 = ($$anchor3) => {
+          var fragment_3 = root_72();
+          var node_9 = first_child(fragment_3);
+          {
+            var consequent_6 = ($$anchor4) => {
+              var div_17 = root_62();
+              template_effect(() => {
+                var _a5;
+                return set_style(div_17, `height: ${(_a5 = (get2(visibleRange), untrack(() => get2(visibleRange).topPadding))) != null ? _a5 : ""}px;`);
+              });
+              append($$anchor4, div_17);
+            };
+            if_block(node_9, ($$render) => {
+              if (get2(visibleRange), untrack(() => get2(visibleRange).topPadding > 0))
+                $$render(consequent_6);
+            });
+          }
+          var node_10 = sibling(node_9, 2);
+          each(
+            node_10,
+            1,
+            () => (get2(visibleRange), untrack(() => get2(visibleRange).pages)),
+            (page) => page.filepath,
+            ($$anchor4, page) => {
+              PageTreeItem($$anchor4, {
+                get page() {
+                  return get2(page);
+                },
+                depth: 0,
+                get focusPane() {
+                  return get2(focusPane);
+                },
+                get focusedPagePath() {
+                  return get2(focusedPagePath);
+                },
+                onClick: openPage,
+                onAuxClick: handlePageAuxClick,
+                onContextMenu: handlePageContextMenu
+              });
+            }
+          );
+          var node_11 = sibling(node_10, 2);
+          {
+            var consequent_7 = ($$anchor4) => {
+              var div_18 = root_62();
+              template_effect(() => {
+                var _a5;
+                return set_style(div_18, `height: ${(_a5 = (get2(visibleRange), untrack(() => get2(visibleRange).bottomPadding))) != null ? _a5 : ""}px;`);
+              });
+              append($$anchor4, div_18);
+            };
+            if_block(node_11, ($$render) => {
+              if (get2(visibleRange), untrack(() => get2(visibleRange).bottomPadding > 0))
+                $$render(consequent_7);
+            });
+          }
+          append($$anchor3, fragment_3);
+        };
+        var consequent_9 = ($$anchor3) => {
+          var div_19 = root_82();
+          var text_5 = child(div_19);
+          reset(div_19);
+          template_effect(() => {
+            var _a5;
+            return set_text(text_5, `No matching pages for "${(_a5 = $filterQueryStore()) != null ? _a5 : ""}".`);
+          });
+          append($$anchor3, div_19);
+        };
+        var consequent_10 = ($$anchor3) => {
+          var div_20 = root_92();
+          append($$anchor3, div_20);
+        };
+        var alternate = ($$anchor3) => {
+          var div_21 = root_10();
+          append($$anchor3, div_21);
+        };
+        if_block(node_8, ($$render) => {
+          if ($filteredPages(), untrack(() => $filteredPages().length > 0))
+            $$render(consequent_8);
+          else if (get2(trimmedQuery))
+            $$render(consequent_9, 1);
+          else if ($selectedSection())
+            $$render(consequent_10, 2);
+          else
+            $$render(alternate, -1);
+        });
+      }
+      reset(div_16);
+      reset(div_14);
+      template_effect(() => {
+        classes = set_class(button, 1, "on-notebook-select-btn", null, classes, { active: get2(showNotebookDropdown) });
+        set_text(text_2, ($selectedNotebook(), untrack(() => $selectedNotebook() ? $selectedNotebook().name : "Select Notebook")));
+        set_text(text_4, (get2(trimmedQuery), $filteredPages(), untrack(() => get2(trimmedQuery) ? `Matches (${$filteredPages().length})` : "Pages")));
+      });
+      event("click", button, toggleNotebookDropdown);
+      event("click", button_1, () => handleQuickNewSection());
+      event("click", button_2, () => handleQuickNewNote());
+      event("scroll", div_16, (e) => set(scrollTop, e.currentTarget.scrollTop));
+      append($$anchor2, fragment);
+    };
+    if_block(node_2, ($$render) => {
+      if (!$rootFolderExists())
+        $$render(consequent_2);
+      else
+        $$render(alternate_1, -1);
+    });
+  }
+  reset(div_3);
+  reset(div);
+  bind_this(div, ($$value) => set(modalContainerEl, $$value), () => get2(modalContainerEl));
+  bind_value(input, $filterQueryStore, ($$value) => store_set(filterQueryStore, $$value));
+  event("keydown", div, handleKeydown);
+  event("pointerdown", div, handleContainerPointerDown);
+  append($$anchor, div);
+  pop();
+  $$cleanup();
+}
 
 // src/OneNoteModal.ts
 var MAX_TIP_COUNT = 5;
-var OneNoteModal = class extends import_obsidian6.Modal {
+var OneNoteModal = class extends import_obsidian7.Modal {
   constructor(app, plugin, dataService) {
     super(app);
     this.component = null;
@@ -6708,35 +9187,35 @@ var OneNoteModal = class extends import_obsidian6.Modal {
     this.dataService = dataService;
   }
   onOpen() {
-    var _a, _b, _c;
+    var _a5, _b3, _c2;
     const { contentEl, modalEl } = this;
     contentEl.empty();
     modalEl.addClass("on-modal");
     const pluginId = this.plugin.manifest.id;
     const commandId = `${pluginId}:open-onenote-popup`;
-    const customHotkeys = (_b = (_a = this.app.hotkeyManager) == null ? void 0 : _a.customKeys) == null ? void 0 : _b[commandId];
+    const customHotkeys = (_b3 = (_a5 = this.app.hotkeyManager) == null ? void 0 : _a5.customKeys) == null ? void 0 : _b3[commandId];
     const hotkeyAlreadySet = customHotkeys && customHotkeys.length > 0;
     const showTip = !hotkeyAlreadySet && this.plugin.settings.tipShownCount < MAX_TIP_COUNT;
     const remainingTips = MAX_TIP_COUNT - this.plugin.settings.tipShownCount;
-    this.component = new OneNoteModalView_default({
+    this.component = new OneNoteModalView({
       target: contentEl,
       props: {
         app: this.app,
         plugin: this.plugin,
         dataService: this.dataService,
         rootFolder: this.plugin.settings.rootFolder,
-        enableVirtualization: (_c = this.plugin.settings.enableDOMVirtualization) != null ? _c : false,
+        enableVirtualization: (_c2 = this.plugin.settings.enableDOMVirtualization) != null ? _c2 : false,
         showTip,
         remainingTips,
         initialExpandedPaths: this.plugin.settings.expandedPaths,
         initialSelectedSectionPath: this.plugin.settings.selectedSectionPath,
         onExpandedChanged: (paths) => {
           this.plugin.settings.expandedPaths = paths;
-          this.plugin.saveSettings();
+          void this.plugin.saveSettings();
         },
         onSectionSelectedChanged: (path) => {
           this.plugin.settings.selectedSectionPath = path;
-          this.plugin.saveSettings();
+          void this.plugin.saveSettings();
         },
         onPageOpened: (filepath) => {
           this.plugin.recordRecentPage(filepath);
@@ -6746,7 +9225,7 @@ var OneNoteModal = class extends import_obsidian6.Modal {
     });
     if (showTip) {
       this.plugin.settings.tipShownCount++;
-      this.plugin.saveSettings();
+      void this.plugin.saveSettings();
     }
   }
   onClose() {
@@ -6758,8 +9237,8 @@ var OneNoteModal = class extends import_obsidian6.Modal {
 };
 
 // src/RecentPagesModal.ts
-var import_obsidian7 = require("obsidian");
-var RecentPagesModal = class extends import_obsidian7.FuzzySuggestModal {
+var import_obsidian8 = require("obsidian");
+var RecentPagesModal = class extends import_obsidian8.FuzzySuggestModal {
   constructor(app, plugin) {
     super(app);
     this.plugin = plugin;
@@ -6770,8 +9249,8 @@ var RecentPagesModal = class extends import_obsidian7.FuzzySuggestModal {
     return [...this.plugin.settings.recentPages].sort((a, b) => b.timestamp - a.timestamp);
   }
   getItemText(item) {
-    var _a, _b;
-    const name = (_b = (_a = item.filepath.split("/").pop()) == null ? void 0 : _a.replace(/\.md$/, "")) != null ? _b : item.filepath;
+    var _a5, _b3;
+    const name = (_b3 = (_a5 = item.filepath.split("/").pop()) == null ? void 0 : _a5.replace(/\.md$/, "")) != null ? _b3 : item.filepath;
     const parts = item.filepath.split("/");
     if (parts.length > 2) {
       const sectionName = parts[parts.length - 2];
@@ -6780,13 +9259,13 @@ var RecentPagesModal = class extends import_obsidian7.FuzzySuggestModal {
     return name;
   }
   onChooseItem(item) {
-    this.app.workspace.openLinkText(item.filepath, "", false);
+    void this.app.workspace.openLinkText(item.filepath, "", false);
     this.plugin.recordRecentPage(item.filepath);
   }
 };
 
 // src/settings.ts
-var import_obsidian8 = require("obsidian");
+var import_obsidian9 = require("obsidian");
 var DEFAULT_SETTINGS = {
   rootFolder: "OneNote",
   accentColor: "#8b5cf6",
@@ -6802,7 +9281,7 @@ var DEFAULT_SETTINGS = {
   customSectionOrder: [],
   customSectionOrderMap: {}
 };
-var FluentOneNoteSettingTab = class extends import_obsidian8.PluginSettingTab {
+var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -6810,67 +9289,68 @@ var FluentOneNoteSettingTab = class extends import_obsidian8.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian8.Setting(containerEl).setName("Folder Navigation Options").setHeading();
-    new import_obsidian8.Setting(containerEl).setName("Root Folder Path").setDesc("The folder path to scan for OneNote style notebooks (e.g. 'OneNote/Original Game'). Leave empty to scan the entire vault.").addText((text2) => text2.setPlaceholder("e.g. OneNote/Original Game").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Folder Navigation").setHeading();
+    new import_obsidian9.Setting(containerEl).setName("Root Folder Path").setDesc("The folder path to scan for OneNote style notebooks (e.g. 'OneNote/Original Game'). Leave empty to scan the entire vault.").addText((text2) => text2.setPlaceholder("e.g. OneNote/Original Game").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
       this.plugin.settings.rootFolder = value.trim();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian8.Setting(containerEl).setName("Display Mode").setDesc("Choose how the navigation panel is displayed.").addDropdown((dropdown) => dropdown.addOption("floating", "Floating popup only").addOption("both", "Both (sidebar + floating popup)").setValue(this.plugin.settings.displayMode === "sidebar" ? "both" : this.plugin.settings.displayMode).onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Display Mode").setDesc("Choose how the navigation panel is displayed.").addDropdown((dropdown) => dropdown.addOption("floating", "Floating popup only").addOption("both", "Both (sidebar + floating popup)").setValue(this.plugin.settings.displayMode === "sidebar" ? "both" : this.plugin.settings.displayMode).onChange(async (value) => {
       this.plugin.settings.displayMode = value;
       await this.plugin.saveSettings();
       this.plugin.applyDisplayMode();
     }));
-    new import_obsidian8.Setting(containerEl).setName("Performance Optimization").setHeading();
-    new import_obsidian8.Setting(containerEl).setName("DOM Virtualization for Large Vaults").setDesc("Experimental: Enable only if you experience scrolling lag with 5000+ notes in a single section. Keeps default rendering clean and zero-friction for normal vaults.").addToggle((toggle) => {
-      var _a;
-      return toggle.setValue((_a = this.plugin.settings.enableDOMVirtualization) != null ? _a : false).onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Performance Optimization").setHeading();
+    new import_obsidian9.Setting(containerEl).setName("DOM Virtualization for Large Vaults").setDesc("Experimental: Enable only if you experience scrolling lag with 5000+ notes in a single section. Keeps default rendering clean and zero-friction for normal vaults.").addToggle((toggle) => {
+      var _a5;
+      return toggle.setValue((_a5 = this.plugin.settings.enableDOMVirtualization) != null ? _a5 : false).onChange(async (value) => {
         this.plugin.settings.enableDOMVirtualization = value;
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian8.Setting(containerEl).setName("Popup Modal Size Options").setHeading();
-    new import_obsidian8.Setting(containerEl).setName("Modal Width (%)").setDesc("Set the width percentage of the navigation popup modal (Min: 40%, Max: 98%).").addSlider((slider) => {
-      var _a;
-      return slider.setLimits(40, 98, 1).setValue((_a = this.plugin.settings.modalWidth) != null ? _a : 65).setDynamicTooltip().onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Popup Modal Size").setHeading();
+    new import_obsidian9.Setting(containerEl).setName("Modal Width (%)").setDesc("Set the width percentage of the navigation popup modal (Min: 40%, Max: 98%).").addSlider((slider) => {
+      var _a5;
+      return slider.setLimits(40, 98, 1).setValue((_a5 = this.plugin.settings.modalWidth) != null ? _a5 : 65).onChange(async (value) => {
         this.plugin.settings.modalWidth = value;
         await this.plugin.saveSettings();
         this.plugin.applySettings();
       });
     });
-    new import_obsidian8.Setting(containerEl).setName("Modal Height (%)").setDesc("Set the height percentage of the navigation popup modal (Min: 40%, Max: 95%).").addSlider((slider) => {
-      var _a;
-      return slider.setLimits(40, 95, 1).setValue((_a = this.plugin.settings.modalHeight) != null ? _a : 70).setDynamicTooltip().onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Modal Height (%)").setDesc("Set the height percentage of the navigation popup modal (Min: 40%, Max: 95%).").addSlider((slider) => {
+      var _a5;
+      return slider.setLimits(40, 95, 1).setValue((_a5 = this.plugin.settings.modalHeight) != null ? _a5 : 70).onChange(async (value) => {
         this.plugin.settings.modalHeight = value;
         await this.plugin.saveSettings();
         this.plugin.applySettings();
       });
     });
-    const colorSetting = new import_obsidian8.Setting(containerEl).setName("Accent Color").setDesc("Choose the primary accent color for active elements.").addColorPicker((color) => color.setValue(this.plugin.settings.accentColor).onChange(async (value) => {
+    const colorSetting = new import_obsidian9.Setting(containerEl).setName("Accent Color").setDesc("Choose the primary accent color for active elements.").addColorPicker((color) => color.setValue(this.plugin.settings.accentColor).onChange(async (value) => {
       this.plugin.settings.accentColor = value;
       await this.plugin.saveSettings();
       this.plugin.applySettings();
     }));
     const nativeInput = colorSetting.controlEl.querySelector('input[type="color"]');
     if (nativeInput) {
-      nativeInput.addEventListener("input", async (e) => {
+      nativeInput.addEventListener("input", (e) => {
         const value = e.target.value;
         this.plugin.settings.accentColor = value;
-        await this.plugin.saveSettings();
-        this.plugin.applySettings();
+        void this.plugin.saveSettings().then(() => {
+          this.plugin.applySettings();
+        });
       });
     }
-    new import_obsidian8.Setting(containerEl).setName("Tips & Recommendations").setHeading();
-    new import_obsidian8.Setting(containerEl).setName("Reset Hotkey Tips Counter").setDesc(`Reset the hotkey recommendation notice counter (currently shown: ${this.plugin.settings.tipShownCount}/5).`).addButton((btn) => btn.setButtonText("Reset Counter").onClick(async () => {
+    new import_obsidian9.Setting(containerEl).setName("Tips & Recommendations").setHeading();
+    new import_obsidian9.Setting(containerEl).setName("Reset Hotkey Tips Counter").setDesc(`Reset the hotkey recommendation notice counter (currently shown: ${this.plugin.settings.tipShownCount}/5).`).addButton((btn) => btn.setButtonText("Reset Counter").onClick(async () => {
       this.plugin.settings.tipShownCount = 0;
       await this.plugin.saveSettings();
-      new import_obsidian8.Notice("Hotkey tips counter has been reset to 0.");
+      new import_obsidian9.Notice("Hotkey tips counter has been reset to 0.");
       this.display();
     }));
   }
 };
 
 // src/main.ts
-var OneNoteViewWrapper = class extends import_obsidian9.ItemView {
+var OneNoteViewWrapper = class extends import_obsidian10.ItemView {
   constructor(leaf, dataService, plugin) {
     super(leaf);
     this.component = null;
@@ -6887,19 +9367,19 @@ var OneNoteViewWrapper = class extends import_obsidian9.ItemView {
     return "layers";
   }
   async onOpen() {
-    var _a, _b, _c, _d;
+    var _a5, _b3, _c2, _d;
     const container = this.containerEl.children[1];
     container.empty();
     const settings = this.plugin.settings || DEFAULT_SETTINGS;
-    this.component = new OneNoteView_default({
+    this.component = new OneNoteView({
       target: container,
       props: {
         app: this.app,
         plugin: this.plugin,
         dataService: this.dataService,
-        rootFolder: (_a = settings.rootFolder) != null ? _a : "OneNote",
-        enableVirtualization: (_b = settings.enableDOMVirtualization) != null ? _b : false,
-        initialExpandedPaths: (_c = settings.expandedPaths) != null ? _c : [],
+        rootFolder: (_a5 = settings.rootFolder) != null ? _a5 : "OneNote",
+        enableVirtualization: (_b3 = settings.enableDOMVirtualization) != null ? _b3 : false,
+        initialExpandedPaths: (_c2 = settings.expandedPaths) != null ? _c2 : [],
         initialSelectedSectionPath: (_d = settings.selectedSectionPath) != null ? _d : "",
         onExpandedChanged: (paths) => {
           if (this.plugin.settings) {
@@ -6932,17 +9412,17 @@ var OneNoteViewWrapper = class extends import_obsidian9.ItemView {
     }
   }
 };
-var FluentOneNotePlugin = class extends import_obsidian9.Plugin {
+var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
   async onload() {
     Logger.init(this.app);
-    Logger.log("Fluent OneNote plugin loading...");
+    void Logger.log("Fluent OneNote plugin loading...");
     window.addEventListener("error", (e) => {
-      var _a;
-      return Logger.log("Global error:", ((_a = e.error) == null ? void 0 : _a.stack) || e.message);
+      var _a5;
+      return void Logger.log("Global error:", ((_a5 = e.error) == null ? void 0 : _a5.stack) || e.message);
     });
     window.addEventListener("unhandledrejection", (e) => {
-      var _a;
-      return Logger.log("Unhandled rejection:", ((_a = e.reason) == null ? void 0 : _a.stack) || e.reason);
+      var _a5;
+      return void Logger.log("Unhandled rejection:", ((_a5 = e.reason) == null ? void 0 : _a5.stack) || e.reason);
     });
     await this.loadSettings();
     this.dataService = new DataService(this.app);
@@ -6976,11 +9456,11 @@ var FluentOneNotePlugin = class extends import_obsidian9.Plugin {
       await this.loadSettings();
       this.applySettings();
       this.applyDisplayMode();
-      Logger.log("Fluent OneNote plugin loaded successfully.");
+      void Logger.log("Fluent OneNote plugin loaded successfully.");
     });
   }
-  async onunload() {
-    Logger.log("Fluent OneNote plugin unloaded.");
+  onunload() {
+    void Logger.log("Fluent OneNote plugin unloaded.");
   }
   // =============================================
   // Settings Management
@@ -7002,13 +9482,13 @@ var FluentOneNotePlugin = class extends import_obsidian9.Plugin {
     }
   }
   applySettings() {
-    var _a, _b;
+    var _a5, _b3;
     document.body.setCssProps({
       "--on-accent": this.settings.accentColor,
       "--on-accent-glow": `${this.settings.accentColor}99`,
       "--on-accent-light": `${this.settings.accentColor}26`,
-      "--on-modal-width": `${(_a = this.settings.modalWidth) != null ? _a : 65}vw`,
-      "--on-modal-height": `${(_b = this.settings.modalHeight) != null ? _b : 70}vh`
+      "--on-modal-width": `${(_a5 = this.settings.modalWidth) != null ? _a5 : 65}vw`,
+      "--on-modal-height": `${(_b3 = this.settings.modalHeight) != null ? _b3 : 70}vh`
     });
   }
   applyDisplayMode() {
@@ -7039,9 +9519,9 @@ var FluentOneNotePlugin = class extends import_obsidian9.Plugin {
   // View Activation
   // =============================================
   async activateView() {
-    var _a;
+    var _a5;
     const { workspace } = this.app;
-    let leaf = (_a = workspace.getLeavesOfType(VIEW_TYPE_SECTIONS)[0]) != null ? _a : null;
+    let leaf = (_a5 = workspace.getLeavesOfType(VIEW_TYPE_SECTIONS)[0]) != null ? _a5 : null;
     if (!leaf) {
       leaf = workspace.getLeftLeaf(false);
       if (leaf) {

@@ -4,7 +4,6 @@
  */
 
 export { VIEW_TYPE_SECTIONS, VIEW_TYPE_PAGES } from "./constants";
-import { DEFAULT_MODAL_WIDTH, DEFAULT_MODAL_HEIGHT } from "./constants";
 
 export type DisplayMode = "floating" | "both";
 

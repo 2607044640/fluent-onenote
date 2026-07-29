@@ -1,5 +1,6 @@
 import { App, TFile, TFolder } from "obsidian";
-import { PageInfo, SectionInfo } from "./types";
+import { PageInfo, SectionInfo, NotebookInfo } from "./types";
+import { FluentOneNoteSettings } from "./settings";
 import { PathUtils } from "./utils/PathUtils";
 
 export const DND_MIME_TYPE = "application/x-a1onenote-drag";
@@ -26,14 +27,13 @@ export class DragDropHelper {
      * Reorder Notebook within root list and save to customNotebookOrder settings
      */
     public static async reorderNotebook(
-        pluginSettings: any, 
+        pluginSettings: FluentOneNoteSettings, 
         saveSettings: () => Promise<void>, 
         sourceNotebookPath: string, 
         targetNotebookPath: string, 
         position: "top" | "bottom", 
-        allNotebooks: any[]
+        allNotebooks: NotebookInfo[]
     ): Promise<void> {
-        console.log(`[A1OneNote DnD] reorderNotebook: source = ${sourceNotebookPath}, target = ${targetNotebookPath}, pos = ${position}`);
         if (!sourceNotebookPath || !targetNotebookPath || PathUtils.isEqual(sourceNotebookPath, targetNotebookPath)) {
             return;
         }
@@ -61,27 +61,22 @@ export class DragDropHelper {
      * Move a Page file or Folder to a target Section or Notebook folder
      */
     public static async movePageToSection(app: App, page: PageInfo, targetSectionFolderPath: string): Promise<void> {
-        console.log(`[A1OneNote DnD] movePageToSection START: page = ${page.filepath}, targetSection = ${targetSectionFolderPath}`);
-        
         let abstractFile = app.vault.getAbstractFileByPath(page.filepath);
         if (!abstractFile && page.folderPath) {
             abstractFile = app.vault.getAbstractFileByPath(page.folderPath);
         }
 
         if (!abstractFile) {
-            console.warn(`[A1OneNote DnD] movePageToSection ABORT: file/folder not found: ${page.filepath}`);
             return;
         }
 
         const targetFolder = app.vault.getAbstractFileByPath(targetSectionFolderPath);
         if (!targetFolder || !(targetFolder instanceof TFolder)) {
-            console.warn(`[A1OneNote DnD] movePageToSection ABORT: target folder not found: ${targetSectionFolderPath}`);
             return;
         }
 
         // Don't move if already in target folder
         if (abstractFile.parent && PathUtils.isEqual(abstractFile.parent.path, targetFolder.path)) {
-            console.log(`[A1OneNote DnD] movePageToSection SKIP: file already in target folder ${targetFolder.path}`);
             return;
         }
 
@@ -104,7 +99,6 @@ export class DragDropHelper {
             counter++;
         }
 
-        console.log(`[A1OneNote DnD] movePageToSection RENAMING ${abstractFile.path} -> ${destPath}`);
         await app.fileManager.renameFile(abstractFile, destPath);
     }
 
@@ -113,7 +107,7 @@ export class DragDropHelper {
      * Supports multi-level nested page (sub-page) reordering.
      */
     public static async reorderPage(
-        pluginSettings: any, 
+        pluginSettings: FluentOneNoteSettings, 
         saveSettings: () => Promise<void>, 
         sourcePagePath: string, 
         targetPagePath: string, 
@@ -121,9 +115,7 @@ export class DragDropHelper {
         currentPages: PageInfo[], 
         sectionFolderPath: string
     ): Promise<void> {
-        console.log(`[A1OneNote DnD] reorderPage START: source = ${sourcePagePath}, target = ${targetPagePath}, pos = ${position}, sectionFolder = ${sectionFolderPath}`);
         if (!sourcePagePath || !targetPagePath || PathUtils.isEqual(sourcePagePath, targetPagePath)) {
-            console.warn(`[A1OneNote DnD] reorderPage ABORT: identical or missing paths`);
             return;
         }
 
@@ -159,7 +151,6 @@ export class DragDropHelper {
         const filtered = currentPaths.filter(p => p !== normSource);
         const targetIndex = filtered.indexOf(normTarget);
         if (targetIndex === -1) {
-            console.warn(`[A1OneNote DnD] reorderPage ABORT: targetIndex is -1`);
             return;
         }
 
@@ -170,7 +161,6 @@ export class DragDropHelper {
             pluginSettings.customPageOrder = {};
         }
         pluginSettings.customPageOrder[targetParentKey] = filtered;
-        console.log(`[A1OneNote DnD] reorderPage SAVED customPageOrder[${targetParentKey}] =`, filtered);
         await saveSettings();
     }
 
@@ -178,7 +168,7 @@ export class DragDropHelper {
      * Reorder Section within list and save to customSectionOrder settings
      */
     public static async reorderSection(
-        pluginSettings: any, 
+        pluginSettings: FluentOneNoteSettings, 
         saveSettings: () => Promise<void>, 
         sourceFolderPath: string, 
         targetFolderPath: string, 
@@ -186,7 +176,6 @@ export class DragDropHelper {
         allSections: SectionInfo[],
         notebookFolderPath: string
     ): Promise<void> {
-        console.log(`[A1OneNote DnD] reorderSection START: source = ${sourceFolderPath}, target = ${targetFolderPath}, pos = ${position}, notebook = ${notebookFolderPath}`);
         if (!sourceFolderPath || !targetFolderPath || PathUtils.isEqual(sourceFolderPath, targetFolderPath)) {
             return;
         }
@@ -197,7 +186,6 @@ export class DragDropHelper {
 
         const currentPaths = allSections.map(s => PathUtils.normalize(s.folderPath));
         if (!currentPaths.includes(normSource) || !currentPaths.includes(normTarget)) {
-            console.warn(`[A1OneNote DnD] reorderSection ABORT: source or target not in sections list`);
             return;
         }
 
@@ -214,10 +202,8 @@ export class DragDropHelper {
 
         if (normNotebook) {
             pluginSettings.customSectionOrderMap[normNotebook] = filtered;
-            console.log(`[A1OneNote DnD] reorderSection SAVED customSectionOrderMap[${normNotebook}] =`, filtered);
         } else {
             pluginSettings.customSectionOrder = filtered;
-            console.log(`[A1OneNote DnD] reorderSection SAVED customSectionOrder =`, filtered);
         }
 
         await saveSettings();

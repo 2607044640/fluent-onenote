@@ -45,7 +45,7 @@ export class ContextMenuHelper {
             item.setTitle("Copy section path")
                 .setIcon("link")
                 .onClick(() => {
-                    navigator.clipboard.writeText(sec.folderPath);
+                    void navigator.clipboard.writeText(sec.folderPath);
                     new Notice("Copied section path to clipboard");
                 });
         });
@@ -57,7 +57,7 @@ export class ContextMenuHelper {
                 .onClick(() => {
                     const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
                     if (abstractFile) {
-                        (app as any).showInFolder(abstractFile.path);
+                        (app as unknown as { showInFolder: (path: string) => void }).showInFolder(abstractFile.path);
                     }
                 });
         });
@@ -69,7 +69,7 @@ export class ContextMenuHelper {
                 .onClick(async () => {
                     const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
                     if (abstractFile && abstractFile instanceof TFolder) {
-                        await app.vault.trash(abstractFile, true);
+                        await app.fileManager.trashFile(abstractFile);
                         new Notice(`Moved section "${sec.name}" to trash`);
                         onRefresh();
                     }
@@ -122,7 +122,7 @@ export class ContextMenuHelper {
                 .setIcon("link")
                 .onClick(() => {
                     const wikiLink = `[[${page.name}]]`;
-                    navigator.clipboard.writeText(wikiLink);
+                    void navigator.clipboard.writeText(wikiLink);
                     new Notice(`Copied ${wikiLink} to clipboard`);
                 });
         });
@@ -136,7 +136,7 @@ export class ContextMenuHelper {
                 .onClick(() => {
                     const abstractFile = app.vault.getAbstractFileByPath(page.filepath);
                     if (abstractFile) {
-                        (app as any).showInFolder(abstractFile.path);
+                        (app as unknown as { showInFolder: (path: string) => void }).showInFolder(abstractFile.path);
                     }
                 });
         });
@@ -307,7 +307,7 @@ export class ContextMenuHelper {
                 }
 
                 // 2. Move main note file to system trash
-                await app.vault.trash(file, true);
+                await app.fileManager.trashFile(file);
 
                 // 3. Remove empty folder if empty
                 if (folder.children.length === 0) {
@@ -318,7 +318,7 @@ export class ContextMenuHelper {
         }
 
         // Standard single file delete
-        await app.vault.trash(file, true);
+        await app.fileManager.trashFile(file);
     }
 
     /**
@@ -328,7 +328,7 @@ export class ContextMenuHelper {
         if (page.folderPath) {
             const folder = app.vault.getAbstractFileByPath(page.folderPath);
             if (folder && folder instanceof TFolder) {
-                await app.vault.trash(folder, true);
+                await app.fileManager.trashFile(folder);
                 return;
             }
         }

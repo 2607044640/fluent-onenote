@@ -1,4 +1,4 @@
-import { App } from "obsidian";
+import { App, TFile } from "obsidian";
 /**
  * Logger utility that writes debug output to a file in the vault.
  * Usage: Logger.init(app); Logger.log("message");
@@ -11,7 +11,7 @@ export class Logger {
         this.app = app;
     }
 
-    static async log(...args: any[]): Promise<void> {
+    static async log(...args: unknown[]): Promise<void> {
         if (!this.app) return;
         const timestamp = new Date().toISOString();
         const message = args.map(a =>
@@ -22,8 +22,8 @@ export class Logger {
         try {
             const vault = this.app.vault;
             const file = vault.getAbstractFileByPath(this.LOG_PATH);
-            if (file) {
-                await vault.append(file as any, line);
+            if (file instanceof TFile) {
+                await vault.append(file, line);
             } else {
                 await vault.create(this.LOG_PATH, line);
             }
@@ -36,8 +36,8 @@ export class Logger {
         if (!this.app) return;
         try {
             const file = this.app.vault.getAbstractFileByPath(this.LOG_PATH);
-            if (file) {
-                await this.app.vault.modify(file as any, "");
+            if (file instanceof TFile) {
+                await this.app.vault.modify(file, "");
             }
         } catch (e) {
             console.error("[MStodo Logger Clear]", e);

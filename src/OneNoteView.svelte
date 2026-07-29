@@ -21,7 +21,6 @@
     export let enableVirtualization: boolean = false;
     export let initialExpandedPaths: string[] = [];
     export let initialSelectedSectionPath: string = "";
-    export let onExpandedChanged: (paths: string[]) => void = () => {};
     export let onSectionSelectedChanged: (path: string) => void = () => {};
     export let onPageOpened: (filepath: string) => void = () => {};
 
@@ -269,6 +268,9 @@
                             <span 
                                 class="on-btn-quick-add" 
                                 style="cursor: pointer;" 
+                                role="button"
+                                tabindex="0"
+                                on:keydown={(e) => { if (e.key === 'Enter') { handleQuickNewNotebook(); showNotebookDropdown = false; } }}
                                 on:click|stopPropagation={() => { handleQuickNewNotebook(); showNotebookDropdown = false; }}
                             >
                                 + New

@@ -46,7 +46,7 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        new Setting(containerEl).setName("Folder Navigation Options").setHeading();
+        new Setting(containerEl).setName("Folder Navigation").setHeading();
 
         new Setting(containerEl)
             .setName("Root Folder Path")
@@ -84,7 +84,7 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl).setName("Popup Modal Size Options").setHeading();
+        new Setting(containerEl).setName("Popup Modal Size").setHeading();
 
         new Setting(containerEl)
             .setName("Modal Width (%)")
@@ -92,7 +92,6 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
             .addSlider(slider => slider
                 .setLimits(40, 98, 1)
                 .setValue(this.plugin.settings.modalWidth ?? 65)
-                .setDynamicTooltip()
                 .onChange(async (value) => {
                     this.plugin.settings.modalWidth = value;
                     await this.plugin.saveSettings();
@@ -105,7 +104,6 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
             .addSlider(slider => slider
                 .setLimits(40, 95, 1)
                 .setValue(this.plugin.settings.modalHeight ?? 70)
-                .setDynamicTooltip()
                 .onChange(async (value) => {
                     this.plugin.settings.modalHeight = value;
                     await this.plugin.saveSettings();
@@ -123,13 +121,14 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
                     this.plugin.applySettings();
                 }));
 
-        const nativeInput = colorSetting.controlEl.querySelector('input[type="color"]') as HTMLInputElement | null;
+        const nativeInput = colorSetting.controlEl.querySelector('input[type="color"]');
         if (nativeInput) {
-            nativeInput.addEventListener("input", async (e) => {
+            nativeInput.addEventListener("input", (e) => {
                 const value = (e.target as HTMLInputElement).value;
                 this.plugin.settings.accentColor = value;
-                await this.plugin.saveSettings();
-                this.plugin.applySettings();
+                void this.plugin.saveSettings().then(() => {
+                    this.plugin.applySettings();
+                });
             });
         }
 
