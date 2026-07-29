@@ -1,0 +1,9 @@
+{
+  "id": "fluent-onenote",
+  "name": "Fluent OneNote",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.0",
+  "description": "A beautiful, 2-pane navigation plugin for Obsidian notes, inspired by Microsoft OneNote.",
+  "author": "Jeff1024",
+  "isDesktopOnly": false
+}

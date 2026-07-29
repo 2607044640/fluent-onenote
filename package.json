@@ -1,0 +1,25 @@
+{
+  "name": "fluent-onenote",
+  "version": "1.0.0",
+  "description": "A beautiful, 2-pane navigation plugin for Obsidian notes, inspired by Microsoft OneNote.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "keywords": [],
+  "author": "Jeff1024",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "esbuild": "^0.20.0",
+    "esbuild-svelte": "^0.8.0",
+    "obsidian": "latest",
+    "svelte": "^4.2.0",
+    "svelte-preprocess": "^5.1.0",
+    "typescript": "5.3.3"
+  },
+  "dependencies": {
+    "lucide-svelte": "^0.300.0"
+  }
+}
