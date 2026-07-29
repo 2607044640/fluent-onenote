@@ -557,7 +557,7 @@
 
 <svelte:window on:click={handleWindowClick} />
 
-<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div 
     class="on-modal-container" 
     bind:this={modalContainerEl}
@@ -639,6 +639,9 @@
                                 <span 
                                     class="on-btn-quick-add" 
                                     style="cursor: pointer;" 
+                                    role="button"
+                                    tabindex="0"
+                                    on:keydown={(e) => { if (e.key === 'Enter') { handleQuickNewNotebook(); showNotebookDropdown = false; } }}
                                     on:click|stopPropagation={() => { handleQuickNewNotebook(); showNotebookDropdown = false; }}
                                 >
                                     + New

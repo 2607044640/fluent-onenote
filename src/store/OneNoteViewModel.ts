@@ -1,6 +1,7 @@
 import { writable, derived, get, type Writable } from "svelte/store";
-import { App, Notice, TFile } from "obsidian";
+import { App, Notice } from "obsidian";
 import type { NotebookInfo, SectionInfo, PageInfo } from "../types";
+import type FluentOneNotePlugin from "../main";
 import { DataService } from "../DataService";
 import { DragDropHelper } from "../DragDropHelper";
 import { PathUtils } from "../utils/PathUtils";
@@ -37,11 +38,11 @@ export class OneNoteViewModel {
         }
     );
 
-    private dragEndTimeout: any = null;
+    private dragEndTimeout: number | undefined;
 
     constructor(
         public app: App,
-        public plugin: any,
+        public plugin: FluentOneNotePlugin,
         public dataService: DataService,
         public rootFolder: string,
         initialExpandedPaths: string[] = [],
@@ -55,7 +56,7 @@ export class OneNoteViewModel {
 
     public destroy() {
         if (this.dragEndTimeout) {
-            clearTimeout(this.dragEndTimeout);
+            window.clearTimeout(this.dragEndTimeout);
         }
     }
 
@@ -176,7 +177,6 @@ export class OneNoteViewModel {
 
             // Expand subpages if target is a section note
             const currentExpanded = get(this.expandedSections);
-            const isTargetExpanded = currentExpanded.has(targetSecPath);
 
             this.sections.update(secs => {
                 const updateExp = (items: SectionInfo[]): SectionInfo[] => {
@@ -189,11 +189,11 @@ export class OneNoteViewModel {
                         };
                     });
                 };
-                return updateExp(targetNb!.sections);
+                return updateExp(targetNb.sections);
             });
 
             this.expandedSections.update(s => {
-                s.add(targetSecPath!);
+                s.add(targetSecPath as string);
                 return s;
             });
 
@@ -209,7 +209,7 @@ export class OneNoteViewModel {
     // Drag & Drop
     // =============================================
     public handleDragStart(e: DragEvent, itemId: string, itemType: "notebook" | "section" | "page") {
-        if (this.dragEndTimeout) clearTimeout(this.dragEndTimeout);
+        if (this.dragEndTimeout) window.clearTimeout(this.dragEndTimeout);
         this.draggedItemId.set(itemId);
         this.draggedItemType.set(itemType);
         if (e.dataTransfer) {
@@ -246,9 +246,9 @@ export class OneNoteViewModel {
         const dType = get(this.draggedItemType);
 
         const movedId = dId || (e.dataTransfer ? e.dataTransfer.getData("text/plain") : "");
-        const movedType = dType || (e.dataTransfer ? (e.dataTransfer.getData("text/type") as any) : null);
+        const movedType = dType || (e.dataTransfer ? (e.dataTransfer.getData("text/type") as "notebook" | "section" | "page" | null) : null);
 
-        if (this.dragEndTimeout) clearTimeout(this.dragEndTimeout);
+        if (this.dragEndTimeout) window.clearTimeout(this.dragEndTimeout);
         this.draggedItemId.set("");
         this.draggedItemType.set(null);
         this.dragOverId.set("");
@@ -258,7 +258,7 @@ export class OneNoteViewModel {
 
         // Notebook -> Notebook
         if (movedType === "notebook" && targetType === "notebook") {
-            this.notebooks.update(nbs => this.reorderNotebookTree(nbs, movedId, targetId, pos!));
+            this.notebooks.update(nbs => this.reorderNotebookTree(nbs, movedId, targetId, pos as "top" | "bottom"));
             const currentNbs = get(this.notebooks);
             
             await DragDropHelper.reorderNotebook(
@@ -278,7 +278,7 @@ export class OneNoteViewModel {
             const nb = get(this.selectedNotebook);
             if (!nb) return;
 
-            this.sections.update(secs => this.reorderSectionTree(secs, movedId, targetId, pos!));
+            this.sections.update(secs => this.reorderSectionTree(secs, movedId, targetId, pos as "top" | "bottom"));
             const currentSecs = get(this.sections);
 
             await DragDropHelper.reorderSection(
@@ -333,8 +333,8 @@ export class OneNoteViewModel {
     }
 
     public handleDragEnd() {
-        if (this.dragEndTimeout) clearTimeout(this.dragEndTimeout);
-        this.dragEndTimeout = setTimeout(() => {
+        if (this.dragEndTimeout) window.clearTimeout(this.dragEndTimeout);
+        this.dragEndTimeout = window.setTimeout(() => {
             this.draggedItemId.set("");
             this.draggedItemType.set(null);
             this.dragOverId.set("");

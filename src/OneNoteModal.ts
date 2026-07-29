@@ -25,7 +25,10 @@ export class OneNoteModal extends Modal {
         // 1. Detect if the user has already bound a hotkey for this command
         const pluginId = this.plugin.manifest.id; // "a1-onenote"
         const commandId = `${pluginId}:open-onenote-popup`;
-        const customHotkeys = (this.app as any).hotkeyManager?.customKeys?.[commandId];
+        interface AppWithHotkeys extends App {
+            hotkeyManager?: { customKeys?: Record<string, unknown[]> };
+        }
+        const customHotkeys = (this.app as unknown as AppWithHotkeys).hotkeyManager?.customKeys?.[commandId];
         const hotkeyAlreadySet = customHotkeys && customHotkeys.length > 0;
 
         // If hotkey is set, never show the tip (and don't increment counter)
@@ -46,11 +49,11 @@ export class OneNoteModal extends Modal {
                 initialSelectedSectionPath: this.plugin.settings.selectedSectionPath,
                 onExpandedChanged: (paths: string[]) => {
                     this.plugin.settings.expandedPaths = paths;
-                    this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                 },
                 onSectionSelectedChanged: (path: string) => {
                     this.plugin.settings.selectedSectionPath = path;
-                    this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                 },
                 onPageOpened: (filepath: string) => {
                     // Record in recent pages upon selection
@@ -63,7 +66,7 @@ export class OneNoteModal extends Modal {
         // Only increment the counter if the tip banner was actually shown
         if (showTip) {
             this.plugin.settings.tipShownCount++;
-            this.plugin.saveSettings();
+            void this.plugin.saveSettings();
         }
     }
 

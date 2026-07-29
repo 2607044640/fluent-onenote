@@ -91,10 +91,10 @@ export default class FluentOneNotePlugin extends Plugin {
 
     async onload(): Promise<void> {
         Logger.init(this.app);
-        Logger.log("Fluent OneNote plugin loading...");
+        void Logger.log("Fluent OneNote plugin loading...");
 
-        window.addEventListener('error', e => Logger.log("Global error:", e.error?.stack || e.message));
-        window.addEventListener('unhandledrejection', e => Logger.log("Unhandled rejection:", e.reason?.stack || e.reason));
+        window.addEventListener('error', e => void Logger.log("Global error:", e.error?.stack || e.message));
+        window.addEventListener('unhandledrejection', e => void Logger.log("Unhandled rejection:", e.reason?.stack || e.reason));
 
         await this.loadSettings();
 
@@ -140,12 +140,12 @@ export default class FluentOneNotePlugin extends Plugin {
             this.applySettings();
             this.applyDisplayMode();
 
-            Logger.log("Fluent OneNote plugin loaded successfully.");
+            void Logger.log("Fluent OneNote plugin loaded successfully.");
         });
     }
 
-    async onunload(): Promise<void> {
-        Logger.log("Fluent OneNote plugin unloaded.");
+    onunload(): void {
+        void Logger.log("Fluent OneNote plugin unloaded.");
     }
 
     // =============================================
@@ -154,7 +154,7 @@ export default class FluentOneNotePlugin extends Plugin {
 
     async loadSettings() {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-        if ((this.settings.displayMode as any) === "sidebar") {
+        if ((this.settings.displayMode as unknown as string) === "sidebar") {
             this.settings.displayMode = "both";
             await this.saveSettings();
         }

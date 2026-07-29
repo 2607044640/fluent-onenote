@@ -14,7 +14,7 @@
  *   EventBus.off(EventName.CATEGORY_SELECTED, handler); // cleanup in onDestroy
  */
 
-type EventHandler = (payload: any) => void;
+type EventHandler = (payload: unknown) => void;
 
 class EventBusImpl {
     private listeners: Map<string, Set<EventHandler>> = new Map();
@@ -46,7 +46,7 @@ class EventBusImpl {
     /**
      * Emit an event with a payload. All registered handlers are invoked synchronously.
      */
-    emit(event: string, payload?: any): void {
+    emit(event: string, payload?: unknown): void {
         const handlers = this.listeners.get(event);
         if (handlers) {
             handlers.forEach(handler => {

@@ -33,7 +33,7 @@ export class RecentPagesModal extends FuzzySuggestModal<RecentPageItem> {
     }
 
     onChooseItem(item: RecentPageItem): void {
-        this.app.workspace.openLinkText(item.filepath, "", false);
+        void this.app.workspace.openLinkText(item.filepath, "", false);
         
         // Refresh timestamp upon choosing
         this.plugin.recordRecentPage(item.filepath);

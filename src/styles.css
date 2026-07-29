@@ -16,8 +16,8 @@
     --on-font: var(--font-interface);
 }
 
-.workspace-leaf-content[data-type="a1-onenote-sections"] .view-content {
-    padding: 0 !important;
+body .workspace-leaf-content[data-type="a1-onenote-sections"] .view-content {
+    padding: 0;
     overflow: hidden;
 }
 
@@ -403,16 +403,16 @@
    ============================================= */
 
 /* Modal Container Dimension */
-.on-modal {
-    width: var(--on-modal-width, 65vw) !important;
-    max-width: 98vw !important;
-    height: var(--on-modal-height, 70vh) !important;
-    max-height: 95vh !important;
+body .on-modal {
+    width: var(--on-modal-width, 65vw);
+    max-width: 98vw;
+    height: var(--on-modal-height, 70vh);
+    max-height: 95vh;
 }
 
-.on-modal .modal-content {
-    height: 100% !important;
-    padding: 0 !important;
+body .on-modal .modal-content {
+    height: 100%;
+    padding: 0;
     display: flex;
     flex-direction: column;
 }
@@ -446,19 +446,19 @@
 }
 
 /* Keyboard Navigation - Focus states */
-.on-item.on-focused {
-    outline: 2px solid var(--on-accent) !important;
-    outline-offset: -2px !important;
-    background-color: var(--on-accent-light) !important;
+body .on-item.on-focused {
+    outline: 2px solid var(--on-accent);
+    outline-offset: -2px;
+    background-color: var(--on-accent-light);
 }
 
-.on-item.on-focused .on-icon {
-    color: var(--on-accent) !important;
+body .on-item.on-focused .on-icon {
+    color: var(--on-accent);
 }
 
-.on-item.on-focused .on-count {
-    background-color: var(--on-accent) !important;
-    color: #ffffff !important;
+body .on-item.on-focused .on-count {
+    background-color: var(--on-accent);
+    color: #ffffff;
 }
 
 /* Quick Switcher Filter Bar Styling */
@@ -478,12 +478,12 @@
     color: var(--on-text-muted);
 }
 
-.on-filter-input {
+body .on-filter-input {
     flex: 1;
     background: transparent;
     border: none;
-    outline: none !important;
-    box-shadow: none !important;
+    outline: none;
+    box-shadow: none;
     font-size: 13px;
     color: var(--on-text-normal);
     padding: 4px 0;
@@ -528,30 +528,30 @@
 }
 
 /* Glowing top border indicator (Upper half drag target) */
-.on-item.drag-over-top {
-    border-top: 2px solid var(--on-accent, #8b5cf6) !important;
-    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
+body .on-item.drag-over-top {
+    border-top: 2px solid var(--on-accent, #8b5cf6);
+    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
 }
 
 /* Glowing bottom border indicator (Lower half drag target) */
-.on-item.drag-over-bottom {
-    border-bottom: 2px solid var(--on-accent, #8b5cf6) !important;
-    box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
+body .on-item.drag-over-bottom {
+    border-bottom: 2px solid var(--on-accent, #8b5cf6);
+    box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
 }
 
 /* Sibling boundary glow fusion: upper item bottom glow + lower item top glow forms a single glowing neon line */
-.on-item.drag-over-bottom + .on-item,
-.on-item.drag-over-bottom + .on-section-wrapper,
-.on-item.drag-over-bottom + .on-page-wrapper,
-.on-section-wrapper.drag-over-bottom + .on-section-wrapper,
-.on-page-wrapper.drag-over-bottom + .on-page-wrapper {
-    border-top: 2px solid var(--on-accent, #8b5cf6) !important;
-    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
+body .on-item.drag-over-bottom + .on-item,
+body .on-item.drag-over-bottom + .on-section-wrapper,
+body .on-item.drag-over-bottom + .on-page-wrapper,
+body .on-section-wrapper.drag-over-bottom + .on-section-wrapper,
+body .on-page-wrapper.drag-over-bottom + .on-page-wrapper {
+    border-top: 2px solid var(--on-accent, #8b5cf6);
+    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
 }
 
 /* Anti-Flicker Physics during DnD */
 body.is-dragging-active .on-item * {
-    pointer-events: none !important;
+    pointer-events: none;
 }
 
 
