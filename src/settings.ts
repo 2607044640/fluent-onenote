@@ -16,6 +16,7 @@ export interface FluentOneNoteSettings {
     customPageOrder: Record<string, string[]>;
     customSectionOrder: string[];
     customSectionOrderMap: Record<string, string[]>;
+    customNotebookOrder: string[];
 }
 
 export const DEFAULT_SETTINGS: FluentOneNoteSettings = {
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: FluentOneNoteSettings = {
     customPageOrder: {},
     customSectionOrder: [],
     customSectionOrderMap: {},
+    customNotebookOrder: [],
 };
 
 export class FluentOneNoteSettingTab extends PluginSettingTab {
@@ -65,7 +67,7 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
             .addDropdown(dropdown => dropdown
                 .addOption("floating", "Floating popup only")
                 .addOption("both", "Both (sidebar + floating popup)")
-                .setValue(this.plugin.settings.displayMode === ("sidebar" as any) ? "both" : this.plugin.settings.displayMode)
+                .setValue(this.plugin.settings.displayMode === ("sidebar" as unknown as DisplayMode) ? "both" : this.plugin.settings.displayMode)
                 .onChange(async (value) => {
                     this.plugin.settings.displayMode = value as DisplayMode;
                     await this.plugin.saveSettings();
@@ -126,9 +128,10 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
             nativeInput.addEventListener("input", (e) => {
                 const value = (e.target as HTMLInputElement).value;
                 this.plugin.settings.accentColor = value;
-                void this.plugin.saveSettings().then(() => {
+                void (async () => {
+                    await this.plugin.saveSettings();
                     this.plugin.applySettings();
-                });
+                })();
             });
         }
 

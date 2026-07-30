@@ -9279,7 +9279,8 @@ var DEFAULT_SETTINGS = {
   enableDOMVirtualization: false,
   customPageOrder: {},
   customSectionOrder: [],
-  customSectionOrderMap: {}
+  customSectionOrderMap: {},
+  customNotebookOrder: []
 };
 var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
   constructor(app, plugin) {
@@ -9334,9 +9335,10 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
       nativeInput.addEventListener("input", (e) => {
         const value = e.target.value;
         this.plugin.settings.accentColor = value;
-        void this.plugin.saveSettings().then(() => {
+        void (async () => {
+          await this.plugin.saveSettings();
           this.plugin.applySettings();
-        });
+        })();
       });
     }
     new import_obsidian9.Setting(containerEl).setName("Tips & Recommendations").setHeading();
@@ -9416,14 +9418,6 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
   async onload() {
     Logger.init(this.app);
     void Logger.log("Fluent OneNote plugin loading...");
-    window.addEventListener("error", (e) => {
-      var _a5;
-      return void Logger.log("Global error:", ((_a5 = e.error) == null ? void 0 : _a5.stack) || e.message);
-    });
-    window.addEventListener("unhandledrejection", (e) => {
-      var _a5;
-      return void Logger.log("Unhandled rejection:", ((_a5 = e.reason) == null ? void 0 : _a5.stack) || e.reason);
-    });
     await this.loadSettings();
     this.dataService = new DataService(this.app);
     this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
@@ -9452,11 +9446,13 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
         new RecentPagesModal(this.app, this).open();
       }
     });
-    this.app.workspace.onLayoutReady(async () => {
-      await this.loadSettings();
-      this.applySettings();
-      this.applyDisplayMode();
-      void Logger.log("Fluent OneNote plugin loaded successfully.");
+    this.app.workspace.onLayoutReady(() => {
+      void (async () => {
+        await this.loadSettings();
+        this.applySettings();
+        this.applyDisplayMode();
+        void Logger.log("Fluent OneNote plugin loaded successfully.");
+      })();
     });
   }
   onunload() {
@@ -9466,7 +9462,7 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
   // Settings Management
   // =============================================
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() || {});
     if (this.settings.displayMode === "sidebar") {
       this.settings.displayMode = "both";
       await this.saveSettings();
@@ -9529,7 +9525,7 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
       }
     }
     if (leaf) {
-      workspace.revealLeaf(leaf);
+      this.app.workspace.setActiveLeaf(leaf, { focus: true });
     }
     return leaf;
   }
