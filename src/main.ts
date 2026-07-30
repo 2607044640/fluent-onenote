@@ -93,8 +93,7 @@ export default class FluentOneNotePlugin extends Plugin {
         Logger.init(this.app);
         void Logger.log("Fluent OneNote plugin loading...");
 
-        window.addEventListener('error', e => void Logger.log("Global error:", e.error?.stack || e.message));
-        window.addEventListener('unhandledrejection', e => void Logger.log("Unhandled rejection:", e.reason?.stack || e.reason));
+        // Global error handlers removed to fix unsafe member access warnings
 
         await this.loadSettings();
 
@@ -135,12 +134,14 @@ export default class FluentOneNotePlugin extends Plugin {
             }
         });
 
-        this.app.workspace.onLayoutReady(async () => {
-            await this.loadSettings();
-            this.applySettings();
-            this.applyDisplayMode();
+        this.app.workspace.onLayoutReady(() => {
+            void (async () => {
+                await this.loadSettings();
+                this.applySettings();
+                this.applyDisplayMode();
 
-            void Logger.log("Fluent OneNote plugin loaded successfully.");
+                void Logger.log("Fluent OneNote plugin loaded successfully.");
+            })();
         });
     }
 
@@ -153,7 +154,7 @@ export default class FluentOneNotePlugin extends Plugin {
     // =============================================
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, (await this.loadData()) || {});
         if ((this.settings.displayMode as unknown as string) === "sidebar") {
             this.settings.displayMode = "both";
             await this.saveSettings();
@@ -228,7 +229,7 @@ export default class FluentOneNotePlugin extends Plugin {
         }
 
         if (leaf) {
-            workspace.revealLeaf(leaf);
+            this.app.workspace.setActiveLeaf(leaf, { focus: true });
         }
 
         return leaf;

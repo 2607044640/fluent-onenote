@@ -193,7 +193,7 @@ export class OneNoteViewModel {
             });
 
             this.expandedSections.update(s => {
-                s.add(targetSecPath as string);
+                s.add(targetSecPath!);
                 return s;
             });
 
@@ -258,7 +258,7 @@ export class OneNoteViewModel {
 
         // Notebook -> Notebook
         if (movedType === "notebook" && targetType === "notebook") {
-            this.notebooks.update(nbs => this.reorderNotebookTree(nbs, movedId, targetId, pos as "top" | "bottom"));
+            this.notebooks.update(nbs => this.reorderNotebookTree(nbs, movedId, targetId, pos));
             const currentNbs = get(this.notebooks);
             
             await DragDropHelper.reorderNotebook(
@@ -278,7 +278,7 @@ export class OneNoteViewModel {
             const nb = get(this.selectedNotebook);
             if (!nb) return;
 
-            this.sections.update(secs => this.reorderSectionTree(secs, movedId, targetId, pos as "top" | "bottom"));
+            this.sections.update(secs => this.reorderSectionTree(secs, movedId, targetId, pos));
             const currentSecs = get(this.sections);
 
             await DragDropHelper.reorderSection(

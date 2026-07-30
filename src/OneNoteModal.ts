@@ -26,7 +26,7 @@ export class OneNoteModal extends Modal {
         const pluginId = this.plugin.manifest.id; // "a1-onenote"
         const commandId = `${pluginId}:open-onenote-popup`;
         interface AppWithHotkeys extends App {
-            hotkeyManager?: { customKeys?: Record<string, unknown[]> };
+            hotkeyManager?: { customKeys?: Record<string, string[]> };
         }
         const customHotkeys = (this.app as unknown as AppWithHotkeys).hotkeyManager?.customKeys?.[commandId];
         const hotkeyAlreadySet = customHotkeys && customHotkeys.length > 0;
