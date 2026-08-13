@@ -69,6 +69,18 @@
   "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
     {
+      "filepath": "OneNote/Original Game/Design/@rogue，添加场外升级。.md",
+      "timestamp": 1786660130079
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/重要的-先做的 在前面：ChatGPT始终在预测下一个单词，并且每次预测时，都会参考你提供的prompt和它自己已经生成的内容，所以它自己每次多生成一个单词都相当于多了一点思考时间.md",
+      "timestamp": 1786660109040
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/写计划 - 一定要-grillme，AI会非常好地反思和反问问题！这样的计划才是真的好！不用删删改改！.md",
+      "timestamp": 1786660074320
+    },
+    {
       "filepath": "OneNote/Original Game/反思记录今天的进步/Untitled Note.md",
       "timestamp": 1785186698368
     },
@@ -107,10 +119,6 @@
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/必须强制AI网络搜索，问题瞬间解决.md",
       "timestamp": 1784894719699
-    },
-    {
-      "filepath": "OneNote/Original Game/更好地与AI对话/重要的-先做的 在前面：ChatGPT始终在预测下一个单词，并且每次预测时，都会参考你提供的prompt和它自己已经生成的内容，所以它自己每次多生成一个单词都相当于多了一点思考时间.md",
-      "timestamp": 1784894716915
     },
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/强类型约束 - e.g.-年龄（必须阿拉伯数字）不如直接 Age：Int.md",
@@ -259,14 +267,6 @@
     {
       "filepath": "OneNote/Original Game/Bugs/Obsidian/Untitled Note.md",
       "timestamp": 1784770046605
-    },
-    {
-      "filepath": "OneNote/Original Game/反思记录今天的进步/不要不学习，就直接硬莽。必须全面了解。这次是涉及到了CommonUI，但是我自认为已经学过了，不用再学，但是，其实CommonUI极其复杂，有很多功能，所以，我这次浪费了很多时间在commonUI上面。其实只要先去学习，就不会浪费时间。平静吧.md",
-      "timestamp": 1784769905710
-    },
-    {
-      "filepath": "OneNote/Original Game/Design/背包+Any（按性价比排序）  要点：/Loop hero(半圈下来才能调整背包).md",
-      "timestamp": 1784769571463
     }
   ],
   "modalWidth": 98,
