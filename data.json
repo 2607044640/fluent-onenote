@@ -66,8 +66,32 @@
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。",
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。/Untitled Note"
   ],
-  "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
+  "selectedSectionPath": "OneNote/Original Game/理解AI",
   "recentPages": [
+    {
+      "filepath": "OneNote/Original Game/理解AI/大语言模型上下文机制与 Transformer 架构原理 🧠.md",
+      "timestamp": 1786660184097
+    },
+    {
+      "filepath": "OneNote/Original Game/创造里世界/Untitled Note.md",
+      "timestamp": 1786660158923
+    },
+    {
+      "filepath": "OneNote/Original Game/创造里世界/小说。也是内心深处自我的倒影，其中的宝藏，也是最为丰盛.md",
+      "timestamp": 1786660156821
+    },
+    {
+      "filepath": "OneNote/Original Game/创造里世界/世界唯一的玩家。.md",
+      "timestamp": 1786660155047
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/Gemini不能看到更新的github代码！！！只能手动上传！.md",
+      "timestamp": 1786660142540
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/Skills（工作流），Rules规则文件很重要，完成了就是一劳永逸.md",
+      "timestamp": 1786660135806
+    },
     {
       "filepath": "OneNote/Original Game/Design/@rogue，添加场外升级。.md",
       "timestamp": 1786660130079
@@ -243,30 +267,6 @@
     {
       "filepath": "OneNote/Original Game/demo宣发/pv/pv.md",
       "timestamp": 1784806032375
-    },
-    {
-      "filepath": "OneNote/独立游戏/Code/executions.md",
-      "timestamp": 1784805886329
-    },
-    {
-      "filepath": "OneNote/Original Game/持续的理性 = 高等智力/🧠 理性与本能：情绪调节的神经科学/🧘 极简呼吸冥想 告别挫败感的循序渐进指南.md",
-      "timestamp": 1784805805583
-    },
-    {
-      "filepath": "OneNote/Original Game/持续的理性 = 高等智力/🧠 理性与本能：情绪调节的神经科学/🥔 土豆：从“配菜”变“主食”的快手方案.md",
-      "timestamp": 1784805792693
-    },
-    {
-      "filepath": "OneNote/Original Game/Bugs/dns 出现问题，连接不上游戏.md",
-      "timestamp": 1784802723395
-    },
-    {
-      "filepath": "OneNote/Original Game/Bugs/-- 批量重新计算装备效果的伪代码.md",
-      "timestamp": 1784802718648
-    },
-    {
-      "filepath": "OneNote/Original Game/Bugs/Obsidian/Untitled Note.md",
-      "timestamp": 1784770046605
     }
   ],
   "modalWidth": 98,
@@ -473,15 +473,14 @@
       "OneNote/Original Game/Godot Vibe Coding/随人物升级（金钱购买）。解锁更多物品。肖像变化。慢慢逆天数值.md"
     ],
     "OneNote/Original Game/更好地与AI对话": [
-      "OneNote/Original Game/更好地与AI对话/AI会“讨好”用户：说话不倾向什么，AI有讨好人的偏好。一定要中立的说话方式.md",
       "OneNote/Original Game/更好地与AI对话/@聊天次数过多， 坏处：AI 噪声增加，对话慢慢失去准确度和逻辑性，失去前面部分记忆 ，幻觉概率增加，Token 花费增加.md",
+      "OneNote/Original Game/更好地与AI对话/AI会“讨好”用户：说话不倾向什么，AI有讨好人的偏好。一定要中立的说话方式.md",
       "OneNote/Original Game/更好地与AI对话/AI doesn't know what it doesn't know.md",
       "OneNote/Original Game/更好地与AI对话/AI不仔细，经常漏步骤，不能做教程的，帮助学习，只能让它找网站，自己学习.md",
       "OneNote/Original Game/更好地与AI对话/antigravity命令.md",
       "OneNote/Original Game/更好地与AI对话/Gemini不能看到更新的github代码！！！只能手动上传！.md",
       "OneNote/Original Game/更好地与AI对话/Hook A Native Signal Ban (原生 Signal 禁用拦截).md",
       "OneNote/Original Game/更好地与AI对话/Me - Gemini - Claude.md",
-      "OneNote/Original Game/更好地与AI对话/Plan-and-Solve  - 机械执行（Rigid Workflow）与 启发式自由（Heuristic Freedom）的对抗 问题的解决方案.md",
       "OneNote/Original Game/更好地与AI对话/Skills（工作流），Rules规则文件很重要，完成了就是一劳永逸.md",
       "OneNote/Original Game/更好地与AI对话/“Rules should be thin, context should be thick.”.md",
       "OneNote/Original Game/更好地与AI对话/一个任务一个任务地做.md",
@@ -494,8 +493,6 @@
       "OneNote/Original Game/更好地与AI对话/人类应该引导AI思考步骤，因为AI默认是随机思考.md",
       "OneNote/Original Game/更好地与AI对话/但可以用贵的模型写框架，写计划.md",
       "OneNote/Original Game/更好地与AI对话/什么时候应该【手动重置上下文】.md",
-      "OneNote/Original Game/更好地与AI对话/傻逼Claude对话继续.md",
-      "OneNote/Original Game/更好地与AI对话/使用Gemini3.1plan，GeminiFlash3.5执行.md",
       "OneNote/Original Game/更好地与AI对话/全面的AI代码测评（不要看SWE bench，背题就能做到）.md",
       "OneNote/Original Game/更好地与AI对话/共用魔法。牛逼。.md",
       "OneNote/Original Game/更好地与AI对话/写计划 - 一定要-grillme，AI会非常好地反思和反问问题！这样的计划才是真的好！不用删删改改！.md",
@@ -508,21 +505,29 @@
       "OneNote/Original Game/更好地与AI对话/可以不使用MCP.md",
       "OneNote/Original Game/更好地与AI对话/基本上不要用本地模型.md",
       "OneNote/Original Game/更好地与AI对话/对于人类使用AI的心情，我觉得可以把AI当做一个人，你的手下：.md",
-      "OneNote/Original Game/更好地与AI对话/小bug可以发，只需点Edit消息，消除AI的记忆了，不会影响上线问！.md",
       "OneNote/Original Game/更好地与AI对话/必须强制AI网络搜索，问题瞬间解决.md",
       "OneNote/Original Game/更好地与AI对话/强类型约束 - e.g.-年龄（必须阿拉伯数字）不如直接 Age：Int.md",
       "OneNote/Original Game/更好地与AI对话/新问题.md",
       "OneNote/Original Game/更好地与AI对话/权重小的但是重要的，可以复制一遍会更好让模型注意力准确度提升，不把重要的话当耳旁风.md",
-      "OneNote/Original Game/更好地与AI对话/真正程序员 80% 时间不是写新代码，是 debug。.md",
       "OneNote/Original Game/更好地与AI对话/第2次更新.md",
       "OneNote/Original Game/更好地与AI对话/英文更好的时候再使用英文.md",
       "OneNote/Original Game/更好地与AI对话/触发压缩：其实也不便宜。.md",
-      "OneNote/Original Game/更好地与AI对话/说清需求、给目标、给死规则。现代模型只需要做这个.md",
       "OneNote/Original Game/更好地与AI对话/讲清楚需求和痛点最重要.md",
       "OneNote/Original Game/更好地与AI对话/连续对话，命中缓存。而在5~10分钟后，不能命中缓存，厂家删除kv缓存，必须重新计算.md",
       "OneNote/Original Game/更好地与AI对话/避免创建和查看太多文件.md",
       "OneNote/Original Game/更好地与AI对话/重要的-先做的 在前面：ChatGPT始终在预测下一个单词，并且每次预测时，都会参考你提供的prompt和它自己已经生成的内容，所以它自己每次多生成一个单词都相当于多了一点思考时间.md",
-      "OneNote/Original Game/更好地与AI对话/错误预期 - 直接revert。让AI回滚 - AI错误.md"
+      "OneNote/Original Game/更好地与AI对话/错误预期 - 直接revert。让AI回滚 - AI错误.md",
+      "OneNote/Original Game/更好地与AI对话/Agent Skills 全景体系架构与功能索引.md",
+      "OneNote/Original Game/更好地与AI对话/AI是概率机器，使用AI不要带情绪.md",
+      "OneNote/Original Game/更好地与AI对话/Flash 3.7 适合执行确定性、可验证、低判断量的迁移动作；不适合独立做语义拆分、幽灵链接裁决、路由变更和删除决策。.md",
+      "OneNote/Original Game/更好地与AI对话/NEEDS CLARIFICATION.md",
+      "OneNote/Original Game/更好地与AI对话/✓预言失败 & ✕Confidence大于7.md",
+      "OneNote/Original Game/更好地与AI对话/不要打断概率预测模型的“思考”，结束后再说.md",
+      "OneNote/Original Game/更好地与AI对话/中转站.md",
+      "OneNote/Original Game/更好地与AI对话/使用5.6sol high做计划可以的。.md",
+      "OneNote/Original Game/更好地与AI对话/单个对话还是分开。Claude Code + 它原生的 sub-agent 就够了.md",
+      "OneNote/Original Game/更好地与AI对话/计划&打杂&执行 - 三种AI.md",
+      "OneNote/Original Game/更好地与AI对话/说清需求、给目标、给死规则。现代模型只需要做这个（更新：就是一些小思路，模型不用我去指导如何去思考，去做，大思路，最好写个skill之类的，或者让AI专门思考查阅研究给意见形成大思路，然后根据大思路去做，AI自主去做1+1小思路小思考）.md"
     ]
   },
   "customSectionOrder": [
@@ -580,7 +585,10 @@
       "OneNote/Original Game/GodotLearned",
       "OneNote/Original Game/有趣的金融",
       "OneNote/Original Game/睡眠曲子记录",
-      "OneNote/Original Game/神化状态记录"
+      "OneNote/Original Game/神化状态记录",
+      "OneNote/Original Game/AI 2-其他研究",
+      "OneNote/Original Game/其他研究",
+      "OneNote/Original Game/睡"
     ],
     "OneNote": [
       "OneNote/Original Game/Clash",
