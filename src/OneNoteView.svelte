@@ -21,6 +21,7 @@
     export let enableVirtualization: boolean = false;
     export let initialExpandedPaths: string[] = [];
     export let initialSelectedSectionPath: string = "";
+    export let onExpandedChanged: (paths: string[]) => void = () => {};
     export let onSectionSelectedChanged: (path: string) => void = () => {};
     export let onPageOpened: (filepath: string) => void = () => {};
 

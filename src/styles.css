@@ -16,7 +16,7 @@
     --on-font: var(--font-interface);
 }
 
-body .workspace-leaf-content[data-type="a1-onenote-sections"] .view-content {
+body .workspace-leaf-content[data-type="fluent-onenote-sections"] .view-content {
     padding: 0;
     overflow: hidden;
 }

@@ -150,8 +150,8 @@
         }, 50);
 
         // 3. Listen for cross-view state sync from sidebar or other modals
-        EventBus.on(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged);
-        EventBus.on(EventName.SECTION_SELECTED, handleSectionSelected);
+        EventBus.on(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged as (payload: unknown) => void);
+        EventBus.on(EventName.SECTION_SELECTED, handleSectionSelected as (payload: unknown) => void);
     });
 
     function handleExpandedChanged(payload: ExpandedSectionsChangedPayload) {
@@ -173,8 +173,8 @@
 
     onDestroy(() => {
         window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
-        EventBus.off(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged);
-        EventBus.off(EventName.SECTION_SELECTED, handleSectionSelected);
+        EventBus.off(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged as (payload: unknown) => void);
+        EventBus.off(EventName.SECTION_SELECTED, handleSectionSelected as (payload: unknown) => void);
         vm.destroy();
     });
 
@@ -294,7 +294,7 @@
                 vm.loadNotebooks();
                 focusPane = "pages";
                 focusedPagePath = newFile.path;
-                openPage({ name: newFile.basename, filepath: newFile.path, ctime: newFile.stat.ctime, mtime: newFile.stat.mtime });
+                openPage({ name: newFile.basename, filepath: newFile.path, mtime: newFile.stat.mtime });
                 setTimeout(scrollFocusedIntoView, 50);
             }
         }
@@ -506,7 +506,8 @@
 
     function syncSectionIndexToSelectedSection() {
         if (!$selectedSection) return;
-        const index = $visibleSections.findIndex(s => s.folderPath === $selectedSection.folderPath);
+        const currentSec = $selectedSection;
+        const index = $visibleSections.findIndex(s => s.folderPath === currentSec.folderPath);
         if (index !== -1) {
             focusedSectionIndex = index;
         }
@@ -569,7 +570,7 @@
 >
     {#if showTip}
         <div class="on-tip-banner">
-            💡 Tip: Set a hotkey under Settings → Hotkeys → "A1 OneNote: Open navigation popup" for instant access ({remainingTips} reminders left)
+            💡 Tip: Set a hotkey under Settings → Hotkeys → "Fluent OneNote: Open navigation popup" for instant access ({remainingTips} reminders left)
         </div>
     {/if}
 
