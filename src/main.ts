@@ -222,7 +222,7 @@ export default class FluentOneNotePlugin extends Plugin {
         let leaf = workspace.getLeavesOfType(VIEW_TYPE_SECTIONS)[0] ?? null;
 
         if (!leaf) {
-            leaf = workspace.getLeftLeaf(false);
+            leaf = workspace.getLeftLeaf(false) as WorkspaceLeaf | null;
             if (leaf) {
                 await leaf.setViewState({ type: VIEW_TYPE_SECTIONS, active: true });
             }
