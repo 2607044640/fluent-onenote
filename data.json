@@ -66,8 +66,32 @@
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。",
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。/Untitled Note"
   ],
-  "selectedSectionPath": "OneNote/Original Game/理解AI",
+  "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
+    {
+      "filepath": "OneNote/Original Game/理解AI/Untitled Note.md",
+      "timestamp": 1786824118516
+    },
+    {
+      "filepath": "OneNote/Original Game/Bugs/Claude 网页访问 ERR_TIMED_OUT 超时排查与修复.md",
+      "timestamp": 1786823363405
+    },
+    {
+      "filepath": "OneNote/Original Game/Bugs/确实，Rider有专门的设置可以引用Unreal Engine插件代码，包括GameplayAbilitiesSystem (GAS)。这样可以获得代码补全、跳转和语法高亮功能。以下是配置步骤：.md",
+      "timestamp": 1786823161514
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note 1.md",
+      "timestamp": 1786822241218
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note.md",
+      "timestamp": 1786822095816
+    },
+    {
+      "filepath": "OneNote/Original Game/更好地与AI对话/中转站.md",
+      "timestamp": 1786735073730
+    },
     {
       "filepath": "OneNote/Original Game/理解AI/大语言模型上下文机制与 Transformer 架构原理 🧠.md",
       "timestamp": 1786660184097
@@ -115,10 +139,6 @@
     {
       "filepath": "OneNote/Original Game/Design/Untitled Note.md",
       "timestamp": 1785185878335
-    },
-    {
-      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note.md",
-      "timestamp": 1785185101378
     },
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/新问题.md",
@@ -179,10 +199,6 @@
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/Claude对话.md",
       "timestamp": 1784837738127
-    },
-    {
-      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note 1.md",
-      "timestamp": 1784832918256
     },
     {
       "filepath": "OneNote/Original Game/Obsidian/知识.md",
@@ -251,22 +267,6 @@
     {
       "filepath": "OneNote/Original Game/Godot Vibe Coding/-- R3 预览流：鼠标跨格才触发计算，TakeUntil 在拖拽结束时自动停止流/Untitled Note/Untitled Note.md",
       "timestamp": 1784824501043
-    },
-    {
-      "filepath": "OneNote/Original Game/Godot Vibe Coding/物理.md",
-      "timestamp": 1784823448902
-    },
-    {
-      "filepath": "OneNote/独立游戏/BUG/ATacticGameState UTacticSubsystemGetTacticGameState().md",
-      "timestamp": 1784806073927
-    },
-    {
-      "filepath": "OneNote/独立游戏/ABS/AI重要：很难的，3次需求.md",
-      "timestamp": 1784806040962
-    },
-    {
-      "filepath": "OneNote/Original Game/demo宣发/pv/pv.md",
-      "timestamp": 1784806032375
     }
   ],
   "modalWidth": 98,
