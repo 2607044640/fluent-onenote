@@ -6147,7 +6147,12 @@ function instance5($$self, $$props, $$invalidate) {
     syncSectionIndexToSelectedSection();
     setTimeout(
       () => {
-        if (modalContainerEl) {
+        if (searchInputEl) {
+          searchInputEl.focus();
+          if ($filterQueryStore) {
+            searchInputEl.select();
+          }
+        } else if (modalContainerEl) {
           modalContainerEl.focus();
         }
         scrollFocusedIntoView();
@@ -6279,8 +6284,7 @@ function instance5($$self, $$props, $$invalidate) {
         $$invalidate(12, focusedPagePath = newFile.path);
         openPage({
           name: newFile.basename,
-          filepath: newFile.path,
-          mtime: newFile.stat.mtime
+          filepath: newFile.path
         });
         setTimeout(scrollFocusedIntoView, 50);
       }
@@ -6336,6 +6340,9 @@ function instance5($$self, $$props, $$invalidate) {
     }
   }
   function handleKeydown(e) {
+    if (e.isComposing || e.keyCode === 229) {
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
       e.preventDefault();
       e.stopPropagation();
@@ -6349,11 +6356,9 @@ function instance5($$self, $$props, $$invalidate) {
       return;
     }
     if (document.activeElement === searchInputEl) {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
         e.stopPropagation();
-        searchInputEl.blur();
-        modalContainerEl == null ? void 0 : modalContainerEl.focus();
         if (trimmedQuery) {
           $$invalidate(10, focusPane = "pages");
         }
@@ -6364,6 +6369,19 @@ function instance5($$self, $$props, $$invalidate) {
         }
         setTimeout(scrollFocusedIntoView, 10);
         return;
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (!trimmedQuery) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (focusPane === "sections") {
+            handleSectionsKeydown(e.key);
+          } else {
+            handlePagesKeydown(e.key);
+          }
+          setTimeout(scrollFocusedIntoView, 10);
+          return;
+        }
+        return;
       } else if (e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
@@ -6371,16 +6389,17 @@ function instance5($$self, $$props, $$invalidate) {
         openCurrentSelection(inNewTab);
         return;
       } else if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
         if (showNotebookDropdown) {
+          e.preventDefault();
+          e.stopPropagation();
           $$invalidate(7, showNotebookDropdown = false);
           return;
         }
         if ($filterQueryStore) {
+          e.preventDefault();
+          e.stopPropagation();
           set_store_value(filterQueryStore, $filterQueryStore = "", $filterQueryStore);
-          searchInputEl.blur();
-          modalContainerEl == null ? void 0 : modalContainerEl.focus();
+          return;
         }
         return;
       }
