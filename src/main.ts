@@ -219,10 +219,10 @@ export default class FluentOneNotePlugin extends Plugin {
     async activateView(): Promise<WorkspaceLeaf | null> {
         const { workspace } = this.app;
 
-        let leaf = workspace.getLeavesOfType(VIEW_TYPE_SECTIONS)[0] ?? null;
+        let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(VIEW_TYPE_SECTIONS)[0] ?? null;
 
         if (!leaf) {
-            leaf = workspace.getLeftLeaf(false) as WorkspaceLeaf | null;
+            leaf = workspace.getLeftLeaf(false);
             if (leaf) {
                 await leaf.setViewState({ type: VIEW_TYPE_SECTIONS, active: true });
             }

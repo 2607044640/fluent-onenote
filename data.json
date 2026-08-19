@@ -69,12 +69,16 @@
   "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
     {
-      "filepath": "OneNote/Original Game/Research/迅雷下载无速度成因、后台偷跑上传机制与彻底退出排查指南.md",
-      "timestamp": 1786963825059
+      "filepath": "OneNote/Original Game/理解AI/Untitled Note.md",
+      "timestamp": 1787041901077
     },
     {
-      "filepath": "OneNote/Original Game/理解AI/Untitled Note.md",
-      "timestamp": 1786824118516
+      "filepath": "OneNote/健康/皮肤与五官护理/鼻头发痒与面部蠕形螨（舒力达·伊维菌素）科学防治全指南.md",
+      "timestamp": 1786969149988
+    },
+    {
+      "filepath": "OneNote/Original Game/Research/迅雷下载无速度成因、后台偷跑上传机制与彻底退出排查指南.md",
+      "timestamp": 1786963825059
     },
     {
       "filepath": "OneNote/Original Game/Bugs/Claude 网页访问 ERR_TIMED_OUT 超时排查与修复.md",
@@ -263,10 +267,6 @@
     {
       "filepath": "OneNote/Original Game/Godot Vibe Coding/-- R3 预览流：鼠标跨格才触发计算，TakeUntil 在拖拽结束时自动停止流/Untitled Note.md",
       "timestamp": 1784824510145
-    },
-    {
-      "filepath": "OneNote/Original Game/Godot Vibe Coding/3D 项目用 Jolt，2D 项目用 Rapier。设置物理引擎.md",
-      "timestamp": 1784824505258
     }
   ],
   "modalWidth": 98,

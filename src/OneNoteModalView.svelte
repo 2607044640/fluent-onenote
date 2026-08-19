@@ -141,9 +141,14 @@
         // Align focusedSectionIndex with current selectedSection
         syncSectionIndexToSelectedSection();
 
-        // 2. Auto focus modal container for immediate keyboard navigation
+        // 2. Auto focus search input for immediate IME typing and keyboard navigation
         setTimeout(() => {
-            if (modalContainerEl) {
+            if (searchInputEl) {
+                searchInputEl.focus();
+                if ($filterQueryStore) {
+                    searchInputEl.select();
+                }
+            } else if (modalContainerEl) {
                 modalContainerEl.focus();
             }
             scrollFocusedIntoView();
@@ -294,7 +299,7 @@
                 vm.loadNotebooks();
                 focusPane = "pages";
                 focusedPagePath = newFile.path;
-                openPage({ name: newFile.basename, filepath: newFile.path, mtime: newFile.stat.mtime });
+                openPage({ name: newFile.basename, filepath: newFile.path });
                 setTimeout(scrollFocusedIntoView, 50);
             }
         }
@@ -352,10 +357,12 @@
         }
     }
 
-    // =============================================
-    // Keyboard Navigation
-    // =============================================
     function handleKeydown(e: KeyboardEvent) {
+        // 0. IME Composition Guard: Allow Chinese/Japanese IME candidates selection & Enter commit without interception
+        if (e.isComposing || e.keyCode === 229) {
+            return;
+        }
+
         // Quick New Note shortcut: Ctrl+N / Cmd+N
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
             e.preventDefault();
@@ -364,21 +371,19 @@
             return;
         }
 
-        // Safe Delete Note shortcut: Delete / Backspace
+        // Safe Delete Note shortcut: Delete / Backspace (only when focused outside search input)
         if ((e.key === "Delete" || e.key === "Backspace") && focusPane === "pages" && document.activeElement !== searchInputEl) {
             e.preventDefault();
             e.stopPropagation();
             handleDeleteCurrentPage();
             return;
         }
+
         // 1. If focus is inside search input
         if (document.activeElement === searchInputEl) {
-            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
-                // Direction keys exit search input to focus navigation below
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                 e.preventDefault();
                 e.stopPropagation();
-                searchInputEl.blur();
-                modalContainerEl?.focus();
                 
                 if (trimmedQuery) {
                     focusPane = "pages";
@@ -391,6 +396,21 @@
                 }
                 setTimeout(scrollFocusedIntoView, 10);
                 return;
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                // If there's no query, left/right switches pane or toggles section
+                if (!trimmedQuery) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (focusPane === "sections") {
+                        handleSectionsKeydown(e.key);
+                    } else {
+                        handlePagesKeydown(e.key);
+                    }
+                    setTimeout(scrollFocusedIntoView, 10);
+                    return;
+                }
+                // If query exists, allow normal text cursor movement within search input
+                return;
             } else if (e.key === "Enter") {
                 e.preventDefault();
                 e.stopPropagation();
@@ -398,17 +418,19 @@
                 openCurrentSelection(inNewTab);
                 return;
             } else if (e.key === "Escape") {
-                e.preventDefault();
-                e.stopPropagation();
                 if (showNotebookDropdown) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     showNotebookDropdown = false;
                     return;
                 }
                 if ($filterQueryStore) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     $filterQueryStore = "";
-                    searchInputEl.blur();
-                    modalContainerEl?.focus();
+                    return;
                 }
+                // When search box is empty, let Escape bubble to close modal naturally
                 return;
             }
             return; // Allow typing characters inside search box (including Space character)
