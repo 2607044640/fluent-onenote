@@ -7,6 +7,7 @@ export interface FluentOneNoteSettings {
     rootFolder: string;
     accentColor: string;
     displayMode: DisplayMode;
+    hideRibbonIcon: boolean;
     tipShownCount: number;
     expandedPaths: string[];
     selectedSectionPath: string;
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: FluentOneNoteSettings = {
     rootFolder: "OneNote",
     accentColor: "#8b5cf6",
     displayMode: "both",
+    hideRibbonIcon: false,
     tipShownCount: 0,
     expandedPaths: [],
     selectedSectionPath: "",
@@ -127,6 +129,17 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
                     this.plugin.settings.displayMode = value as DisplayMode;
                     await this.plugin.saveSettings();
                     this.plugin.applyDisplayMode();
+                }));
+
+        new Setting(containerEl)
+            .setName("Hide Ribbon Icon")
+            .setDesc("Hide the Fluent OneNote icon in the left ribbon.")
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.hideRibbonIcon ?? false)
+                .onChange(async (value) => {
+                    this.plugin.settings.hideRibbonIcon = value;
+                    await this.plugin.saveSettings();
+                    this.plugin.refreshRibbonIcon();
                 }));
 
         new Setting(containerEl).setName("Performance Optimization").setHeading();

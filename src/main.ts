@@ -87,6 +87,7 @@ class OneNoteViewWrapper extends ItemView {
 
 export default class FluentOneNotePlugin extends Plugin {
     private dataService!: DataService;
+    private ribbonIconEl: HTMLElement | null = null;
     settings!: FluentOneNoteSettings;
 
     async onload(): Promise<void> {
@@ -104,10 +105,8 @@ export default class FluentOneNotePlugin extends Plugin {
         // Register the single View
         this.registerView(VIEW_TYPE_SECTIONS, (leaf) => new OneNoteViewWrapper(leaf, this.dataService, this));
 
-        // Ribbon icon: Opens the popup Modal
-        this.addRibbonIcon("layers", "Open Fluent OneNote", () => {
-            new OneNoteModal(this.app, this, this.dataService).open();
-        });
+        // Ribbon icon: Opens the popup Modal (controlled by hideRibbonIcon setting)
+        this.refreshRibbonIcon();
 
         // Commands
         this.addCommand({
@@ -139,6 +138,7 @@ export default class FluentOneNotePlugin extends Plugin {
                 await this.loadSettings();
                 this.applySettings();
                 this.applyDisplayMode();
+                this.refreshRibbonIcon();
 
                 void Logger.log("Fluent OneNote plugin loaded successfully.");
             })();
@@ -146,7 +146,24 @@ export default class FluentOneNotePlugin extends Plugin {
     }
 
     onunload(): void {
+        if (this.ribbonIconEl) {
+            this.ribbonIconEl.remove();
+            this.ribbonIconEl = null;
+        }
         void Logger.log("Fluent OneNote plugin unloaded.");
+    }
+
+    /** Dynamically add or remove ribbon icon based on settings */
+    refreshRibbonIcon(): void {
+        if (this.ribbonIconEl) {
+            this.ribbonIconEl.remove();
+            this.ribbonIconEl = null;
+        }
+        if (!this.settings?.hideRibbonIcon) {
+            this.ribbonIconEl = this.addRibbonIcon("layers", "Open Fluent OneNote", () => {
+                new OneNoteModal(this.app, this, this.dataService).open();
+            });
+        }
     }
 
     // =============================================
