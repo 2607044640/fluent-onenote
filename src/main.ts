@@ -88,19 +88,17 @@ class OneNoteViewWrapper extends ItemView {
 export default class FluentOneNotePlugin extends Plugin {
     private dataService!: DataService;
     private ribbonIconEl: HTMLElement | null = null;
-    settings!: FluentOneNoteSettings;
+    settings: FluentOneNoteSettings = Object.assign({}, DEFAULT_SETTINGS);
 
     async onload(): Promise<void> {
+        // Synchronous setting tab registration before any async awaits
+        this.dataService = new DataService(this.app);
+        this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
+
         Logger.init(this.app);
         void Logger.log("Fluent OneNote plugin loading...");
 
-        // Global error handlers removed to fix unsafe member access warnings
-
         await this.loadSettings();
-
-        // CRITICAL CONSTRAINT: Synchronous Tab registration before any awaits
-        this.dataService = new DataService(this.app);
-        this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
 
         // Register the single View
         this.registerView(VIEW_TYPE_SECTIONS, (leaf) => new OneNoteViewWrapper(leaf, this.dataService, this));
@@ -171,7 +169,7 @@ export default class FluentOneNotePlugin extends Plugin {
     // =============================================
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, (await this.loadData()) || {});
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, (await this.loadData()) as Partial<FluentOneNoteSettings> | null);
         if ((this.settings.displayMode as unknown as string) === "sidebar") {
             this.settings.displayMode = "both";
             await this.saveSettings();
