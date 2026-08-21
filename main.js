@@ -7219,13 +7219,14 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
   constructor() {
     super(...arguments);
     this.ribbonIconEl = null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS);
   }
   async onload() {
+    this.dataService = new DataService(this.app);
+    this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
     Logger.init(this.app);
     void Logger.log("Fluent OneNote plugin loading...");
     await this.loadSettings();
-    this.dataService = new DataService(this.app);
-    this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
     this.registerView(VIEW_TYPE_SECTIONS, (leaf) => new OneNoteViewWrapper(leaf, this.dataService, this));
     this.refreshRibbonIcon();
     this.addCommand({
@@ -7283,7 +7284,7 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
   // Settings Management
   // =============================================
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() || {});
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     if (this.settings.displayMode === "sidebar") {
       this.settings.displayMode = "both";
       await this.saveSettings();
