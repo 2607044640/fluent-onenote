@@ -2,6 +2,7 @@
   "rootFolder": "OneNote",
   "accentColor": "#b3e5ff",
   "displayMode": "both",
+  "hideRibbonIcon": true,
   "tipShownCount": 0,
   "expandedPaths": [
     "OneNote/独立游戏/ABS",
@@ -68,6 +69,14 @@
   ],
   "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
+    {
+      "filepath": "OneNote/Original Game/Clash/傻逼godot mcp链接解决方案，port，bug.md",
+      "timestamp": 1787308589341
+    },
+    {
+      "filepath": "OneNote/独立游戏/Code/结论.md",
+      "timestamp": 1787308578670
+    },
     {
       "filepath": "OneNote/健康/饮食与营养/食物消化转运时间与辛辣刺激排便机制.md",
       "timestamp": 1787133522724
@@ -259,14 +268,6 @@
     {
       "filepath": "OneNote/Original Game/Bugs/vrchat bug.md",
       "timestamp": 1784829368550
-    },
-    {
-      "filepath": "OneNote/Original Game/Godot Vibe Coding/AI优化R3代码（应该是最好方案）.md",
-      "timestamp": 1784824513849
-    },
-    {
-      "filepath": "OneNote/Original Game/Godot Vibe Coding/3渲2方案.md",
-      "timestamp": 1784824513465
     }
   ],
   "modalWidth": 98,
