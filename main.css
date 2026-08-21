@@ -167,6 +167,7 @@ body .workspace-leaf-content[data-type=fluent-onenote-sections] .view-content {
   flex-grow: 1;
   overflow-y: auto;
   padding: 4px 0;
+  scroll-behavior: auto !important;
 }
 .on-list::-webkit-scrollbar {
   width: 4px;
@@ -443,15 +444,16 @@ body .on-filter-input {
   white-space: nowrap;
 }
 .on-item.is-dragging {
-  opacity: 0.45;
+  opacity: 0.4 !important;
+  transition: none !important;
 }
 body .on-item.drag-over-top {
-  border-top: 2px solid var(--on-accent, #8b5cf6);
-  box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
+  border-top: 2px solid var(--on-accent, #8b5cf6) !important;
+  box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
 }
 body .on-item.drag-over-bottom {
-  border-bottom: 2px solid var(--on-accent, #8b5cf6);
-  box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
+  border-bottom: 2px solid var(--on-accent, #8b5cf6) !important;
+  box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
 }
 body .on-item.drag-over-bottom + .on-item,
 body .on-item.drag-over-bottom + .on-section-wrapper,
@@ -462,5 +464,5 @@ body .on-page-wrapper.drag-over-bottom + .on-page-wrapper {
   box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
 }
 body.is-dragging-active .on-item * {
-  pointer-events: none;
+  pointer-events: none !important;
 }

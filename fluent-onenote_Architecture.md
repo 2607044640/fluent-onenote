@@ -6,7 +6,7 @@ This document defines the core architecture, data flow, component boundaries, sy
 
 ## Architectural Overview
 
-Fluent OneNote provides a 2-Pane / 3-Pane navigation layout (Notebooks -> Sections -> Pages) for Obsidian notes, available as both a floating popup modal (`Ctrl+Shift+O`) and a persistent sidebar tab view.
+Fluent OneNote provides a 2-Pane navigation layout (Notebooks -> Sections -> Pages) for Obsidian notes, available as both a floating popup modal (`Ctrl+Shift+O`) and a persistent sidebar tab view.
 
 ```
 +------------------------------------------------------------------------------------+
@@ -14,32 +14,40 @@ Fluent OneNote provides a 2-Pane / 3-Pane navigation layout (Notebooks -> Sectio
 |                                                                                    |
 |  +---------------------------+                     +----------------------------+  |
 |  |  OneNoteViewWrapper       |  [Command / Hotkey] |  OneNoteModal (Popup Controller)
-|  |   (VIEW_TYPE_SECTIONS)    | ------------------->|  (Floating 65vw x 70vh Modal) |  |
+|  |   (VIEW_TYPE_SECTIONS)    | ------------------->|  (Floating Custom Size Modal) |
 |  |   [Mounted Svelte View]   |                     |   [Mounted Svelte View]    |  |
 |  +-------------+-------------+                     +--------------+-------------+  |
 +----------------|--------------------------------------------------|----------------+
                  |                                                  |
-                 +----------------- DataService Facade --------------+
-                                           |
-                                   VaultScanner Engine
-                                           |
-                           Obsidian Vault File Tree API
+                 +----------------- OneNoteViewModel ---------------+
+                                            |
+                                    DataService Facade
+                                            |
+                                    VaultScanner Engine
+                                            |
+                            Obsidian Vault File Tree API
 ```
 
 <data_flow>
-Data propagation from Obsidian's file system changes to UI rendering follows an 8-step sequence:
+## Data Flow Sequence
+Data propagation from Obsidian's file system changes to UI rendering follows a strict sequence:
 
-1. **FileSystem Event**: User modifies folders/files or creates/deletes notes in the vault.
-2. **Scanner Invocation**: Svelte view receives vault change event -> calls `DataService.getNotebooks(rootFolder, customNotebookOrder, customSectionOrderMap, customPageOrder)`.
-3. **3-Tier Parsing**: `VaultScanner.scanNotebooks()` parses 3 hierarchical levels:
+1. **FileSystem Event**: User creates, renames, deletes, or moves folders/files in the vault.
+2. **Scanner Invocation**: Svelte view receives event or order change -> invokes `DataService.getNotebooks(rootFolder, customNotebookOrder, customSectionOrderMap, customPageOrder)`.
+3. **3-Tier Directory Parsing**: `VaultScanner.scanNotebooks()` parses 3 hierarchical levels:
    - Level 1: Top folders under `rootFolder` -> `NotebookInfo[]` (1-level flat).
    - Level 2: Sub-folders inside Notebook -> `SectionInfo[]` (1-level flat).
    - Level 3: Files & sub-folders inside Section -> `PageInfo[]` (multi-level nested sub-pages).
-4. **Custom Order Sorting**: `DataService` applies `customNotebookOrder`, `customSectionOrderMap[notebookPath]`, and `customPageOrder[sectionPath]` maps.
-5. **State Dispatch**: `OneNoteView` or `OneNoteModalView` updates `notebooks`, `selectedNotebook`, `sections`, and `selectedSection`.
-6. **Optimistic UI & Deferred Drag Cleanup**: Drag and drop events reorder Svelte arrays synchronously for 0ms visual feedback, deferring state clearing by 50ms (`setTimeout`) to prevent `on:dragend` race conditions.
-7. **Active Highlight**: Workspace `file-open` event is captured by the Svelte layout to highlight active `filepath`.
-8. **Modal Self-Termination**: Clicking a page inside `OneNoteModalView` triggers `openPage()`, which calls `onPageOpened()` callback to dismiss the parent `OneNoteModal` popup.
+4. **Custom Order Sorting**: `DataService` applies `customNotebookOrder`, `customSectionOrderMap[notebookPath]`, and `customPageOrder[sectionPath]` mappings.
+5. **ViewModel State Dispatch**: `OneNoteViewModel` throttles updates and dispatches stores: `notebooks`, `selectedNotebook`, `sections`, `selectedSection`, `filteredPages`.
+6. **Optimistic Drag & Drop UI**:
+   - `handleDragStart`: Sets dragged item, adds `is-dragging-active` to `document.body` (shielding child pointer-events).
+   - `handleDragOver`: Runs 60px linear-damping rAF auto-scroller and throttles store updates (dispatches only on target/position change).
+   - `handleDragLeave`: Safely clears indicator lines when cursor leaves item.
+   - `handleDrop`: Synchronously reorders in-memory arrays for 0ms visual feedback, stops auto-scroll, removes body shield, and saves custom ordering asynchronously.
+7. **Active Highlight**: Workspace `file-open` event triggers `activePagePath` store update to highlight current note.
+8. **EventBus Pub/Sub**: `EventBus.emit(EventName.ORDER_CHANGED)` broadcasts order resets and imports across all open views without requiring plugin reload.
+9. **Modal Self-Termination**: Clicking a page in `OneNoteModalView` triggers `openPage()` and dismisses the parent `OneNoteModal`.
 </data_flow>
 
 ## Component Scope & Ownership
@@ -47,16 +55,20 @@ Data propagation from Obsidian's file system changes to UI rendering follows an 
 <scope_boundaries>
 | Component | Primary Responsibility | MUST NOT Contain |
 | :--- | :--- | :--- |
-| `src/main.ts` | Plugin lifecycle, registering ItemViews, commands, settings tab | Direct DOM manipulations, raw vault file scanning |
+| `src/main.ts` | Plugin lifecycle, registering ItemViews, commands, settings tab, recent pages tracker | Direct DOM manipulation, raw vault file scanning |
+| `OneNoteViewModel` | Centralized UI state store, rAF auto-scroller, throttled DnD coordination, keyboard focus | Direct file system mutation or raw HTML formatting |
 | `VaultScanner` | Traversing vault directories, parsing Notebooks, Sections, and Pages | Svelte framework state, DOM actions, workspace leaf tracking |
 | `DataService` | Decoupling scanner execution, sorting custom orders, flattening page trees | Direct file parsing or UI rendering logic |
 | `DragDropHelper` | Reordering Notebooks/Sections/Pages, executing `renameFile` for cross-pane moves | Svelte state mutation or direct DOM rendering |
-| `OneNoteView` | 3-pane sidebar layout (`Notebooks -> Sections -> Pages`), active leaf detection | Directly scanning directory files or interacting with adapter |
+| `EventBus` | Singleton pub/sub bus for cross-pane and cross-modal event communication | State persistence or business logic |
+| `OneNoteView` | Persistent sidebar tab view (`Notebooks -> Sections -> Pages`), active leaf detection | Directly scanning directory files or raw disk writes |
 | `OneNoteModal` | Instantiating popup container, setting dimensions, applying modal styles | Direct database query or file system interaction |
-| `OneNoteModalView` | Displaying 3-pane popup layout, Quick Switcher search, managing keyboard navigation | Accessing settings parameters directly or saving configuration file |
-| `NotebookTreeItem` | Displaying 1-level flat notebook cards in Pane 1 | Managing section lists or file deletion |
-| `SectionTreeItem` | Displaying 1-level flat section cards in Pane 2 | Managing sub-sections or page lists |
-| `PageTreeItem` | Recursive sub-page rendering in Pane 3, title click handling, expansion chevron toggle | File system mutation or direct vault deletion logic |
+| `OneNoteModalView` | Floating popup layout, IME-safe search, keyboard navigation, dropdown notebook popover | Direct settings persistence or raw vault scanning |
+| `RecentPagesModal` | Fuzzy-search modal for recently visited pages sorted by access timestamp | Modifying file contents or tree hierarchies |
+| `ConfirmModal` | Reusable modal for destructive confirmation dialogs (e.g. order reset) | Arbitrary business mutations outside callback |
+| `NotebookTreeItem` | Displaying 1-level flat notebook cards in dropdown popover | Managing section lists or file deletion |
+| `SectionTreeItem` | Displaying 1-level flat section cards in Section pane | Managing sub-sections or page lists |
+| `PageTreeItem` | Recursive sub-page rendering in Pages pane, click handling, chevron toggle | File system mutation or direct vault deletion logic |
 </scope_boundaries>
 
 ## System Invariants & Rules
@@ -64,9 +76,11 @@ Data propagation from Obsidian's file system changes to UI rendering follows an 
 <key_invariants>
 - **Synchronous Settings Tab Registration**: MUST call `this.addSettingTab(new FluentOneNoteSettingTab(...))` synchronously in `onload()` before awaiting any async setup. (Why: prevents monkey-patched settings managers like 'settings-in-tab' from failing to intercept the gear icon).
 - **No Leaf Detaching in `onunload()`**: NEVER call `app.workspace.detachLeavesOfType()` inside `onunload()`. (Why: resets user's custom layout positions on plugin reload).
-- **3-Pane Hierarchy**: Notebooks (1-level flat) -> Sections (1-level flat) -> Pages (multi-level sub-pages).
-- **Sibling-Only Page Drag**: Reordering pages within Pane 3 is enforced among sibling items only; cross-level attempts trigger a Notice toast.
-- **Deferred Drag Cleanup**: `handleDragEnd` cleanup is deferred by 50ms (`setTimeout`) to guarantee `handleDrop` consumes state before reset.
+- **IME Composition Guard**: In modal search inputs, hotkey handlers MUST check `if (e.isComposing || e.keyCode === 229) return;` before processing `Enter`, `Space`, or arrow keys. (Why: prevents dropping the first character or prematurely submitting candidate selections in Asian IMEs).
+- **DragOver Throttling**: DragOver handlers MUST NOT dispatch Svelte store updates unless `itemId` or `position` actually changed. (Why: uncapped 60Hz store updates cause severe reactivity thrashing across large note trees).
+- **60px rAF Auto-Scroll**: Edge auto-scrolling MUST use `requestAnimationFrame` with linear damping within a 60px boundary and `scroll-behavior: auto !important;` on `.on-list`. (Why: provides smooth, predictable scrolling without jerky jumps).
+- **Child Pointer Events Shield**: Active dragging MUST toggle `is-dragging-active` on `document.body` with `pointer-events: none !important;` on all child elements. (Why: prevents cursor coordinate jitter when hovering over icons, chevrons, and text labels).
+- **Sibling-Only Page Drag**: Reordering pages within the Pages pane is enforced among sibling items only; cross-level attempts trigger a Notice toast. (Why: prevents tree structural corruption).
 - **File Deletion API**: MUST use `app.fileManager.trashFile(file)` instead of `app.vault.trash(file)`. (Why: respects user's configured trash preferences).
 - **Static CSS Styling**: NEVER inject dynamic `<style>` DOM tags at runtime. Use `document.body.setCssProps()` for dynamic theme variables. (Why: strictly required by Obsidian Community Store automated checks).
 - **Type-Safe Folder Inspection**: MUST use `if (!(folder instanceof TFolder))` runtime checks instead of `(folder as TFolder)` casting. (Why: prevents runtime type assertion errors).
@@ -83,7 +97,9 @@ Data propagation from Obsidian's file system changes to UI rendering follows an 
 | `DragDropHelper` | `reorderSection` | `(settings, save, source, target, pos, sections, notebookPath)` | Saves `settings.customSectionOrderMap[notebookPath]`. |
 | `DragDropHelper` | `reorderPage` | `(settings, save, source, target, pos, pages, sectionPath)` | Saves `settings.customPageOrder[sectionPath]`. |
 | `DragDropHelper` | `movePageToSection` | `(app, page, targetFolderPath)` | Moves `TFile` or `TFolder` using `app.fileManager.renameFile`. |
-| `DataService` | `getFlattenedPages` | `(pages: PageInfo[]): PageInfo[]` | Pure tree flattening query. Returns 1D DOM layout list. |
+| `OneNoteViewModel` | `handleDragOver` | `(e: DragEvent, itemId: string, itemType: string)` | Runs rAF auto-scroll and updates throttled stores. |
+| `OneNoteViewModel` | `handleDrop` | `(e: DragEvent, targetId: string, targetType: string)` | Synchronously reorders Svelte arrays and persists order. |
+| `EventBus` | `emit` | `(event: EventName, payload?: any): void` | Broadcasts event to all registered listeners. |
 | `AtomicIOPipeline` | `processFile` | `(filepath: string, mutator: (data: string) => string) => Promise<void>` | Atomically updates file via `app.vault.process`. |
 </api_reference>
 
@@ -130,4 +146,5 @@ this.addCommand({
 - **Zombie CSS Cache**: After editing CSS, verify that `styles.css` in the plugin root matches `main.css` in size. (Obsidian loads `styles.css` from the plugin root).
 - **Leaf Reveal**: Use `workspace.revealLeaf(leaf)` natively without `(workspace as any)`.
 - **File Deletion**: Always use `app.fileManager.trashFile(file)` instead of `app.vault.trash()`.
+- **Asian IME Glitches**: Always verify `e.isComposing || e.keyCode === 229` in keydown handlers on input elements.
 </troubleshooting>

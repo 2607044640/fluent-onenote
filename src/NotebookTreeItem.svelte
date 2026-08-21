@@ -34,6 +34,7 @@
         draggable="true"
         on:dragstart={(e) => vm.handleDragStart(e, notebook.folderPath, "notebook")}
         on:dragover|stopPropagation={(e) => vm.handleDragOver(e, notebook.folderPath, "notebook")}
+        on:dragleave={(e) => vm.handleDragLeave(e, notebook.folderPath)}
         on:drop|stopPropagation={(e) => vm.handleDrop(e, notebook.folderPath, "notebook")}
         on:dragend={() => vm.handleDragEnd()}
         on:click={() => vm.selectNotebook(notebook)}

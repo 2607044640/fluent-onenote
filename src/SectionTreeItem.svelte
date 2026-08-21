@@ -41,6 +41,7 @@
         draggable="true"
         on:dragstart={(e) => vm.handleDragStart(e, sec.folderPath, "section")}
         on:dragover|stopPropagation={(e) => vm.handleDragOver(e, sec.folderPath, "section")}
+        on:dragleave={(e) => vm.handleDragLeave(e, sec.folderPath)}
         on:drop|stopPropagation={(e) => vm.handleDrop(e, sec.folderPath, "section")}
         on:dragend={() => vm.handleDragEnd()}
         on:click={handleRowClick}

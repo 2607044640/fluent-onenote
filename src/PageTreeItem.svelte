@@ -42,6 +42,7 @@
         draggable="true"
         on:dragstart={(e) => vm.handleDragStart(e, page.filepath, "page")}
         on:dragover|stopPropagation={(e) => vm.handleDragOver(e, page.filepath, "page")}
+        on:dragleave={(e) => vm.handleDragLeave(e, page.filepath)}
         on:drop|stopPropagation={(e) => vm.handleDrop(e, page.filepath, "page")}
         on:dragend={() => vm.handleDragEnd()}
         on:click={(e) => {

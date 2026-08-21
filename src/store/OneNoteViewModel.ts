@@ -55,6 +55,8 @@ export class OneNoteViewModel {
     }
 
     public destroy() {
+        this.stopAutoScroll();
+        document.body.classList.remove("is-dragging-active");
         if (this.dragEndTimeout) {
             window.clearTimeout(this.dragEndTimeout);
         }
@@ -206,12 +208,77 @@ export class OneNoteViewModel {
     }
 
     // =============================================
-    // Drag & Drop
+    // Auto-Scroll Engine (Smooth Uniform rAF Auto-Scroll)
+    // =============================================
+    private static readonly AUTO_SCROLL_EDGE_ZONE = 60;   // Generous 60px trigger zone
+    private static readonly AUTO_SCROLL_MAX_SPEED = 12;   // Damped maximum speed (px/frame)
+    private static readonly AUTO_SCROLL_MIN_SPEED = 2;    // Damped minimum speed (px/frame)
+
+    private scrollAnimId: number | null = null;
+    private scrollSpeed = 0;
+    private currentScrollContainer: HTMLElement | null = null;
+
+    private startAutoScroll(container: HTMLElement, speed: number) {
+        this.currentScrollContainer = container;
+        this.scrollSpeed = speed;
+        if (this.scrollAnimId !== null) return;
+
+        const step = () => {
+            if (!this.currentScrollContainer || this.scrollSpeed === 0) {
+                this.stopAutoScroll();
+                return;
+            }
+            this.currentScrollContainer.scrollTop += this.scrollSpeed;
+            this.scrollAnimId = requestAnimationFrame(step);
+        };
+        this.scrollAnimId = requestAnimationFrame(step);
+    }
+
+    private stopAutoScroll() {
+        if (this.scrollAnimId !== null) {
+            cancelAnimationFrame(this.scrollAnimId);
+            this.scrollAnimId = null;
+        }
+        this.scrollSpeed = 0;
+        this.currentScrollContainer = null;
+    }
+
+    private updateAutoScroll(e: DragEvent) {
+        const target = e.currentTarget as HTMLElement | null;
+        const container = (target ? (target.closest(".on-list") as HTMLElement | null) : null) ||
+            (document.querySelector(".on-pages-pane .on-list") as HTMLElement | null) ||
+            (document.querySelector(".on-sections-pane .on-list") as HTMLElement | null) ||
+            (document.querySelector(".on-popover-list") as HTMLElement | null);
+
+        if (!container) {
+            this.stopAutoScroll();
+            return;
+        }
+
+        const rect = container.getBoundingClientRect();
+        const clientY = e.clientY;
+
+        if (clientY < rect.top + OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE && container.scrollTop > 0) {
+            const proximity = 1 - Math.max(0, (clientY - rect.top) / OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE);
+            const speed = -Math.max(OneNoteViewModel.AUTO_SCROLL_MIN_SPEED, Math.round(proximity * OneNoteViewModel.AUTO_SCROLL_MAX_SPEED));
+            this.startAutoScroll(container, speed);
+        } else if (clientY > rect.bottom - OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE && container.scrollTop + container.clientHeight < container.scrollHeight - 1) {
+            const proximity = 1 - Math.max(0, (rect.bottom - clientY) / OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE);
+            const speed = Math.max(OneNoteViewModel.AUTO_SCROLL_MIN_SPEED, Math.round(proximity * OneNoteViewModel.AUTO_SCROLL_MAX_SPEED));
+            this.startAutoScroll(container, speed);
+        } else {
+            this.stopAutoScroll();
+        }
+    }
+
+    // =============================================
+    // Drag & Drop Handlers
     // =============================================
     public handleDragStart(e: DragEvent, itemId: string, itemType: "notebook" | "section" | "page") {
         if (this.dragEndTimeout) window.clearTimeout(this.dragEndTimeout);
         this.draggedItemId.set(itemId);
         this.draggedItemType.set(itemType);
+        document.body.classList.add("is-dragging-active");
         if (e.dataTransfer) {
             e.dataTransfer.setData("text/plain", itemId);
             e.dataTransfer.setData("text/type", itemType);
@@ -223,23 +290,45 @@ export class OneNoteViewModel {
         e.preventDefault();
         if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
 
+        this.updateAutoScroll(e);
+
         const draggedId = get(this.draggedItemId);
 
         if (itemId === draggedId) {
-            this.dragOverId.set("");
-            this.dragPosition.set(null);
+            if (get(this.dragOverId) !== "") this.dragOverId.set("");
+            if (get(this.dragPosition) !== null) this.dragPosition.set(null);
             return;
         }
 
-        this.dragOverId.set(itemId);
         const el = e.currentTarget as HTMLElement;
         const rect = el.getBoundingClientRect();
         const relativeY = e.clientY - rect.top;
-        this.dragPosition.set(relativeY < rect.height * 0.5 ? "top" : "bottom");
+        const newPos: "top" | "bottom" = relativeY < rect.height * 0.5 ? "top" : "bottom";
+
+        // Performance Optimization: Only dispatch store updates when state actually changes!
+        if (get(this.dragOverId) !== itemId) {
+            this.dragOverId.set(itemId);
+        }
+        if (get(this.dragPosition) !== newPos) {
+            this.dragPosition.set(newPos);
+        }
+    }
+
+    public handleDragLeave(e: DragEvent, itemId: string) {
+        const el = e.currentTarget as HTMLElement | null;
+        const related = e.relatedTarget as HTMLElement | null;
+        if (!related || (el && !el.contains(related))) {
+            if (get(this.dragOverId) === itemId) {
+                this.dragOverId.set("");
+                this.dragPosition.set(null);
+            }
+        }
     }
 
     public async handleDrop(e: DragEvent, targetId: string, targetType: "notebook" | "section" | "page") {
         e.preventDefault();
+        this.stopAutoScroll();
+        document.body.classList.remove("is-dragging-active");
 
         const pos = get(this.dragPosition);
         const dId = get(this.draggedItemId);
@@ -256,7 +345,7 @@ export class OneNoteViewModel {
 
         if (!pos || !movedId || targetId === movedId || !this.plugin) return;
 
-        // Notebook -> Notebook
+        // Notebook -> Notebook (Optimistic UI + background save)
         if (movedType === "notebook" && targetType === "notebook") {
             this.notebooks.update(nbs => this.reorderNotebookTree(nbs, movedId, targetId, pos));
             const currentNbs = get(this.notebooks);
@@ -269,11 +358,10 @@ export class OneNoteViewModel {
                 pos,
                 currentNbs
             );
-            this.loadNotebooks();
             return;
         }
 
-        // Section -> Section
+        // Section -> Section (Optimistic UI + background save)
         if (movedType === "section" && targetType === "section") {
             const nb = get(this.selectedNotebook);
             if (!nb) return;
@@ -290,11 +378,10 @@ export class OneNoteViewModel {
                 currentSecs,
                 nb.folderPath
             );
-            this.loadNotebooks();
             return;
         }
 
-        // Page -> Page
+        // Page -> Page (Optimistic UI + background save)
         if (movedType === "page" && targetType === "page") {
             const sec = get(this.selectedSection);
             if (!sec) return;
@@ -317,11 +404,10 @@ export class OneNoteViewModel {
                 newPages,
                 sec.folderPath
             );
-            this.loadNotebooks();
             return;
         }
 
-        // Page/Section -> Section/Notebook
+        // Page/Section -> Section/Notebook (Cross-pane move)
         if ((movedType === "page" || movedType === "section") && (targetType === "section" || targetType === "notebook")) {
             const abstractFile = this.app.vault.getAbstractFileByPath(movedId);
             if (abstractFile) {
@@ -333,6 +419,8 @@ export class OneNoteViewModel {
     }
 
     public handleDragEnd() {
+        this.stopAutoScroll();
+        document.body.classList.remove("is-dragging-active");
         if (this.dragEndTimeout) window.clearTimeout(this.dragEndTimeout);
         this.dragEndTimeout = window.setTimeout(() => {
             this.draggedItemId.set("");
