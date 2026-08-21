@@ -6839,6 +6839,7 @@ var DEFAULT_SETTINGS = {
   rootFolder: "OneNote",
   accentColor: "#8b5cf6",
   displayMode: "both",
+  hideRibbonIcon: false,
   tipShownCount: 0,
   expandedPaths: [],
   selectedSectionPath: "",
@@ -6906,6 +6907,14 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
       await this.plugin.saveSettings();
       this.plugin.applyDisplayMode();
     }));
+    new import_obsidian9.Setting(containerEl).setName("Hide Ribbon Icon").setDesc("Hide the Fluent OneNote icon in the left ribbon.").addToggle((toggle) => {
+      var _a;
+      return toggle.setValue((_a = this.plugin.settings.hideRibbonIcon) != null ? _a : false).onChange(async (value) => {
+        this.plugin.settings.hideRibbonIcon = value;
+        await this.plugin.saveSettings();
+        this.plugin.refreshRibbonIcon();
+      });
+    });
     new import_obsidian9.Setting(containerEl).setName("Performance Optimization").setHeading();
     new import_obsidian9.Setting(containerEl).setName("DOM Virtualization for Large Vaults").setDesc("Experimental: Enable only if you experience scrolling lag with 5000+ notes in a single section. Keeps default rendering clean and zero-friction for normal vaults.").addToggle((toggle) => {
       var _a;
@@ -7104,6 +7113,10 @@ var OneNoteViewWrapper = class extends import_obsidian10.ItemView {
   }
 };
 var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
+  constructor() {
+    super(...arguments);
+    this.ribbonIconEl = null;
+  }
   async onload() {
     Logger.init(this.app);
     void Logger.log("Fluent OneNote plugin loading...");
@@ -7111,9 +7124,7 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
     this.dataService = new DataService(this.app);
     this.addSettingTab(new FluentOneNoteSettingTab(this.app, this));
     this.registerView(VIEW_TYPE_SECTIONS, (leaf) => new OneNoteViewWrapper(leaf, this.dataService, this));
-    this.addRibbonIcon("layers", "Open Fluent OneNote", () => {
-      new OneNoteModal(this.app, this, this.dataService).open();
-    });
+    this.refreshRibbonIcon();
     this.addCommand({
       id: "open-onenote-popup",
       name: "Open navigation popup",
@@ -7140,12 +7151,30 @@ var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
         await this.loadSettings();
         this.applySettings();
         this.applyDisplayMode();
+        this.refreshRibbonIcon();
         void Logger.log("Fluent OneNote plugin loaded successfully.");
       })();
     });
   }
   onunload() {
+    if (this.ribbonIconEl) {
+      this.ribbonIconEl.remove();
+      this.ribbonIconEl = null;
+    }
     void Logger.log("Fluent OneNote plugin unloaded.");
+  }
+  /** Dynamically add or remove ribbon icon based on settings */
+  refreshRibbonIcon() {
+    var _a;
+    if (this.ribbonIconEl) {
+      this.ribbonIconEl.remove();
+      this.ribbonIconEl = null;
+    }
+    if (!((_a = this.settings) == null ? void 0 : _a.hideRibbonIcon)) {
+      this.ribbonIconEl = this.addRibbonIcon("layers", "Open Fluent OneNote", () => {
+        new OneNoteModal(this.app, this, this.dataService).open();
+      });
+    }
   }
   // =============================================
   // Settings Management
