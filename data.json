@@ -70,6 +70,10 @@
   "selectedSectionPath": "OneNote/Original Game/AI 2-其他研究",
   "recentPages": [
     {
+      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note 1.md",
+      "timestamp": 1787325720329
+    },
+    {
       "filepath": "OneNote/Original Game/Clash/clash连接问题 vpn使用.md",
       "timestamp": 1787314674569
     },
@@ -108,10 +112,6 @@
     {
       "filepath": "OneNote/Original Game/Bugs/确实，Rider有专门的设置可以引用Unreal Engine插件代码，包括GameplayAbilitiesSystem (GAS)。这样可以获得代码补全、跳转和语法高亮功能。以下是配置步骤：.md",
       "timestamp": 1786823161514
-    },
-    {
-      "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note 1.md",
-      "timestamp": 1786822241218
     },
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note.md",
@@ -275,6 +275,32 @@
   "enableDOMVirtualization": false,
   "customPageOrder": {},
   "customSectionOrder": [],
-  "customSectionOrderMap": {},
+  "customSectionOrderMap": {
+    "OneNote/Original Game": [
+      "OneNote/Original Game/更好地与AI对话",
+      "OneNote/Original Game/理解AI",
+      "OneNote/Original Game/AI 2-其他研究",
+      "OneNote/Original Game/AI Draw",
+      "OneNote/Original Game/Bugs",
+      "OneNote/Original Game/demo宣发",
+      "OneNote/Original Game/Clash",
+      "OneNote/Original Game/GameJam",
+      "OneNote/Original Game/Design",
+      "OneNote/Original Game/Godot Vibe Coding",
+      "OneNote/Original Game/Obsidian",
+      "OneNote/Original Game/Research",
+      "OneNote/Original Game/其他研究",
+      "OneNote/Original Game/GodotLearned",
+      "OneNote/Original Game/反思记录今天的进步",
+      "OneNote/Original Game/创造里世界",
+      "OneNote/Original Game/学习 元方法 总结",
+      "OneNote/Original Game/持续的理性 = 高等智力",
+      "OneNote/Original Game/有趣的金融",
+      "OneNote/Original Game/游戏资源",
+      "OneNote/Original Game/睡",
+      "OneNote/Original Game/神化状态记录",
+      "OneNote/Original Game/睡眠曲子记录"
+    ]
+  },
   "customNotebookOrder": []
 }
