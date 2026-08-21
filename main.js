@@ -1227,21 +1227,27 @@ function create_fragment(ctx) {
             /*dragover_handler*/
             ctx[11]
           )),
+          listen(
+            div0,
+            "dragleave",
+            /*dragleave_handler*/
+            ctx[12]
+          ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[12]
+            ctx[13]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[13]
+            ctx[14]
           ),
           listen(
             div0,
             "click",
             /*click_handler*/
-            ctx[14]
+            ctx[15]
           )
         ];
         mounted = true;
@@ -1328,6 +1334,7 @@ function instance($$self, $$props, $$invalidate) {
   component_subscribe($$self, dragPosition, (value) => $$invalidate(3, $dragPosition = value));
   const dragstart_handler = (e) => vm.handleDragStart(e, notebook.folderPath, "notebook");
   const dragover_handler = (e) => vm.handleDragOver(e, notebook.folderPath, "notebook");
+  const dragleave_handler = (e) => vm.handleDragLeave(e, notebook.folderPath);
   const drop_handler = (e) => vm.handleDrop(e, notebook.folderPath, "notebook");
   const dragend_handler = () => vm.handleDragEnd();
   const click_handler = () => vm.selectNotebook(notebook);
@@ -1348,6 +1355,7 @@ function instance($$self, $$props, $$invalidate) {
     dragPosition,
     dragstart_handler,
     dragover_handler,
+    dragleave_handler,
     drop_handler,
     dragend_handler,
     click_handler
@@ -1693,15 +1701,21 @@ function create_fragment2(ctx) {
             /*dragover_handler*/
             ctx[15]
           )),
+          listen(
+            div0,
+            "dragleave",
+            /*dragleave_handler*/
+            ctx[16]
+          ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[16]
+            ctx[17]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[17]
+            ctx[18]
           ),
           listen(
             div0,
@@ -1824,6 +1838,7 @@ function instance2($$self, $$props, $$invalidate) {
   }
   const dragstart_handler = (e) => vm.handleDragStart(e, sec.folderPath, "section");
   const dragover_handler = (e) => vm.handleDragOver(e, sec.folderPath, "section");
+  const dragleave_handler = (e) => vm.handleDragLeave(e, sec.folderPath);
   const drop_handler = (e) => vm.handleDrop(e, sec.folderPath, "section");
   const dragend_handler = () => vm.handleDragEnd();
   $$self.$$set = ($$props2) => {
@@ -1851,6 +1866,7 @@ function instance2($$self, $$props, $$invalidate) {
     handleContextMenu,
     dragstart_handler,
     dragover_handler,
+    dragleave_handler,
     drop_handler,
     dragend_handler
   ];
@@ -1870,7 +1886,7 @@ var SectionTreeItem_default = SectionTreeItem;
 // src/PageTreeItem.svelte
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[25] = list[i];
+  child_ctx[26] = list[i];
   return child_ctx;
 }
 function create_if_block_1(ctx) {
@@ -1914,7 +1930,7 @@ function create_if_block(ctx) {
   );
   const get_key = (ctx2) => (
     /*child*/
-    ctx2[25].filepath
+    ctx2[26].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context(ctx, each_value, i);
@@ -1981,7 +1997,7 @@ function create_each_block(key_1, ctx) {
     props: {
       page: (
         /*child*/
-        ctx[25]
+        ctx[26]
       ),
       depth: (
         /*depth*/
@@ -2028,7 +2044,7 @@ function create_each_block(key_1, ctx) {
       if (dirty & /*page*/
       1)
         pagetreeitem_changes.page = /*child*/
-        ctx[25];
+        ctx[26];
       if (dirty & /*depth*/
       2)
         pagetreeitem_changes.depth = /*depth*/
@@ -2219,33 +2235,39 @@ function create_fragment3(ctx) {
             /*dragover_handler*/
             ctx[19]
           )),
+          listen(
+            div0,
+            "dragleave",
+            /*dragleave_handler*/
+            ctx[20]
+          ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[20]
+            ctx[21]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[21]
+            ctx[22]
           ),
           listen(
             div0,
             "click",
             /*click_handler*/
-            ctx[22]
+            ctx[23]
           ),
           listen(
             div0,
             "auxclick",
             /*auxclick_handler*/
-            ctx[23]
+            ctx[24]
           ),
           listen(
             div0,
             "contextmenu",
             /*contextmenu_handler*/
-            ctx[24]
+            ctx[25]
           )
         ];
         mounted = true;
@@ -2431,6 +2453,7 @@ function instance3($$self, $$props, $$invalidate) {
   }
   const dragstart_handler = (e) => vm.handleDragStart(e, page.filepath, "page");
   const dragover_handler = (e) => vm.handleDragOver(e, page.filepath, "page");
+  const dragleave_handler = (e) => vm.handleDragLeave(e, page.filepath);
   const drop_handler = (e) => vm.handleDrop(e, page.filepath, "page");
   const dragend_handler = () => vm.handleDragEnd();
   const click_handler = (e) => {
@@ -2483,6 +2506,7 @@ function instance3($$self, $$props, $$invalidate) {
     handleChevronClick,
     dragstart_handler,
     dragover_handler,
+    dragleave_handler,
     drop_handler,
     dragend_handler,
     click_handler,
@@ -2801,7 +2825,7 @@ var DragDropHelper = class {
 };
 
 // src/store/OneNoteViewModel.ts
-var OneNoteViewModel = class {
+var _OneNoteViewModel = class _OneNoteViewModel {
   constructor(app, plugin, dataService, rootFolder, initialExpandedPaths = [], initialSelectedSectionPath = "") {
     this.app = app;
     this.plugin = plugin;
@@ -2834,11 +2858,17 @@ var OneNoteViewModel = class {
         }
       }
     );
+    // Damped minimum speed (px/frame)
+    this.scrollAnimId = null;
+    this.scrollSpeed = 0;
+    this.currentScrollContainer = null;
     this.expandedSections.set(new Set(initialExpandedPaths));
     if (initialSelectedSectionPath) {
     }
   }
   destroy() {
+    this.stopAutoScroll();
+    document.body.classList.remove("is-dragging-active");
     if (this.dragEndTimeout) {
       window.clearTimeout(this.dragEndTimeout);
     }
@@ -2969,14 +2999,59 @@ var OneNoteViewModel = class {
       }
     }
   }
+  startAutoScroll(container, speed) {
+    this.currentScrollContainer = container;
+    this.scrollSpeed = speed;
+    if (this.scrollAnimId !== null)
+      return;
+    const step = () => {
+      if (!this.currentScrollContainer || this.scrollSpeed === 0) {
+        this.stopAutoScroll();
+        return;
+      }
+      this.currentScrollContainer.scrollTop += this.scrollSpeed;
+      this.scrollAnimId = requestAnimationFrame(step);
+    };
+    this.scrollAnimId = requestAnimationFrame(step);
+  }
+  stopAutoScroll() {
+    if (this.scrollAnimId !== null) {
+      cancelAnimationFrame(this.scrollAnimId);
+      this.scrollAnimId = null;
+    }
+    this.scrollSpeed = 0;
+    this.currentScrollContainer = null;
+  }
+  updateAutoScroll(e) {
+    const target = e.currentTarget;
+    const container = (target ? target.closest(".on-list") : null) || document.querySelector(".on-pages-pane .on-list") || document.querySelector(".on-sections-pane .on-list") || document.querySelector(".on-popover-list");
+    if (!container) {
+      this.stopAutoScroll();
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    const clientY = e.clientY;
+    if (clientY < rect.top + _OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE && container.scrollTop > 0) {
+      const proximity = 1 - Math.max(0, (clientY - rect.top) / _OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE);
+      const speed = -Math.max(_OneNoteViewModel.AUTO_SCROLL_MIN_SPEED, Math.round(proximity * _OneNoteViewModel.AUTO_SCROLL_MAX_SPEED));
+      this.startAutoScroll(container, speed);
+    } else if (clientY > rect.bottom - _OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE && container.scrollTop + container.clientHeight < container.scrollHeight - 1) {
+      const proximity = 1 - Math.max(0, (rect.bottom - clientY) / _OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE);
+      const speed = Math.max(_OneNoteViewModel.AUTO_SCROLL_MIN_SPEED, Math.round(proximity * _OneNoteViewModel.AUTO_SCROLL_MAX_SPEED));
+      this.startAutoScroll(container, speed);
+    } else {
+      this.stopAutoScroll();
+    }
+  }
   // =============================================
-  // Drag & Drop
+  // Drag & Drop Handlers
   // =============================================
   handleDragStart(e, itemId, itemType) {
     if (this.dragEndTimeout)
       window.clearTimeout(this.dragEndTimeout);
     this.draggedItemId.set(itemId);
     this.draggedItemType.set(itemType);
+    document.body.classList.add("is-dragging-active");
     if (e.dataTransfer) {
       e.dataTransfer.setData("text/plain", itemId);
       e.dataTransfer.setData("text/type", itemType);
@@ -2987,20 +3062,40 @@ var OneNoteViewModel = class {
     e.preventDefault();
     if (e.dataTransfer)
       e.dataTransfer.dropEffect = "move";
+    this.updateAutoScroll(e);
     const draggedId = get_store_value(this.draggedItemId);
     if (itemId === draggedId) {
-      this.dragOverId.set("");
-      this.dragPosition.set(null);
+      if (get_store_value(this.dragOverId) !== "")
+        this.dragOverId.set("");
+      if (get_store_value(this.dragPosition) !== null)
+        this.dragPosition.set(null);
       return;
     }
-    this.dragOverId.set(itemId);
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
-    this.dragPosition.set(relativeY < rect.height * 0.5 ? "top" : "bottom");
+    const newPos = relativeY < rect.height * 0.5 ? "top" : "bottom";
+    if (get_store_value(this.dragOverId) !== itemId) {
+      this.dragOverId.set(itemId);
+    }
+    if (get_store_value(this.dragPosition) !== newPos) {
+      this.dragPosition.set(newPos);
+    }
+  }
+  handleDragLeave(e, itemId) {
+    const el = e.currentTarget;
+    const related = e.relatedTarget;
+    if (!related || el && !el.contains(related)) {
+      if (get_store_value(this.dragOverId) === itemId) {
+        this.dragOverId.set("");
+        this.dragPosition.set(null);
+      }
+    }
   }
   async handleDrop(e, targetId, targetType) {
     e.preventDefault();
+    this.stopAutoScroll();
+    document.body.classList.remove("is-dragging-active");
     const pos = get_store_value(this.dragPosition);
     const dId = get_store_value(this.draggedItemId);
     const dType = get_store_value(this.draggedItemType);
@@ -3025,7 +3120,6 @@ var OneNoteViewModel = class {
         pos,
         currentNbs
       );
-      this.loadNotebooks();
       return;
     }
     if (movedType === "section" && targetType === "section") {
@@ -3043,7 +3137,6 @@ var OneNoteViewModel = class {
         currentSecs,
         nb.folderPath
       );
-      this.loadNotebooks();
       return;
     }
     if (movedType === "page" && targetType === "page") {
@@ -3066,7 +3159,6 @@ var OneNoteViewModel = class {
         newPages,
         sec.folderPath
       );
-      this.loadNotebooks();
       return;
     }
     if ((movedType === "page" || movedType === "section") && (targetType === "section" || targetType === "notebook")) {
@@ -3079,6 +3171,8 @@ var OneNoteViewModel = class {
     }
   }
   handleDragEnd() {
+    this.stopAutoScroll();
+    document.body.classList.remove("is-dragging-active");
     if (this.dragEndTimeout)
       window.clearTimeout(this.dragEndTimeout);
     this.dragEndTimeout = window.setTimeout(() => {
@@ -3238,6 +3332,15 @@ var OneNoteViewModel = class {
     return updateList(list);
   }
 };
+// =============================================
+// Auto-Scroll Engine (Smooth Uniform rAF Auto-Scroll)
+// =============================================
+_OneNoteViewModel.AUTO_SCROLL_EDGE_ZONE = 60;
+// Generous 60px trigger zone
+_OneNoteViewModel.AUTO_SCROLL_MAX_SPEED = 12;
+// Damped maximum speed (px/frame)
+_OneNoteViewModel.AUTO_SCROLL_MIN_SPEED = 2;
+var OneNoteViewModel = _OneNoteViewModel;
 
 // src/OneNoteView.svelte
 var { window: window_1 } = globals;

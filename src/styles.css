@@ -187,6 +187,7 @@ body .workspace-leaf-content[data-type="fluent-onenote-sections"] .view-content 
     flex-grow: 1;
     overflow-y: auto;
     padding: 4px 0;
+    scroll-behavior: auto !important;
 }
 
 /* Custom Scrollbars */
@@ -524,22 +525,23 @@ body .on-filter-input {
 
 /* Item opacity while dragging */
 .on-item.is-dragging {
-    opacity: 0.45;
+    opacity: 0.4 !important;
+    transition: none !important;
 }
 
 /* Glowing top border indicator (Upper half drag target) */
 body .on-item.drag-over-top {
-    border-top: 2px solid var(--on-accent, #8b5cf6);
-    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
+    border-top: 2px solid var(--on-accent, #8b5cf6) !important;
+    box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
 }
 
 /* Glowing bottom border indicator (Lower half drag target) */
 body .on-item.drag-over-bottom {
-    border-bottom: 2px solid var(--on-accent, #8b5cf6);
-    box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
+    border-bottom: 2px solid var(--on-accent, #8b5cf6) !important;
+    box-shadow: 0 4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75)) !important;
 }
 
-/* Sibling boundary glow fusion: upper item bottom glow + lower item top glow forms a single glowing neon line */
+/* Sibling boundary glow fusion */
 body .on-item.drag-over-bottom + .on-item,
 body .on-item.drag-over-bottom + .on-section-wrapper,
 body .on-item.drag-over-bottom + .on-page-wrapper,
@@ -549,9 +551,9 @@ body .on-page-wrapper.drag-over-bottom + .on-page-wrapper {
     box-shadow: 0 -4px 12px -1px var(--on-accent-glow, rgba(139, 92, 246, 0.75));
 }
 
-/* Anti-Flicker Physics during DnD */
+/* Anti-Flicker & Mouse Precision Physics during DnD */
 body.is-dragging-active .on-item * {
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
 
