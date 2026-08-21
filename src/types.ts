@@ -75,5 +75,6 @@ export enum EventName {
     SECTION_SELECTED = "section:selected",
     PAGE_SELECTED = "page:selected",
     EXPANDED_SECTIONS_CHANGED = "sections:expanded_changed",
+    ORDER_CHANGED = "order:changed",
 }
 

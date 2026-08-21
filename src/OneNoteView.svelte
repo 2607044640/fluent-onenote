@@ -117,6 +117,7 @@
 
         EventBus.on(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged);
         EventBus.on(EventName.SECTION_SELECTED, handleSectionSelected);
+        EventBus.on(EventName.ORDER_CHANGED, handleOrderChanged);
     });
 
     onDestroy(() => {
@@ -125,6 +126,7 @@
         app.workspace.off("file-open", handleActiveLeafChange);
         EventBus.off(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged);
         EventBus.off(EventName.SECTION_SELECTED, handleSectionSelected);
+        EventBus.off(EventName.ORDER_CHANGED, handleOrderChanged);
         vm.destroy();
     });
 
@@ -164,6 +166,9 @@
 
     function handleExpandedChanged(payload: any) {}
     function handleSectionSelected(payload: any) {}
+    function handleOrderChanged() {
+        vm.loadNotebooks();
+    }
 
     function handlePageAuxClick(e: MouseEvent, page: PageInfo) {
         if (e.button === 1) {
