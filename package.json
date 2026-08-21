@@ -1,6 +1,6 @@
 {
   "name": "fluent-onenote",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A beautiful, 2-pane navigation plugin for your notes, inspired by Microsoft OneNote.",
   "main": "main.js",
   "scripts": {
