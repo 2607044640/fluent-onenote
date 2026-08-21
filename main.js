@@ -3243,17 +3243,17 @@ var OneNoteViewModel = class {
 var { window: window_1 } = globals;
 function get_each_context2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[46] = list[i];
+  child_ctx[47] = list[i];
   return child_ctx;
 }
 function get_each_context_1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[49] = list[i];
+  child_ctx[50] = list[i];
   return child_ctx;
 }
 function get_each_context_2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[52] = list[i];
+  child_ctx[53] = list[i];
   return child_ctx;
 }
 function create_else_block(ctx) {
@@ -3308,7 +3308,7 @@ function create_else_block(ctx) {
   );
   const get_key = (ctx2) => (
     /*sec*/
-    ctx2[49].folderPath
+    ctx2[50].folderPath
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_1(ctx, each_value_1, i);
@@ -3668,7 +3668,7 @@ function create_if_block_6(ctx) {
   );
   const get_key = (ctx2) => (
     /*nb*/
-    ctx2[52].folderPath
+    ctx2[53].folderPath
   );
   for (let i = 0; i < each_value_2.length; i += 1) {
     let child_ctx = get_each_context_2(ctx, each_value_2, i);
@@ -3820,7 +3820,7 @@ function create_each_block_2(key_1, ctx) {
   let current;
   notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
     /*nb*/
-    ctx[52]
+    ctx[53]
   ) } });
   return {
     key: key_1,
@@ -3841,7 +3841,7 @@ function create_each_block_2(key_1, ctx) {
       if (dirty[0] & /*$notebooks*/
       128)
         notebooktreeitem_changes.notebook = /*nb*/
-        ctx[52];
+        ctx[53];
       notebooktreeitem.$set(notebooktreeitem_changes);
     },
     i(local) {
@@ -3886,7 +3886,7 @@ function create_each_block_1(key_1, ctx) {
   let current;
   sectiontreeitem = new SectionTreeItem_default({ props: { sec: (
     /*sec*/
-    ctx[49]
+    ctx[50]
   ) } });
   return {
     key: key_1,
@@ -3907,7 +3907,7 @@ function create_each_block_1(key_1, ctx) {
       if (dirty[0] & /*$sections*/
       256)
         sectiontreeitem_changes.sec = /*sec*/
-        ctx[49];
+        ctx[50];
       sectiontreeitem.$set(sectiontreeitem_changes);
     },
     i(local) {
@@ -4033,7 +4033,7 @@ function create_else_block_1(ctx) {
   );
   const get_key = (ctx2) => (
     /*page*/
-    ctx2[46].filepath
+    ctx2[47].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context2(ctx, each_value, i);
@@ -4206,7 +4206,7 @@ function create_each_block2(key_1, ctx) {
     props: {
       page: (
         /*page*/
-        ctx[46]
+        ctx[47]
       ),
       depth: 0,
       onClick: (
@@ -4242,7 +4242,7 @@ function create_each_block2(key_1, ctx) {
       if (dirty[0] & /*visibleRange*/
       32)
         pagetreeitem_changes.page = /*page*/
-        ctx[46];
+        ctx[47];
       pagetreeitem.$set(pagetreeitem_changes);
     },
     i(local) {
@@ -4436,6 +4436,7 @@ function instance4($$self, $$props, $$invalidate) {
     }
     EventBus.on("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged);
     EventBus.on("section:selected" /* SECTION_SELECTED */, handleSectionSelected);
+    EventBus.on("order:changed" /* ORDER_CHANGED */, handleOrderChanged);
   });
   onDestroy(() => {
     window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
@@ -4443,6 +4444,7 @@ function instance4($$self, $$props, $$invalidate) {
     app.workspace.off("file-open", handleActiveLeafChange);
     EventBus.off("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged);
     EventBus.off("section:selected" /* SECTION_SELECTED */, handleSectionSelected);
+    EventBus.off("order:changed" /* ORDER_CHANGED */, handleOrderChanged);
     vm.destroy();
   });
   function openPage(page, inNewTab = false) {
@@ -4466,6 +4468,9 @@ function instance4($$self, $$props, $$invalidate) {
     if (!file)
       return;
     vm.activePagePath.set(file.path);
+  }
+  function handleOrderChanged() {
+    vm.loadNotebooks();
   }
   function handlePageAuxClick(e, page) {
     if (e.button === 1) {
@@ -4677,17 +4682,17 @@ var import_obsidian7 = require("obsidian");
 var { window: window_12 } = globals;
 function get_each_context3(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[74] = list[i];
+  child_ctx[75] = list[i];
   return child_ctx;
 }
 function get_each_context_12(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[77] = list[i];
+  child_ctx[78] = list[i];
   return child_ctx;
 }
 function get_each_context_22(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[80] = list[i];
+  child_ctx[81] = list[i];
   return child_ctx;
 }
 function create_if_block_10(ctx) {
@@ -4820,7 +4825,7 @@ function create_else_block2(ctx) {
   );
   const get_key = (ctx2) => (
     /*sec*/
-    ctx2[77].folderPath
+    ctx2[78].folderPath
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_12(ctx, each_value_1, i);
@@ -5196,7 +5201,7 @@ function create_if_block_72(ctx) {
   );
   const get_key = (ctx2) => (
     /*nb*/
-    ctx2[80].folderPath
+    ctx2[81].folderPath
   );
   for (let i = 0; i < each_value_2.length; i += 1) {
     let child_ctx = get_each_context_22(ctx, each_value_2, i);
@@ -5348,7 +5353,7 @@ function create_each_block_22(key_1, ctx) {
   let current;
   notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
     /*nb*/
-    ctx[80]
+    ctx[81]
   ) } });
   return {
     key: key_1,
@@ -5369,7 +5374,7 @@ function create_each_block_22(key_1, ctx) {
       if (dirty[0] & /*$notebooks*/
       524288)
         notebooktreeitem_changes.notebook = /*nb*/
-        ctx[80];
+        ctx[81];
       notebooktreeitem.$set(notebooktreeitem_changes);
     },
     i(local) {
@@ -5416,7 +5421,7 @@ function create_each_block_12(key_1, ctx) {
     props: {
       sec: (
         /*sec*/
-        ctx[77]
+        ctx[78]
       ),
       focusPane: (
         /*focusPane*/
@@ -5457,7 +5462,7 @@ function create_each_block_12(key_1, ctx) {
       if (dirty[0] & /*$sections*/
       1048576)
         sectiontreeitem_changes.sec = /*sec*/
-        ctx[77];
+        ctx[78];
       if (dirty[0] & /*focusPane*/
       1024)
         sectiontreeitem_changes.focusPane = /*focusPane*/
@@ -5595,7 +5600,7 @@ function create_if_block_13(ctx) {
   );
   const get_key = (ctx2) => (
     /*page*/
-    ctx2[74].filepath
+    ctx2[75].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context3(ctx, each_value, i);
@@ -5748,7 +5753,7 @@ function create_each_block3(key_1, ctx) {
     props: {
       page: (
         /*page*/
-        ctx[74]
+        ctx[75]
       ),
       depth: 0,
       focusPane: (
@@ -5792,7 +5797,7 @@ function create_each_block3(key_1, ctx) {
       if (dirty[0] & /*visibleRange*/
       16384)
         pagetreeitem_changes.page = /*page*/
-        ctx[74];
+        ctx[75];
       if (dirty[0] & /*focusPane*/
       1024)
         pagetreeitem_changes.focusPane = /*focusPane*/
@@ -6161,6 +6166,7 @@ function instance5($$self, $$props, $$invalidate) {
     );
     EventBus.on("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged2);
     EventBus.on("section:selected" /* SECTION_SELECTED */, handleSectionSelected2);
+    EventBus.on("order:changed" /* ORDER_CHANGED */, handleOrderChanged);
   });
   function handleExpandedChanged2(payload) {
     if (payload.sourceId !== instanceId && payload.paths) {
@@ -6177,10 +6183,14 @@ function instance5($$self, $$props, $$invalidate) {
       }
     }
   }
+  function handleOrderChanged() {
+    vm.loadNotebooks();
+  }
   onDestroy(() => {
     window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
     EventBus.off("sections:expanded_changed" /* EXPANDED_SECTIONS_CHANGED */, handleExpandedChanged2);
     EventBus.off("section:selected" /* SECTION_SELECTED */, handleSectionSelected2);
+    EventBus.off("order:changed" /* ORDER_CHANGED */, handleOrderChanged);
     vm.destroy();
   });
   function selectNotebook(nb) {
@@ -6841,6 +6851,43 @@ var DEFAULT_SETTINGS = {
   customSectionOrderMap: {},
   customNotebookOrder: []
 };
+var ConfirmModal = class extends import_obsidian9.Modal {
+  constructor(app, titleText, messageText, confirmButtonText, onConfirm) {
+    super(app);
+    this.titleText = titleText;
+    this.messageText = messageText;
+    this.confirmButtonText = confirmButtonText;
+    this.onConfirm = onConfirm;
+  }
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.createEl("h2", { text: this.titleText });
+    contentEl.createEl("p", {
+      text: this.messageText,
+      cls: "on-modal-warning-text"
+    });
+    const buttonContainer = contentEl.createDiv({ cls: "modal-button-container" });
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "flex-end";
+    buttonContainer.style.gap = "8px";
+    buttonContainer.style.marginTop = "16px";
+    const cancelBtn = buttonContainer.createEl("button", { text: "Cancel" });
+    cancelBtn.addEventListener("click", () => this.close());
+    const confirmBtn = buttonContainer.createEl("button", {
+      text: this.confirmButtonText,
+      cls: "mod-warning"
+    });
+    confirmBtn.addEventListener("click", async () => {
+      this.close();
+      await this.onConfirm();
+    });
+  }
+  onClose() {
+    const { contentEl } = this;
+    contentEl.empty();
+  }
+};
 var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
@@ -6900,6 +6947,30 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         })();
       });
     }
+    new import_obsidian9.Setting(containerEl).setName("Custom Order Management").setHeading();
+    new import_obsidian9.Setting(containerEl).setName("Export Custom Order").setDesc("Export the current custom ordering of notebooks, sections, and pages to a JSON file.").addButton((btn) => btn.setButtonText("Export Order").setIcon("download").onClick(() => {
+      this.exportOrder();
+    }));
+    new import_obsidian9.Setting(containerEl).setName("Import Custom Order").setDesc("Import custom order configuration from a previously exported JSON file.").addButton((btn) => btn.setButtonText("Import Order").setIcon("upload").onClick(() => {
+      this.importOrder();
+    }));
+    new import_obsidian9.Setting(containerEl).setName("Clear Custom Order").setDesc("Clear all custom drag-and-drop orderings (notebooks, sections, and pages) and revert to default alphabetical order.").addButton((btn) => btn.setButtonText("Clear All Orders").setWarning().onClick(() => {
+      new ConfirmModal(
+        this.app,
+        "Clear Custom Order?",
+        "Are you sure you want to clear all custom notebook, section, and page orderings? All items will revert to default alphabetical order. This action cannot be undone.",
+        "Clear All Orders",
+        async () => {
+          this.plugin.settings.customNotebookOrder = [];
+          this.plugin.settings.customSectionOrder = [];
+          this.plugin.settings.customSectionOrderMap = {};
+          this.plugin.settings.customPageOrder = {};
+          await this.plugin.saveSettings();
+          EventBus.emit("order:changed" /* ORDER_CHANGED */);
+          new import_obsidian9.Notice("All custom orderings have been cleared.");
+        }
+      ).open();
+    }));
     new import_obsidian9.Setting(containerEl).setName("Tips & Recommendations").setHeading();
     new import_obsidian9.Setting(containerEl).setName("Reset Hotkey Tips Counter").setDesc(`Reset the hotkey recommendation notice counter (currently shown: ${this.plugin.settings.tipShownCount}/5).`).addButton((btn) => btn.setButtonText("Reset Counter").onClick(async () => {
       this.plugin.settings.tipShownCount = 0;
@@ -6907,6 +6978,65 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
       new import_obsidian9.Notice("Hotkey tips counter has been reset to 0.");
       this.display();
     }));
+  }
+  exportOrder() {
+    var _a, _b, _c, _d;
+    const exportData = {
+      version: 1,
+      exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      customNotebookOrder: (_a = this.plugin.settings.customNotebookOrder) != null ? _a : [],
+      customSectionOrder: (_b = this.plugin.settings.customSectionOrder) != null ? _b : [],
+      customSectionOrderMap: (_c = this.plugin.settings.customSectionOrderMap) != null ? _c : {},
+      customPageOrder: (_d = this.plugin.settings.customPageOrder) != null ? _d : {}
+    };
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fluent-onenote-order-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    new import_obsidian9.Notice("Custom order exported successfully.");
+  }
+  importOrder() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.style.display = "none";
+    document.body.appendChild(input);
+    input.onchange = async (e) => {
+      var _a;
+      const file = (_a = e.target.files) == null ? void 0 : _a[0];
+      if (!file) {
+        if (input.parentNode)
+          input.parentNode.removeChild(input);
+        return;
+      }
+      try {
+        const text2 = await file.text();
+        const data = JSON.parse(text2);
+        if (typeof data !== "object" || data === null) {
+          throw new Error("Invalid file content: Root must be an object");
+        }
+        this.plugin.settings.customNotebookOrder = Array.isArray(data.customNotebookOrder) ? data.customNotebookOrder : [];
+        this.plugin.settings.customSectionOrder = Array.isArray(data.customSectionOrder) ? data.customSectionOrder : [];
+        this.plugin.settings.customSectionOrderMap = typeof data.customSectionOrderMap === "object" && data.customSectionOrderMap !== null && !Array.isArray(data.customSectionOrderMap) ? data.customSectionOrderMap : {};
+        this.plugin.settings.customPageOrder = typeof data.customPageOrder === "object" && data.customPageOrder !== null && !Array.isArray(data.customPageOrder) ? data.customPageOrder : {};
+        await this.plugin.saveSettings();
+        EventBus.emit("order:changed" /* ORDER_CHANGED */);
+        new import_obsidian9.Notice("Custom order imported successfully.");
+      } catch (err) {
+        console.error("[Fluent OneNote] Order import failed:", err);
+        new import_obsidian9.Notice(`Failed to import order: ${err instanceof Error ? err.message : "Invalid JSON file"}`);
+      } finally {
+        if (input.parentNode)
+          input.parentNode.removeChild(input);
+      }
+    };
+    input.click();
   }
 };
 

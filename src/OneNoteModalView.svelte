@@ -157,6 +157,7 @@
         // 3. Listen for cross-view state sync from sidebar or other modals
         EventBus.on(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged as (payload: unknown) => void);
         EventBus.on(EventName.SECTION_SELECTED, handleSectionSelected as (payload: unknown) => void);
+        EventBus.on(EventName.ORDER_CHANGED, handleOrderChanged as (payload: unknown) => void);
     });
 
     function handleExpandedChanged(payload: ExpandedSectionsChangedPayload) {
@@ -176,10 +177,15 @@
         }
     }
 
+    function handleOrderChanged() {
+        vm.loadNotebooks();
+    }
+
     onDestroy(() => {
         window.removeEventListener("pointerdown", handleGlobalCapturePointerDown, true);
         EventBus.off(EventName.EXPANDED_SECTIONS_CHANGED, handleExpandedChanged as (payload: unknown) => void);
         EventBus.off(EventName.SECTION_SELECTED, handleSectionSelected as (payload: unknown) => void);
+        EventBus.off(EventName.ORDER_CHANGED, handleOrderChanged as (payload: unknown) => void);
         vm.destroy();
     });
 
