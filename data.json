@@ -67,8 +67,12 @@
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。",
     "OneNote/Original Game/Design/准备好放弃你喜欢的想法吧~ 搭建原型时，失败是可以接受的结果。之所以最开始就要尽快做出原型，就是因为失败已经在预期之中了。原型会向设计者指出最初的设想有哪些不够好玩或者达不到预期之处。由于原型的可塑性，设计师可以对这些设想加以修正或变更。/Untitled Note"
   ],
-  "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
+  "selectedSectionPath": "OneNote/Original Game/AI 2-其他研究",
   "recentPages": [
+    {
+      "filepath": "OneNote/Original Game/Clash/clash连接问题 vpn使用.md",
+      "timestamp": 1787314674569
+    },
     {
       "filepath": "OneNote/Original Game/Clash/傻逼godot mcp链接解决方案，port，bug.md",
       "timestamp": 1787308589341
@@ -264,10 +268,6 @@
     {
       "filepath": "OneNote/Original Game/Bugs/drag拖拽逻辑  不能  添加canvas panel！！！.md",
       "timestamp": 1784829615696
-    },
-    {
-      "filepath": "OneNote/Original Game/Bugs/vrchat bug.md",
-      "timestamp": 1784829368550
     }
   ],
   "modalWidth": 98,
