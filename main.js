@@ -6972,19 +6972,21 @@ var ConfirmModal = class extends import_obsidian9.Modal {
       cls: "on-modal-warning-text"
     });
     const buttonContainer = contentEl.createDiv({ cls: "modal-button-container" });
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "flex-end";
-    buttonContainer.style.gap = "8px";
-    buttonContainer.style.marginTop = "16px";
+    buttonContainer.setCssStyles({
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "8px",
+      marginTop: "16px"
+    });
     const cancelBtn = buttonContainer.createEl("button", { text: "Cancel" });
     cancelBtn.addEventListener("click", () => this.close());
     const confirmBtn = buttonContainer.createEl("button", {
       text: this.confirmButtonText,
       cls: "mod-warning"
     });
-    confirmBtn.addEventListener("click", async () => {
+    confirmBtn.addEventListener("click", () => {
       this.close();
-      await this.onConfirm();
+      void this.onConfirm();
     });
   }
   onClose() {
@@ -7117,7 +7119,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json,application/json";
-    input.style.display = "none";
+    input.setCssStyles({ display: "none" });
     document.body.appendChild(input);
     input.onchange = async (e) => {
       var _a;
