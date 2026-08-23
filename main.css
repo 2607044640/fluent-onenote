@@ -64,6 +64,7 @@ body .workspace-leaf-content[data-type=fluent-onenote-sections] .view-content {
   border-radius: 4px;
   margin: 2px 6px;
   cursor: pointer;
+  text-transform: none;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .on-notebook-item:hover {
