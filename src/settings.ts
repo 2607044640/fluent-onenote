@@ -19,6 +19,7 @@ export interface FluentOneNoteSettings {
     customSectionOrder: string[];
     customSectionOrderMap: Record<string, string[]>;
     customNotebookOrder: string[];
+    searchAllNotebooks: boolean;
 }
 
 export const DEFAULT_SETTINGS: FluentOneNoteSettings = {
@@ -37,6 +38,7 @@ export const DEFAULT_SETTINGS: FluentOneNoteSettings = {
     customSectionOrder: [],
     customSectionOrderMap: {},
     customNotebookOrder: [],
+    searchAllNotebooks: false,
 };
 
 export class ConfirmModal extends Modal {
@@ -142,6 +144,18 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
                     this.plugin.settings.hideRibbonIcon = value;
                     await this.plugin.saveSettings();
                     this.plugin.refreshRibbonIcon();
+                }));
+
+        new Setting(containerEl).setName("Search Navigation").setHeading();
+
+        new Setting(containerEl)
+            .setName("Global Search by Default")
+            .setDesc("Search notes across all notebooks by default in the search popup modal, instead of restricting search to the currently active notebook.")
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.searchAllNotebooks ?? false)
+                .onChange(async (value) => {
+                    this.plugin.settings.searchAllNotebooks = value;
+                    await this.plugin.saveSettings();
                 }));
 
         new Setting(containerEl).setName("Performance Optimization").setHeading();
