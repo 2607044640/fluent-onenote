@@ -70,6 +70,10 @@
   "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
     {
+      "filepath": "OneNote/Original Game/Research/Untitled Note.md",
+      "timestamp": 1787473389209
+    },
+    {
       "filepath": "OneNote/Original Game/更好地与AI对话/Untitled Note 1.md",
       "timestamp": 1787325720329
     },
@@ -264,10 +268,6 @@
     {
       "filepath": "OneNote/Original Game/Obsidian/TODO.md",
       "timestamp": 1784829619014
-    },
-    {
-      "filepath": "OneNote/Original Game/Bugs/drag拖拽逻辑  不能  添加canvas panel！！！.md",
-      "timestamp": 1784829615696
     }
   ],
   "modalWidth": 98,
@@ -279,6 +279,7 @@
     "OneNote/Original Game": [
       "OneNote/Original Game/更好地与AI对话",
       "OneNote/Original Game/理解AI",
+      "OneNote/Original Game/Research",
       "OneNote/Original Game/AI 2-其他研究",
       "OneNote/Original Game/AI Draw",
       "OneNote/Original Game/Bugs",
@@ -288,7 +289,6 @@
       "OneNote/Original Game/Design",
       "OneNote/Original Game/Godot Vibe Coding",
       "OneNote/Original Game/Obsidian",
-      "OneNote/Original Game/Research",
       "OneNote/Original Game/其他研究",
       "OneNote/Original Game/GodotLearned",
       "OneNote/Original Game/反思记录今天的进步",
