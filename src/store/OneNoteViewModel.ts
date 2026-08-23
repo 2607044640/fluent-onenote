@@ -15,6 +15,7 @@ export class OneNoteViewModel {
     public expandedSections: Writable<Set<string>> = writable(new Set());
     public rootFolderExists: Writable<boolean> = writable(true);
     public filterQuery: Writable<string> = writable("");
+    public searchAllNotebooks: Writable<boolean> = writable(false);
 
     // Drag and Drop state
     public draggedItemId: Writable<string> = writable("");
@@ -26,12 +27,17 @@ export class OneNoteViewModel {
     public visibleSections = derived(this.sections, $sections => this.flattenVisibleSections($sections));
     
     public filteredPages = derived(
-        [this.sections, this.selectedSection, this.filterQuery],
-        ([$sections, $selectedSection, $filterQuery]) => {
+        [this.notebooks, this.sections, this.selectedSection, this.filterQuery, this.searchAllNotebooks],
+        ([$notebooks, $sections, $selectedSection, $filterQuery, $searchAllNotebooks]) => {
             const trimmedQuery = $filterQuery.trim().toLowerCase();
             if (trimmedQuery) {
-                const allPages = this.getAllPagesRecursive($sections);
-                return allPages.filter(p => p.name.toLowerCase().includes(trimmedQuery) || p.filepath.toLowerCase().includes(trimmedQuery));
+                if ($searchAllNotebooks) {
+                    const allPages = this.getAllPagesFromAllNotebooks($notebooks);
+                    return allPages.filter(p => p.name.toLowerCase().includes(trimmedQuery) || p.filepath.toLowerCase().includes(trimmedQuery));
+                } else {
+                    const allPages = this.getAllPagesRecursive($sections);
+                    return allPages.filter(p => p.name.toLowerCase().includes(trimmedQuery) || p.filepath.toLowerCase().includes(trimmedQuery));
+                }
             } else {
                 return $selectedSection ? $selectedSection.pages.map(p => ({ ...p, sectionName: $selectedSection?.name || "" })) : [];
             }
@@ -49,6 +55,9 @@ export class OneNoteViewModel {
         initialSelectedSectionPath: string = ""
     ) {
         this.expandedSections.set(new Set(initialExpandedPaths));
+        if (this.plugin?.settings?.searchAllNotebooks !== undefined) {
+            this.searchAllNotebooks.set(this.plugin.settings.searchAllNotebooks);
+        }
         if (initialSelectedSectionPath) {
             // We will resolve it after loading notebooks
         }
@@ -180,6 +189,7 @@ export class OneNoteViewModel {
             // Expand subpages if target is a section note
             const currentExpanded = get(this.expandedSections);
 
+            const activeNb = targetNb;
             this.sections.update(secs => {
                 const updateExp = (items: SectionInfo[]): SectionInfo[] => {
                     return items.map(item => {
@@ -191,7 +201,7 @@ export class OneNoteViewModel {
                         };
                     });
                 };
-                return updateExp(targetNb.sections);
+                return updateExp(activeNb.sections);
             });
 
             this.expandedSections.update(s => {
@@ -461,14 +471,49 @@ export class OneNoteViewModel {
         return result;
     }
 
+    private flattenPageTree(pages: PageInfo[], sectionName: string): (PageInfo & { sectionName?: string })[] {
+        let result: (PageInfo & { sectionName?: string })[] = [];
+        for (const p of pages) {
+            result.push({ ...p, sectionName });
+            if (p.children && p.children.length > 0) {
+                result.push(...this.flattenPageTree(p.children, sectionName));
+            }
+        }
+        return result;
+    }
+
     private getAllPagesRecursive(sectionsList: SectionInfo[]): (PageInfo & { sectionName?: string })[] {
         let result: (PageInfo & { sectionName?: string })[] = [];
         for (const sec of sectionsList) {
             if (sec.pages) {
-                result.push(...sec.pages.map(p => ({ ...p, sectionName: sec.name })));
+                result.push(...this.flattenPageTree(sec.pages, sec.name));
             }
             if (sec.children) {
                 result.push(...this.getAllPagesRecursive(sec.children));
+            }
+        }
+        return result;
+    }
+
+    private getAllPagesFromAllNotebooks(notebooksList: NotebookInfo[]): (PageInfo & { sectionName?: string })[] {
+        let result: (PageInfo & { sectionName?: string })[] = [];
+        for (const nb of notebooksList) {
+            for (const sec of nb.sections) {
+                result.push(...this.getAllPagesRecursiveFromSection(sec, nb.name));
+            }
+        }
+        return result;
+    }
+
+    private getAllPagesRecursiveFromSection(sec: SectionInfo, notebookName: string): (PageInfo & { sectionName?: string })[] {
+        let result: (PageInfo & { sectionName?: string })[] = [];
+        const badge = `${notebookName} / ${sec.name}`;
+        if (sec.pages) {
+            result.push(...this.flattenPageTree(sec.pages, badge));
+        }
+        if (sec.children) {
+            for (const childSec of sec.children) {
+                result.push(...this.getAllPagesRecursiveFromSection(childSec, notebookName));
             }
         }
         return result;

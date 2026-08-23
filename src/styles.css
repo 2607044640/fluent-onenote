@@ -501,11 +501,54 @@ body .on-filter-input {
     color: var(--on-text-muted);
     padding: 2px 6px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .on-filter-clear:hover {
     color: var(--on-text-normal);
-    background-color: var(--on-hover);
+    background-color: var(--on-hover-bg);
+}
+
+.on-filter-btn-global {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid var(--on-border);
+    color: var(--on-text-muted);
+    transition: all 0.15s ease;
+    user-select: none;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.on-filter-btn-global:hover {
+    background-color: var(--on-hover-bg);
+    color: var(--on-text-normal);
+    border-color: var(--on-accent);
+}
+
+.on-filter-btn-global.active {
+    background-color: var(--on-accent-light, rgba(139, 92, 246, 0.15));
+    color: var(--on-accent, #8b5cf6);
+    border-color: var(--on-accent, #8b5cf6);
+    font-weight: 600;
+}
+
+.on-filter-btn-global svg {
+    flex-shrink: 0;
+}
+
+.on-filter-btn-label {
+    font-size: 11px;
 }
 
 .on-section-tag {

@@ -41,8 +41,20 @@
     const activePagePath = vm.activePagePath;
     const rootFolderExists = vm.rootFolderExists;
     const filterQueryStore = vm.filterQuery;
+    const searchAllNotebooks = vm.searchAllNotebooks;
     const visibleSections = vm.visibleSections;
     const filteredPages = vm.filteredPages;
+
+    function toggleGlobalSearch(e?: MouseEvent) {
+        if (e) e.preventDefault();
+        const nextVal = !$searchAllNotebooks;
+        $searchAllNotebooks = nextVal;
+        if (plugin && plugin.settings) {
+            plugin.settings.searchAllNotebooks = nextVal;
+            void plugin.saveSettings();
+        }
+        searchInputEl?.focus();
+    }
 
     // Virtualization calculations
     let scrollTop = 0;
@@ -613,14 +625,29 @@
         <input 
             type="text" 
             class="on-filter-input" 
-            placeholder="Type to search page or section..." 
+            placeholder={$searchAllNotebooks ? "Search across all notebooks..." : "Type to search page or section..."} 
             bind:value={$filterQueryStore}
             bind:this={searchInputEl}
         />
         {#if $filterQueryStore}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <span class="on-filter-clear" on:click={() => $filterQueryStore = ""} role="button" tabindex="0">✕</span>
+            <span class="on-filter-clear" on:click={() => $filterQueryStore = ""} role="button" tabindex="0" title="Clear search">✕</span>
         {/if}
+        <!-- Global Search Toggle Button -->
+        <button 
+            type="button"
+            class="on-filter-btn-global" 
+            class:active={$searchAllNotebooks}
+            on:click={toggleGlobalSearch}
+            title={$searchAllNotebooks ? "Global search: Enabled (Searching across all notebooks)" : "Global search: Disabled (Searching current notebook only)"}
+        >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span class="on-filter-btn-label">All</span>
+        </button>
     </div>
 
     <div class="on-dual-pane">
