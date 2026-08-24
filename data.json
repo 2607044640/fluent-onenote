@@ -70,6 +70,18 @@
   "selectedSectionPath": "OneNote/Original Game/更好地与AI对话",
   "recentPages": [
     {
+      "filepath": "OneNote/Health/睡眠与作息/分段睡眠与早醒机制及睡眠合并巩固指南.md",
+      "timestamp": 1787532049129
+    },
+    {
+      "filepath": "OneNote/AI Engineering/更好地与AI对话/AI Agent 6 大隔离方案对比与落地裁决（WSL2 vs 独立虚机与 1 秒 Revert）.md",
+      "timestamp": 1787529693772
+    },
+    {
+      "filepath": "OneNote/DevOps/Docker/Docker 容器逃逸与宿主挂载破防机制（sock 与 Volume 穿透）.md",
+      "timestamp": 1787529325274
+    },
+    {
       "filepath": "OneNote/DevOps/Docker/Docker核心概念与容器化优势.md",
       "timestamp": 1787525914779
     },
@@ -256,18 +268,6 @@
     {
       "filepath": "OneNote/Original Game/Research/Biology/Biology.md",
       "timestamp": 1784830905795
-    },
-    {
-      "filepath": "OneNote/Original Game/反思记录今天的进步/规划，不懂？Gemini问答！（最好的搜索）。不懂的，就立马问.md",
-      "timestamp": 1784830854347
-    },
-    {
-      "filepath": "OneNote/Original Game/反思记录今天的进步/要注意到自己的状态，比如安静，烦躁，脑子是否灵活.md",
-      "timestamp": 1784830848969
-    },
-    {
-      "filepath": "OneNote/Original Game/Research/Self/Self.md",
-      "timestamp": 1784830842608
     }
   ],
   "modalWidth": 98,
@@ -302,5 +302,6 @@
       "OneNote/Original Game/睡眠曲子记录"
     ]
   },
-  "customNotebookOrder": []
+  "customNotebookOrder": [],
+  "searchAllNotebooks": true
 }
