@@ -70,6 +70,10 @@
   "selectedSectionPath": "OneNote/AI Engineering/AI 2-其他研究",
   "recentPages": [
     {
+      "filepath": "OneNote/AI Engineering/AI 2-其他研究/OpenCode常用快捷键排名与操作指南.md",
+      "timestamp": 1788006485168
+    },
+    {
       "filepath": "OneNote/AI Engineering/更好地与AI对话/错误预期 - 直接revert。让AI回滚 - AI错误.md",
       "timestamp": 1787720564102
     },
@@ -264,10 +268,6 @@
     {
       "filepath": "OneNote/Original Game/更好地与AI对话/Claude对话.md",
       "timestamp": 1784837738127
-    },
-    {
-      "filepath": "OneNote/Original Game/Obsidian/知识.md",
-      "timestamp": 1784830909742
     }
   ],
   "modalWidth": 98,
