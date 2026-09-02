@@ -39,7 +39,8 @@ Data propagation from Obsidian's file system changes to UI rendering follows a s
    - Level 2: Sub-folders inside Notebook -> `SectionInfo[]` (1-level flat).
    - Level 3: Files & sub-folders inside Section -> `PageInfo[]` (multi-level nested sub-pages).
 4. **Custom Order Sorting**: `DataService` applies `customNotebookOrder`, `customSectionOrderMap[notebookPath]`, and `customPageOrder[sectionPath]` mappings.
-5. **ViewModel State Dispatch**: `OneNoteViewModel` throttles updates and dispatches stores: `notebooks`, `selectedNotebook`, `sections`, `selectedSection`, `filteredPages`.
+5. **ViewModel State Dispatch**: `OneNoteViewModel` throttles updates and dispatches stores: `notebooks`, `selectedNotebook`, `sections`, `selectedSection`, `searchAllNotebooks`, `filteredPages`.
+   - **Scoped Search Filtering**: In Single-Notebook mode (`!$searchAllNotebooks`), `filteredPages` derives recursively from active `$sections` only. In Global mode (`$searchAllNotebooks`), `filteredPages` traverses all `$notebooks` and nested sub-pages, injecting `${notebookName} / ${sectionName}` badge paths.
 6. **Optimistic Drag & Drop UI**:
    - `handleDragStart`: Sets dragged item, adds `is-dragging-active` to `document.body` (shielding child pointer-events).
    - `handleDragOver`: Runs 60px linear-damping rAF auto-scroller and throttles store updates (dispatches only on target/position change).
@@ -77,6 +78,7 @@ Data propagation from Obsidian's file system changes to UI rendering follows a s
 - **Synchronous Settings Tab Registration**: MUST call `this.addSettingTab(new FluentOneNoteSettingTab(...))` synchronously in `onload()` before awaiting any async setup. (Why: prevents monkey-patched settings managers like 'settings-in-tab' from failing to intercept the gear icon).
 - **No Leaf Detaching in `onunload()`**: NEVER call `app.workspace.detachLeavesOfType()` inside `onunload()`. (Why: resets user's custom layout positions on plugin reload).
 - **IME Composition Guard**: In modal search inputs, hotkey handlers MUST check `if (e.isComposing || e.keyCode === 229) return;` before processing `Enter`, `Space`, or arrow keys. (Why: prevents dropping the first character or prematurely submitting candidate selections in Asian IMEs).
+- **Search Scope Isolation**: Single-Notebook search MUST strictly query `$sections` under `$selectedNotebook` with local section badges; Global Search MUST traverse `$notebooks` and render compound `${notebook} / ${section}` badges. (Why: guarantees user predictability across large multi-notebook vaults).
 - **DragOver Throttling**: DragOver handlers MUST NOT dispatch Svelte store updates unless `itemId` or `position` actually changed. (Why: uncapped 60Hz store updates cause severe reactivity thrashing across large note trees).
 - **60px rAF Auto-Scroll**: Edge auto-scrolling MUST use `requestAnimationFrame` with linear damping within a 60px boundary and `scroll-behavior: auto !important;` on `.on-list`. (Why: provides smooth, predictable scrolling without jerky jumps).
 - **Child Pointer Events Shield**: Active dragging MUST toggle `is-dragging-active` on `document.body` with `pointer-events: none !important;` on all child elements. (Why: prevents cursor coordinate jitter when hovering over icons, chevrons, and text labels).
