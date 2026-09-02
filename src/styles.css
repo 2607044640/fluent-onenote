@@ -521,7 +521,7 @@ body .on-filter-input {
     font-size: 11px;
     font-weight: 500;
     cursor: pointer;
-    background-color: transparent;
+    background-color: var(--background-secondary, rgba(255, 255, 255, 0.04));
     border: 1px solid var(--on-border);
     color: var(--on-text-muted);
     transition: all 0.15s ease;
@@ -537,10 +537,15 @@ body .on-filter-input {
 }
 
 .on-filter-btn-global.active {
-    background-color: var(--on-accent-light, rgba(139, 92, 246, 0.15));
-    color: var(--on-accent, #8b5cf6);
+    background-color: var(--on-accent, #8b5cf6);
+    color: #ffffff !important;
     border-color: var(--on-accent, #8b5cf6);
     font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.on-filter-btn-global.active svg {
+    stroke: #ffffff !important;
 }
 
 .on-filter-btn-global svg {

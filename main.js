@@ -1179,31 +1179,31 @@ function create_fragment(ctx) {
         div0,
         "active",
         /*$selectedNotebook*/
-        ctx[1] && /*$selectedNotebook*/
-        ctx[1].folderPath === /*notebook*/
+        ctx[2] && /*$selectedNotebook*/
+        ctx[2].folderPath === /*notebook*/
         ctx[0].folderPath
       );
       toggle_class(
         div0,
         "drag-over-top",
         /*$dragOverId*/
-        ctx[2] === /*notebook*/
+        ctx[3] === /*notebook*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[3] === "top"
+        ctx[4] === "top"
       );
       toggle_class(
         div0,
         "drag-over-bottom",
         /*$dragOverId*/
-        ctx[2] === /*notebook*/
+        ctx[3] === /*notebook*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[3] === "bottom"
+        ctx[4] === "bottom"
       );
       toggle_class(
         div0,
         "is-dragging",
         /*$draggedItemId*/
-        ctx[4] === /*notebook*/
+        ctx[5] === /*notebook*/
         ctx[0].folderPath
       );
       attr(div1, "class", "on-notebook-wrapper");
@@ -1224,33 +1224,33 @@ function create_fragment(ctx) {
             div0,
             "dragstart",
             /*dragstart_handler*/
-            ctx[10]
+            ctx[11]
           ),
           listen(div0, "dragover", stop_propagation(
             /*dragover_handler*/
-            ctx[11]
+            ctx[12]
           )),
           listen(
             div0,
             "dragleave",
             /*dragleave_handler*/
-            ctx[12]
+            ctx[13]
           ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[13]
+            ctx[14]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[14]
+            ctx[15]
           ),
           listen(
             div0,
             "click",
             /*click_handler*/
-            ctx[15]
+            ctx[16]
           )
         ];
         mounted = true;
@@ -1266,45 +1266,45 @@ function create_fragment(ctx) {
       ctx2[0].sections.length + ""))
         set_data(t3, t3_value);
       if (dirty & /*$selectedNotebook, notebook*/
-      3) {
+      5) {
         toggle_class(
           div0,
           "active",
           /*$selectedNotebook*/
-          ctx2[1] && /*$selectedNotebook*/
-          ctx2[1].folderPath === /*notebook*/
+          ctx2[2] && /*$selectedNotebook*/
+          ctx2[2].folderPath === /*notebook*/
           ctx2[0].folderPath
         );
       }
       if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      13) {
+      25) {
         toggle_class(
           div0,
           "drag-over-top",
           /*$dragOverId*/
-          ctx2[2] === /*notebook*/
+          ctx2[3] === /*notebook*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[3] === "top"
+          ctx2[4] === "top"
         );
       }
       if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      13) {
+      25) {
         toggle_class(
           div0,
           "drag-over-bottom",
           /*$dragOverId*/
-          ctx2[2] === /*notebook*/
+          ctx2[3] === /*notebook*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[3] === "bottom"
+          ctx2[4] === "bottom"
         );
       }
       if (dirty & /*$draggedItemId, notebook*/
-      17) {
+      33) {
         toggle_class(
           div0,
           "is-dragging",
           /*$draggedItemId*/
-          ctx2[4] === /*notebook*/
+          ctx2[5] === /*notebook*/
           ctx2[0].folderPath
         );
       }
@@ -1326,27 +1326,35 @@ function instance($$self, $$props, $$invalidate) {
   let $dragPosition;
   let $draggedItemId;
   let { notebook } = $$props;
+  let { onSelect = () => {
+  } } = $$props;
   const vm = getContext("vm");
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(1, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(2, $selectedNotebook = value));
   const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(4, $draggedItemId = value));
+  component_subscribe($$self, draggedItemId, (value) => $$invalidate(5, $draggedItemId = value));
   const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(2, $dragOverId = value));
+  component_subscribe($$self, dragOverId, (value) => $$invalidate(3, $dragOverId = value));
   const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(3, $dragPosition = value));
+  component_subscribe($$self, dragPosition, (value) => $$invalidate(4, $dragPosition = value));
   const dragstart_handler = (e) => vm.handleDragStart(e, notebook.folderPath, "notebook");
   const dragover_handler = (e) => vm.handleDragOver(e, notebook.folderPath, "notebook");
   const dragleave_handler = (e) => vm.handleDragLeave(e, notebook.folderPath);
   const drop_handler = (e) => vm.handleDrop(e, notebook.folderPath, "notebook");
   const dragend_handler = () => vm.handleDragEnd();
-  const click_handler = () => vm.selectNotebook(notebook);
+  const click_handler = () => {
+    vm.selectNotebook(notebook);
+    onSelect(notebook);
+  };
   $$self.$$set = ($$props2) => {
     if ("notebook" in $$props2)
       $$invalidate(0, notebook = $$props2.notebook);
+    if ("onSelect" in $$props2)
+      $$invalidate(1, onSelect = $$props2.onSelect);
   };
   return [
     notebook,
+    onSelect,
     $selectedNotebook,
     $dragOverId,
     $dragPosition,
@@ -1367,7 +1375,7 @@ function instance($$self, $$props, $$invalidate) {
 var NotebookTreeItem = class extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance, create_fragment, safe_not_equal, { notebook: 0 });
+    init(this, options, instance, create_fragment, safe_not_equal, { notebook: 0, onSelect: 1 });
   }
 };
 var NotebookTreeItem_default = NotebookTreeItem;
@@ -4844,7 +4852,7 @@ function get_each_context_22(ctx, list, i) {
   child_ctx[84] = list[i];
   return child_ctx;
 }
-function create_if_block_10(ctx) {
+function create_if_block_11(ctx) {
   let div;
   let t0;
   let t1;
@@ -4882,7 +4890,7 @@ function create_if_block_10(ctx) {
     }
   };
 }
-function create_if_block_9(ctx) {
+function create_if_block_10(ctx) {
   let span;
   let mounted;
   let dispose;
@@ -4902,7 +4910,7 @@ function create_if_block_9(ctx) {
           span,
           "click",
           /*click_handler*/
-          ctx[54]
+          ctx[55]
         );
         mounted = true;
       }
@@ -4917,6 +4925,103 @@ function create_if_block_9(ctx) {
     }
   };
 }
+function create_else_block_22(ctx) {
+  let svg;
+  let path0;
+  let path1;
+  let path2;
+  let t0;
+  let span;
+  return {
+    c() {
+      svg = svg_element("svg");
+      path0 = svg_element("path");
+      path1 = svg_element("path");
+      path2 = svg_element("path");
+      t0 = space();
+      span = element("span");
+      span.textContent = "Current";
+      attr(path0, "d", "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z");
+      attr(path1, "d", "M6 6h10");
+      attr(path2, "d", "M6 10h10");
+      attr(svg, "width", "13");
+      attr(svg, "height", "13");
+      attr(svg, "viewBox", "0 0 24 24");
+      attr(svg, "fill", "none");
+      attr(svg, "stroke", "currentColor");
+      attr(svg, "stroke-width", "2");
+      attr(svg, "stroke-linecap", "round");
+      attr(svg, "stroke-linejoin", "round");
+      attr(span, "class", "on-filter-btn-label");
+    },
+    m(target, anchor) {
+      insert(target, svg, anchor);
+      append(svg, path0);
+      append(svg, path1);
+      append(svg, path2);
+      insert(target, t0, anchor);
+      insert(target, span, anchor);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(svg);
+        detach(t0);
+        detach(span);
+      }
+    }
+  };
+}
+function create_if_block_9(ctx) {
+  let svg;
+  let circle;
+  let line;
+  let path;
+  let t0;
+  let span;
+  return {
+    c() {
+      svg = svg_element("svg");
+      circle = svg_element("circle");
+      line = svg_element("line");
+      path = svg_element("path");
+      t0 = space();
+      span = element("span");
+      span.textContent = "All";
+      attr(circle, "cx", "12");
+      attr(circle, "cy", "12");
+      attr(circle, "r", "10");
+      attr(line, "x1", "2");
+      attr(line, "y1", "12");
+      attr(line, "x2", "22");
+      attr(line, "y2", "12");
+      attr(path, "d", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z");
+      attr(svg, "width", "13");
+      attr(svg, "height", "13");
+      attr(svg, "viewBox", "0 0 24 24");
+      attr(svg, "fill", "none");
+      attr(svg, "stroke", "currentColor");
+      attr(svg, "stroke-width", "2");
+      attr(svg, "stroke-linecap", "round");
+      attr(svg, "stroke-linejoin", "round");
+      attr(span, "class", "on-filter-btn-label");
+    },
+    m(target, anchor) {
+      insert(target, svg, anchor);
+      append(svg, circle);
+      append(svg, line);
+      append(svg, path);
+      insert(target, t0, anchor);
+      insert(target, span, anchor);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(svg);
+        detach(t0);
+        detach(span);
+      }
+    }
+  };
+}
 function create_else_block2(ctx) {
   let div2;
   let div0;
@@ -4926,9 +5031,9 @@ function create_else_block2(ctx) {
   let span1;
   let t2_value = (
     /*$selectedNotebook*/
-    (ctx[19] ? (
+    (ctx[18] ? (
       /*$selectedNotebook*/
-      ctx[19].name
+      ctx[18].name
     ) : "Select Notebook") + ""
   );
   let t2;
@@ -4984,7 +5089,7 @@ function create_else_block2(ctx) {
   }
   const if_block_creators = [create_if_block_13, create_if_block_42, create_if_block_52, create_else_block_12];
   const if_blocks = [];
-  function select_block_type_1(ctx2, dirty) {
+  function select_block_type_2(ctx2, dirty) {
     if (
       /*$filteredPages*/
       ctx2[5].length > 0
@@ -5002,7 +5107,7 @@ function create_else_block2(ctx) {
       return 2;
     return 3;
   }
-  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1]);
+  current_block_type_index = select_block_type_2(ctx, [-1, -1, -1]);
   if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
@@ -5079,7 +5184,7 @@ function create_else_block2(ctx) {
       append(div0, t7);
       if (if_block0)
         if_block0.m(div0, null);
-      ctx[58](div0);
+      ctx[59](div0);
       append(div2, t8);
       append(div2, div1);
       if (if_block1)
@@ -5113,19 +5218,19 @@ function create_else_block2(ctx) {
             button1,
             "click",
             /*click_handler_1*/
-            ctx[55]
+            ctx[56]
           ),
           listen(
             button2,
             "click",
             /*click_handler_3*/
-            ctx[59]
+            ctx[60]
           ),
           listen(
             div4,
             "scroll",
             /*scroll_handler*/
-            ctx[60]
+            ctx[61]
           )
         ];
         mounted = true;
@@ -5133,10 +5238,10 @@ function create_else_block2(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$selectedNotebook*/
-      524288) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[19] ? (
+      262144) && t2_value !== (t2_value = /*$selectedNotebook*/
+      (ctx2[18] ? (
         /*$selectedNotebook*/
-        ctx2[19].name
+        ctx2[18].name
       ) : "Select Notebook") + ""))
         set_data(t2, t2_value);
       if (!current || dirty[0] & /*showNotebookDropdown*/
@@ -5201,7 +5306,7 @@ function create_else_block2(ctx) {
       ctx2[5].length})` : "Pages"))
         set_data(t11, t11_value);
       let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type_1(ctx2, dirty);
+      current_block_type_index = select_block_type_2(ctx2, dirty);
       if (current_block_type_index === previous_block_index) {
         if_blocks[current_block_type_index].p(ctx2, dirty);
       } else {
@@ -5247,7 +5352,7 @@ function create_else_block2(ctx) {
       }
       if (if_block0)
         if_block0.d();
-      ctx[58](null);
+      ctx[59](null);
       if (if_block1)
         if_block1.d();
       for (let i = 0; i < each_blocks.length; i += 1) {
@@ -5411,11 +5516,11 @@ function create_if_block_72(ctx) {
             span1,
             "keydown",
             /*keydown_handler*/
-            ctx[56]
+            ctx[57]
           ),
           listen(span1, "click", stop_propagation(
             /*click_handler_2*/
-            ctx[57]
+            ctx[58]
           ))
         ];
         mounted = true;
@@ -5441,7 +5546,8 @@ function create_if_block_72(ctx) {
         if_block = null;
       }
       if (dirty[0] & /*$notebooks*/
-      1048576) {
+      1048576 | dirty[1] & /*selectNotebook*/
+      32) {
         each_value_2 = ensure_array_like(
           /*$notebooks*/
           ctx2[20]
@@ -5501,10 +5607,18 @@ function create_each_block_22(key_1, ctx) {
   let first;
   let notebooktreeitem;
   let current;
-  notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
-    /*nb*/
-    ctx[84]
-  ) } });
+  notebooktreeitem = new NotebookTreeItem_default({
+    props: {
+      notebook: (
+        /*nb*/
+        ctx[84]
+      ),
+      onSelect: (
+        /*selectNotebook*/
+        ctx[36]
+      )
+    }
+  });
   return {
     key: key_1,
     first: null,
@@ -5807,7 +5921,7 @@ function create_if_block_13(ctx) {
       }
       if (dirty[0] & /*visibleRange, focusPane, focusedPagePath*/
       21504 | dirty[1] & /*openPage, handlePageAuxClick, handlePageContextMenu*/
-      448) {
+      896) {
         each_value = ensure_array_like(
           /*visibleRange*/
           ctx2[14].pages
@@ -5916,15 +6030,15 @@ function create_each_block3(key_1, ctx) {
       ),
       onClick: (
         /*openPage*/
-        ctx[37]
+        ctx[38]
       ),
       onAuxClick: (
         /*handlePageAuxClick*/
-        ctx[38]
+        ctx[39]
       ),
       onContextMenu: (
         /*handlePageContextMenu*/
-        ctx[39]
+        ctx[40]
       )
     }
   });
@@ -6013,45 +6127,49 @@ function create_fragment5(ctx) {
   let div2;
   let t0;
   let div0;
-  let span0;
+  let span;
   let t1;
   let input;
   let input_placeholder_value;
   let t2;
   let t3;
   let button;
-  let svg1;
-  let circle1;
-  let line1;
-  let path;
-  let t4;
-  let span1;
   let button_title_value;
-  let t6;
+  let t4;
   let div1;
   let current_block_type_index;
-  let if_block2;
+  let if_block3;
   let current;
   let mounted;
   let dispose;
   let if_block0 = (
     /*showTip*/
-    ctx[1] && create_if_block_10(ctx)
+    ctx[1] && create_if_block_11(ctx)
   );
   let if_block1 = (
     /*$filterQueryStore*/
-    ctx[6] && create_if_block_9(ctx)
+    ctx[6] && create_if_block_10(ctx)
   );
+  function select_block_type(ctx2, dirty) {
+    if (
+      /*$searchAllNotebooks*/
+      ctx2[17]
+    )
+      return create_if_block_9;
+    return create_else_block_22;
+  }
+  let current_block_type = select_block_type(ctx, [-1, -1, -1]);
+  let if_block2 = current_block_type(ctx);
   const if_block_creators = [create_if_block3, create_else_block2];
   const if_blocks = [];
-  function select_block_type(ctx2, dirty) {
+  function select_block_type_1(ctx2, dirty) {
     if (!/*$rootFolderExists*/
-    ctx2[18])
+    ctx2[19])
       return 0;
     return 1;
   }
-  current_block_type_index = select_block_type(ctx, [-1, -1, -1]);
-  if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1]);
+  if_block3 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
       div2 = element("div");
@@ -6059,8 +6177,8 @@ function create_fragment5(ctx) {
         if_block0.c();
       t0 = space();
       div0 = element("div");
-      span0 = element("span");
-      span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+      span = element("span");
+      span.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
       t1 = space();
       input = element("input");
       t2 = space();
@@ -6068,42 +6186,27 @@ function create_fragment5(ctx) {
         if_block1.c();
       t3 = space();
       button = element("button");
-      svg1 = svg_element("svg");
-      circle1 = svg_element("circle");
-      line1 = svg_element("line");
-      path = svg_element("path");
-      t4 = space();
-      span1 = element("span");
-      span1.textContent = "All";
-      t6 = space();
-      div1 = element("div");
       if_block2.c();
-      attr(span0, "class", "on-filter-icon");
+      t4 = space();
+      div1 = element("div");
+      if_block3.c();
+      attr(span, "class", "on-filter-icon");
       attr(input, "type", "text");
       attr(input, "class", "on-filter-input");
       attr(input, "placeholder", input_placeholder_value = /*$searchAllNotebooks*/
-      ctx[17] ? "Search across all notebooks..." : "Type to search page or section...");
-      attr(circle1, "cx", "12");
-      attr(circle1, "cy", "12");
-      attr(circle1, "r", "10");
-      attr(line1, "x1", "2");
-      attr(line1, "y1", "12");
-      attr(line1, "x2", "22");
-      attr(line1, "y2", "12");
-      attr(path, "d", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z");
-      attr(svg1, "width", "13");
-      attr(svg1, "height", "13");
-      attr(svg1, "viewBox", "0 0 24 24");
-      attr(svg1, "fill", "none");
-      attr(svg1, "stroke", "currentColor");
-      attr(svg1, "stroke-width", "2");
-      attr(svg1, "stroke-linecap", "round");
-      attr(svg1, "stroke-linejoin", "round");
-      attr(span1, "class", "on-filter-btn-label");
+      ctx[17] ? "Search across all notebooks..." : (
+        /*$selectedNotebook*/
+        ctx[18] ? `Search in "${/*$selectedNotebook*/
+        ctx[18].name}"...` : "Type to search page or section..."
+      ));
       attr(button, "type", "button");
       attr(button, "class", "on-filter-btn-global");
       attr(button, "title", button_title_value = /*$searchAllNotebooks*/
-      ctx[17] ? "Global search: Enabled (Searching across all notebooks)" : "Global search: Disabled (Searching current notebook only)");
+      ctx[17] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx[18] ? (
+        /*$selectedNotebook*/
+        ctx[18].name
+      ) : "Active"}) (Click to switch to All Notebooks)`);
       toggle_class(
         button,
         "active",
@@ -6123,7 +6226,7 @@ function create_fragment5(ctx) {
         if_block0.m(div2, null);
       append(div2, t0);
       append(div2, div0);
-      append(div0, span0);
+      append(div0, span);
       append(div0, t1);
       append(div0, input);
       set_input_value(
@@ -6131,22 +6234,17 @@ function create_fragment5(ctx) {
         /*$filterQueryStore*/
         ctx[6]
       );
-      ctx[53](input);
+      ctx[54](input);
       append(div0, t2);
       if (if_block1)
         if_block1.m(div0, null);
       append(div0, t3);
       append(div0, button);
-      append(button, svg1);
-      append(svg1, circle1);
-      append(svg1, line1);
-      append(svg1, path);
-      append(button, t4);
-      append(button, span1);
-      append(div2, t6);
+      if_block2.m(button, null);
+      append(div2, t4);
       append(div2, div1);
       if_blocks[current_block_type_index].m(div1, null);
-      ctx[61](div2);
+      ctx[62](div2);
       current = true;
       if (!mounted) {
         dispose = [
@@ -6160,7 +6258,7 @@ function create_fragment5(ctx) {
             input,
             "input",
             /*input_input_handler*/
-            ctx[52]
+            ctx[53]
           ),
           listen(
             button,
@@ -6172,7 +6270,7 @@ function create_fragment5(ctx) {
             div2,
             "keydown",
             /*handleKeydown*/
-            ctx[42]
+            ctx[43]
           ),
           listen(
             div2,
@@ -6192,7 +6290,7 @@ function create_fragment5(ctx) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
         } else {
-          if_block0 = create_if_block_10(ctx2);
+          if_block0 = create_if_block_11(ctx2);
           if_block0.c();
           if_block0.m(div2, t0);
         }
@@ -6200,9 +6298,13 @@ function create_fragment5(ctx) {
         if_block0.d(1);
         if_block0 = null;
       }
-      if (!current || dirty[0] & /*$searchAllNotebooks*/
-      131072 && input_placeholder_value !== (input_placeholder_value = /*$searchAllNotebooks*/
-      ctx2[17] ? "Search across all notebooks..." : "Type to search page or section...")) {
+      if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
+      393216 && input_placeholder_value !== (input_placeholder_value = /*$searchAllNotebooks*/
+      ctx2[17] ? "Search across all notebooks..." : (
+        /*$selectedNotebook*/
+        ctx2[18] ? `Search in "${/*$selectedNotebook*/
+        ctx2[18].name}"...` : "Type to search page or section..."
+      ))) {
         attr(input, "placeholder", input_placeholder_value);
       }
       if (dirty[0] & /*$filterQueryStore*/
@@ -6221,7 +6323,7 @@ function create_fragment5(ctx) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_9(ctx2);
+          if_block1 = create_if_block_10(ctx2);
           if_block1.c();
           if_block1.m(div0, t3);
         }
@@ -6229,9 +6331,21 @@ function create_fragment5(ctx) {
         if_block1.d(1);
         if_block1 = null;
       }
-      if (!current || dirty[0] & /*$searchAllNotebooks*/
-      131072 && button_title_value !== (button_title_value = /*$searchAllNotebooks*/
-      ctx2[17] ? "Global search: Enabled (Searching across all notebooks)" : "Global search: Disabled (Searching current notebook only)")) {
+      if (current_block_type !== (current_block_type = select_block_type(ctx2, dirty))) {
+        if_block2.d(1);
+        if_block2 = current_block_type(ctx2);
+        if (if_block2) {
+          if_block2.c();
+          if_block2.m(button, null);
+        }
+      }
+      if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
+      393216 && button_title_value !== (button_title_value = /*$searchAllNotebooks*/
+      ctx2[17] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx2[18] ? (
+        /*$selectedNotebook*/
+        ctx2[18].name
+      ) : "Active"}) (Click to switch to All Notebooks)`)) {
         attr(button, "title", button_title_value);
       }
       if (!current || dirty[0] & /*$searchAllNotebooks*/
@@ -6244,7 +6358,7 @@ function create_fragment5(ctx) {
         );
       }
       let previous_block_index = current_block_type_index;
-      current_block_type_index = select_block_type(ctx2, dirty);
+      current_block_type_index = select_block_type_1(ctx2, dirty);
       if (current_block_type_index === previous_block_index) {
         if_blocks[current_block_type_index].p(ctx2, dirty);
       } else {
@@ -6253,25 +6367,25 @@ function create_fragment5(ctx) {
           if_blocks[previous_block_index] = null;
         });
         check_outros();
-        if_block2 = if_blocks[current_block_type_index];
-        if (!if_block2) {
-          if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
-          if_block2.c();
+        if_block3 = if_blocks[current_block_type_index];
+        if (!if_block3) {
+          if_block3 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block3.c();
         } else {
-          if_block2.p(ctx2, dirty);
+          if_block3.p(ctx2, dirty);
         }
-        transition_in(if_block2, 1);
-        if_block2.m(div1, null);
+        transition_in(if_block3, 1);
+        if_block3.m(div1, null);
       }
     },
     i(local) {
       if (current)
         return;
-      transition_in(if_block2);
+      transition_in(if_block3);
       current = true;
     },
     o(local) {
-      transition_out(if_block2);
+      transition_out(if_block3);
       current = false;
     },
     d(detaching) {
@@ -6280,11 +6394,12 @@ function create_fragment5(ctx) {
       }
       if (if_block0)
         if_block0.d();
-      ctx[53](null);
+      ctx[54](null);
       if (if_block1)
         if_block1.d();
+      if_block2.d();
       if_blocks[current_block_type_index].d();
-      ctx[61](null);
+      ctx[62](null);
       mounted = false;
       run_all(dispose);
     }
@@ -6299,8 +6414,8 @@ function instance5($$self, $$props, $$invalidate) {
   let $filterQueryStore;
   let $activePagePath;
   let $searchAllNotebooks;
-  let $rootFolderExists;
   let $selectedNotebook;
+  let $rootFolderExists;
   let $notebooks;
   let $sections;
   let { app } = $$props;
@@ -6324,15 +6439,15 @@ function instance5($$self, $$props, $$invalidate) {
   const notebooks = vm.notebooks;
   component_subscribe($$self, notebooks, (value) => $$invalidate(20, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(19, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(18, $selectedNotebook = value));
   const sections = vm.sections;
   component_subscribe($$self, sections, (value) => $$invalidate(21, $sections = value));
   const selectedSection = vm.selectedSection;
   component_subscribe($$self, selectedSection, (value) => $$invalidate(15, $selectedSection = value));
   const activePagePath = vm.activePagePath;
-  component_subscribe($$self, activePagePath, (value) => $$invalidate(62, $activePagePath = value));
+  component_subscribe($$self, activePagePath, (value) => $$invalidate(63, $activePagePath = value));
   const rootFolderExists = vm.rootFolderExists;
-  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(18, $rootFolderExists = value));
+  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(19, $rootFolderExists = value));
   const filterQueryStore = vm.filterQuery;
   component_subscribe($$self, filterQueryStore, (value) => $$invalidate(6, $filterQueryStore = value));
   const searchAllNotebooks = vm.searchAllNotebooks;
@@ -6342,12 +6457,14 @@ function instance5($$self, $$props, $$invalidate) {
   const filteredPages = vm.filteredPages;
   component_subscribe($$self, filteredPages, (value) => $$invalidate(5, $filteredPages = value));
   function toggleGlobalSearch(e) {
-    if (e)
+    if (e) {
       e.preventDefault();
+      e.stopPropagation();
+    }
     const nextVal = !$searchAllNotebooks;
-    set_store_value(searchAllNotebooks, $searchAllNotebooks = nextVal, $searchAllNotebooks);
+    vm.searchAllNotebooks.set(nextVal);
     if (plugin && plugin.settings) {
-      $$invalidate(43, plugin.settings.searchAllNotebooks = nextVal, plugin);
+      $$invalidate(44, plugin.settings.searchAllNotebooks = nextVal, plugin);
       void plugin.saveSettings();
     }
     searchInputEl == null ? void 0 : searchInputEl.focus();
@@ -6833,34 +6950,34 @@ function instance5($$self, $$props, $$invalidate) {
   }
   $$self.$$set = ($$props2) => {
     if ("app" in $$props2)
-      $$invalidate(44, app = $$props2.app);
+      $$invalidate(45, app = $$props2.app);
     if ("plugin" in $$props2)
-      $$invalidate(43, plugin = $$props2.plugin);
+      $$invalidate(44, plugin = $$props2.plugin);
     if ("dataService" in $$props2)
-      $$invalidate(45, dataService = $$props2.dataService);
+      $$invalidate(46, dataService = $$props2.dataService);
     if ("rootFolder" in $$props2)
       $$invalidate(0, rootFolder = $$props2.rootFolder);
     if ("enableVirtualization" in $$props2)
-      $$invalidate(46, enableVirtualization = $$props2.enableVirtualization);
+      $$invalidate(47, enableVirtualization = $$props2.enableVirtualization);
     if ("showTip" in $$props2)
       $$invalidate(1, showTip = $$props2.showTip);
     if ("remainingTips" in $$props2)
       $$invalidate(2, remainingTips = $$props2.remainingTips);
     if ("onPageOpened" in $$props2)
-      $$invalidate(47, onPageOpened = $$props2.onPageOpened);
+      $$invalidate(48, onPageOpened = $$props2.onPageOpened);
     if ("initialExpandedPaths" in $$props2)
-      $$invalidate(48, initialExpandedPaths = $$props2.initialExpandedPaths);
+      $$invalidate(49, initialExpandedPaths = $$props2.initialExpandedPaths);
     if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(49, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
+      $$invalidate(50, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
     if ("onExpandedChanged" in $$props2)
-      $$invalidate(50, onExpandedChanged = $$props2.onExpandedChanged);
+      $$invalidate(51, onExpandedChanged = $$props2.onExpandedChanged);
     if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(51, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
+      $$invalidate(52, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
   };
   $$self.$$.update = () => {
     if ($$self.$$.dirty[0] & /*$filteredPages, scrollTop*/
     40 | $$self.$$.dirty[1] & /*enableVirtualization*/
-    32768) {
+    65536) {
       $:
         $$invalidate(14, visibleRange = (() => {
           if (!enableVirtualization || $filteredPages.length < 100) {
@@ -6917,8 +7034,8 @@ function instance5($$self, $$props, $$invalidate) {
     $selectedSection,
     $visibleSections,
     $searchAllNotebooks,
-    $rootFolderExists,
     $selectedNotebook,
+    $rootFolderExists,
     $notebooks,
     $sections,
     notebooks,
@@ -6935,6 +7052,7 @@ function instance5($$self, $$props, $$invalidate) {
     toggleNotebookDropdown,
     handleWindowClick,
     handleContainerPointerDown,
+    selectNotebook,
     handleQuickNewNotebook,
     openPage,
     handlePageAuxClick,
@@ -6973,18 +7091,18 @@ var OneNoteModalView = class extends SvelteComponent {
       create_fragment5,
       safe_not_equal,
       {
-        app: 44,
-        plugin: 43,
-        dataService: 45,
+        app: 45,
+        plugin: 44,
+        dataService: 46,
         rootFolder: 0,
-        enableVirtualization: 46,
+        enableVirtualization: 47,
         showTip: 1,
         remainingTips: 2,
-        onPageOpened: 47,
-        initialExpandedPaths: 48,
-        initialSelectedSectionPath: 49,
-        onExpandedChanged: 50,
-        onSectionSelectedChanged: 51
+        onPageOpened: 48,
+        initialExpandedPaths: 49,
+        initialSelectedSectionPath: 50,
+        onExpandedChanged: 51,
+        onSectionSelectedChanged: 52
       },
       null,
       [-1, -1, -1]

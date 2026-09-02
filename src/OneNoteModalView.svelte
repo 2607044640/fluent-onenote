@@ -46,9 +46,12 @@
     const filteredPages = vm.filteredPages;
 
     function toggleGlobalSearch(e?: MouseEvent) {
-        if (e) e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const nextVal = !$searchAllNotebooks;
-        $searchAllNotebooks = nextVal;
+        vm.searchAllNotebooks.set(nextVal);
         if (plugin && plugin.settings) {
             plugin.settings.searchAllNotebooks = nextVal;
             void plugin.saveSettings();
@@ -625,7 +628,7 @@
         <input 
             type="text" 
             class="on-filter-input" 
-            placeholder={$searchAllNotebooks ? "Search across all notebooks..." : "Type to search page or section..."} 
+            placeholder={$searchAllNotebooks ? "Search across all notebooks..." : ($selectedNotebook ? `Search in "${$selectedNotebook.name}"...` : "Type to search page or section...")} 
             bind:value={$filterQueryStore}
             bind:this={searchInputEl}
         />
@@ -639,14 +642,25 @@
             class="on-filter-btn-global" 
             class:active={$searchAllNotebooks}
             on:click={toggleGlobalSearch}
-            title={$searchAllNotebooks ? "Global search: Enabled (Searching across all notebooks)" : "Global search: Disabled (Searching current notebook only)"}
+            title={$searchAllNotebooks 
+                ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" 
+                : `Search Scope: Current Notebook (${$selectedNotebook ? $selectedNotebook.name : "Active"}) (Click to switch to All Notebooks)`}
         >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-            <span class="on-filter-btn-label">All</span>
+            {#if $searchAllNotebooks}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <span class="on-filter-btn-label">All</span>
+            {:else}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                    <path d="M6 6h10"/>
+                    <path d="M6 10h10"/>
+                </svg>
+                <span class="on-filter-btn-label">Current</span>
+            {/if}
         </button>
     </div>
 
@@ -708,7 +722,7 @@
                                     <div class="on-empty-msg">No notebooks found.</div>
                                 {/if}
                                 {#each $notebooks as nb (nb.folderPath)}
-                                    <NotebookTreeItem notebook={nb} />
+                                    <NotebookTreeItem notebook={nb} onSelect={selectNotebook} />
                                 {/each}
                             </div>
                         </div>
