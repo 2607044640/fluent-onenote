@@ -302,6 +302,14 @@
       "OneNote/Original Game/睡眠曲子记录"
     ]
   },
-  "customNotebookOrder": [],
+  "customNotebookOrder": [
+    "OneNote/AI Engineering",
+    "OneNote/Game Dev",
+    "OneNote/Cognitive Science",
+    "OneNote/DevOps",
+    "OneNote/Health",
+    "OneNote/Finance",
+    "OneNote/World Building"
+  ],
   "searchAllNotebooks": true
 }
