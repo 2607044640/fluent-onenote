@@ -56,10 +56,13 @@ For underlying architecture specifications, state management, API signatures, an
   - **Click Chevron `>` / `∨`**: Expand or collapse nested sub-pages with visual tree indentation.
 - **Sub-Page Safe Unnesting Deletion**: Deleting a parent Folder-Note automatically promotes child sub-pages up to parent Section folder so child notes are never deleted or hidden.
 
-### Instant Search with Full IME Support
+### Instant Search with Full IME Support & Global Scope Toggle
 - **Auto-Focused Search Input**: Opening the modal auto-focuses the search bar ready for immediate typing.
 - **Full IME Handshake**: Guaranteed zero dropped characters for Chinese/Japanese/Korean input methods (WeChat Keyboard, Microsoft Pinyin, Sogou) on the first keystroke.
-- **Section Badges**: Filtered results display section tags indicating exact note location.
+- **Global vs Single-Notebook Search**:
+  - **Single Notebook Mode (`📓 Current`)**: Default search strictly scoped to the active notebook with dynamic placeholder (`Search in "<Notebook>"...`), displaying concise section badges (`[Section]`).
+  - **Global Mode (`🌐 All`)**: One-click toggle in the search bar header to search across all notebooks and recursive sub-page hierarchies simultaneously, displaying contextual path badges (`[Notebook / Section]`).
+- **Section Badges**: Filtered results display section or notebook/section tags indicating exact note location.
 - **In-Box Arrow Traversal**: `ArrowUp` / `ArrowDown` navigate matching list items while typing without losing input focus.
 
 ### Physics Drag & Drop & 60px rAF Auto-Scroll
@@ -79,12 +82,13 @@ Go to **Obsidian Settings -> Community Plugins -> Fluent OneNote**:
 
 1. **Root Folder Path**: Vault folder to act as notebook root (default: `OneNote`). Leave empty to scan entire vault.
 2. **Display Mode**: Choose between `Floating popup only` or `Both (sidebar + floating popup)`.
-3. **DOM Virtualization**: Optional viewport optimization for sections containing thousands of notes.
-4. **Popup Modal Size**: Adjust **Modal Width (%)** (40%–98%) and **Modal Height (%)** (40%–95%) with dynamic sliders.
-5. **Accent Color**: Tailor theme accent color for focus outlines and active badges.
-6. **Custom Order Management**:
+3. **Global Search by Default**: Toggle whether the search popup defaults to searching across all notebooks or only the current notebook.
+4. **DOM Virtualization**: Optional viewport optimization for sections containing thousands of notes.
+5. **Popup Modal Size**: Adjust **Modal Width (%)** (40%–98%) and **Modal Height (%)** (40%–95%) with dynamic sliders.
+6. **Accent Color**: Tailor theme accent color for focus outlines and active badges.
+7. **Custom Order Management**:
    - **Export Custom Order**: Download current custom arrangement as a structured `.json` backup.
    - **Import Custom Order**: Restore ordering from `.json` file across vaults or devices.
    - **Clear Custom Order**: Reset all custom ordering to default alphabetical sort (with confirmation dialog).
-7. **Reset Hotkey Tips Counter**: Reset startup recommendation notice cooldown.
+8. **Reset Hotkey Tips Counter**: Reset startup recommendation notice cooldown.
 </layer_3_advanced>
