@@ -4,6 +4,7 @@
     import { NotebookInfo } from "./types";
 
     export let notebook: NotebookInfo;
+    export let onSelect: (nb: NotebookInfo) => void = () => {};
 
     const vm = getContext<OneNoteViewModel>("vm");
 
@@ -37,7 +38,10 @@
         on:dragleave={(e) => vm.handleDragLeave(e, notebook.folderPath)}
         on:drop|stopPropagation={(e) => vm.handleDrop(e, notebook.folderPath, "notebook")}
         on:dragend={() => vm.handleDragEnd()}
-        on:click={() => vm.selectNotebook(notebook)}
+        on:click={() => {
+            vm.selectNotebook(notebook);
+            onSelect(notebook);
+        }}
         role="button"
         tabindex="0"
     >
