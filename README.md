@@ -33,12 +33,14 @@ Whenever you need to switch notes or capture a thought, press your hotkey, brows
 - Access your entire notebook hierarchy from anywhere in Obsidian.
 - Instant keyboard navigation with arrow keys, quick selection, and background tab opening.
 
-### 3. Instant Search-as-you-Type with Full IME Support
+### 3. Instant Search-as-you-Type with Full IME Support & Global Scope Toggle
 ![Instant Search](media/instant_search.gif)
-- The search input receives instant focus on modal open.
-- Full compatibility with Chinese, Japanese, and Korean IMEs (e.g., WeChat Keyboard / 微信输入法, Microsoft Pinyin, Sogou Pinyin) from the very first keystroke without dropped composition or popup delays.
-- Results display section badges indicating exactly where each match is located.
-- Navigate search results with `ArrowUp` / `ArrowDown` while remaining in the search box; press `Enter` to open.
+- **Instant Focus & Zero Lag**: The search input receives instant focus on modal open.
+- **Full IME Compatibility**: Complete support for Chinese, Japanese, and Korean IMEs (e.g., WeChat Keyboard / 微信输入法, Microsoft Pinyin, Sogou Pinyin) from the very first keystroke without dropped composition or popup delays.
+- **Global vs Scoped Search Scope Toggle**:
+  - **Single Notebook Search (`📓 Current`)**: Default search strictly scoped to the active notebook with dynamic placeholder (`Search in "<Notebook>"...`), showing section badges.
+  - **Global Vault Search (`🌐 All`)**: Instant one-click toggle in the search bar header to search across all notebooks and recursive sub-page hierarchies simultaneously, displaying full path badges (`Notebook / Section`).
+- **In-Box Navigation**: Navigate search results with `ArrowUp` / `ArrowDown` while remaining in the search box; press `Enter` to open.
 
 ### 4. Physics Drag & Drop & Uniform rAF Auto-Scroll
 ![Drag and Drop](media/drag_and_drop.gif)
@@ -98,6 +100,7 @@ Go to **Obsidian Settings** -> **Community Plugins** -> **Fluent OneNote**:
 
 - **Root Folder Path**: The root vault folder containing your notebooks (default: `OneNote`). Leave blank to scan your entire vault.
 - **Display Mode**: Toggle between `Floating popup only` and `Both (sidebar + floating popup)`.
+- **Global Search by Default**: Toggle whether the search popup defaults to searching across all notebooks or only the current notebook.
 - **DOM Virtualization**: Optional viewport optimization for sections containing large numbers of notes.
 - **Popup Modal Width / Height**: Adjust the width (40%–98%) and height (40%–95%) of the popup modal.
 - **Accent Color**: Pick a custom accent color for focus highlights and active badges.
