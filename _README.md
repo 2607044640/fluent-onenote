@@ -31,6 +31,7 @@ For underlying architecture specifications, state management, API signatures, an
 | **Toggle Sub-pages** | `ArrowRight` / `ArrowLeft` | Expand or collapse nested sub-pages |
 | **Open Note & Dismiss** | `Enter` or `Space` | Open note in active editor and close popup |
 | **Open in Background Tab** | `Middle-Click` / `Ctrl+Click` / `Ctrl+Enter` | Open in new tab **without closing popup** |
+| **Open Feature Guide** | Click `(?)` icon in header | Opens full interactive features & shortcuts guide modal |
 | **Search Notes** | Type any key | Instant search with full IME composition support |
 | **Clear Search / Close** | `Escape` | First press resets query; second press closes modal |
 | **Create New Note** | `Ctrl + N` (or `+ New Page` button) | Create a new note inside active section |

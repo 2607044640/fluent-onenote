@@ -3400,17 +3400,17 @@ var OneNoteViewModel = _OneNoteViewModel;
 var { window: window_1 } = globals;
 function get_each_context2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[47] = list[i];
+  child_ctx[59] = list[i];
   return child_ctx;
 }
 function get_each_context_1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[50] = list[i];
+  child_ctx[62] = list[i];
   return child_ctx;
 }
 function get_each_context_2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[53] = list[i];
+  child_ctx[65] = list[i];
   return child_ctx;
 }
 function create_else_block(ctx) {
@@ -3422,9 +3422,9 @@ function create_else_block(ctx) {
   let span1;
   let t2_value = (
     /*$selectedNotebook*/
-    (ctx[6] ? (
+    (ctx[11] ? (
       /*$selectedNotebook*/
-      ctx[6].name
+      ctx[11].name
     ) : "Select Notebook") + ""
   );
   let t2;
@@ -3433,18 +3433,20 @@ function create_else_block(ctx) {
   let t5;
   let button1;
   let t7;
+  let button2;
   let t8;
-  let div1;
   let t9;
+  let div1;
+  let t10;
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
-  let t10;
+  let t11;
   let div5;
   let div3;
   let span3;
-  let t12;
-  let button2;
-  let t14;
+  let t13;
+  let button3;
+  let t15;
   let div4;
   let current_block_type_index;
   let if_block2;
@@ -3453,26 +3455,26 @@ function create_else_block(ctx) {
   let dispose;
   let if_block0 = (
     /*showNotebookDropdown*/
-    ctx[3] && create_if_block_6(ctx)
+    ctx[3] && create_if_block_8(ctx)
   );
   let if_block1 = (
     /*$sections*/
-    ctx[8].length === 0 && create_if_block_5(ctx)
+    ctx[13].length === 0 && create_if_block_7(ctx)
   );
   let each_value_1 = ensure_array_like(
     /*$sections*/
-    ctx[8]
+    ctx[13]
   );
   const get_key = (ctx2) => (
     /*sec*/
-    ctx2[50].folderPath
+    ctx2[62].folderPath
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_1(ctx, each_value_1, i);
     let key = get_key(child_ctx);
     each_1_lookup.set(key, each_blocks[i] = create_each_block_1(key, child_ctx));
   }
-  const if_block_creators = [create_if_block_12, create_else_block_2];
+  const if_block_creators = [create_if_block_3, create_else_block_2];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
     if (
@@ -3482,7 +3484,7 @@ function create_else_block(ctx) {
       return 0;
     return 1;
   }
-  current_block_type_index = select_block_type_1(ctx, [-1, -1]);
+  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1]);
   if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
@@ -3501,25 +3503,28 @@ function create_else_block(ctx) {
       button1 = element("button");
       button1.textContent = "+ New";
       t7 = space();
+      button2 = element("button");
+      button2.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+      t8 = space();
       if (if_block0)
         if_block0.c();
-      t8 = space();
+      t9 = space();
       div1 = element("div");
       if (if_block1)
         if_block1.c();
-      t9 = space();
+      t10 = space();
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
-      t10 = space();
+      t11 = space();
       div5 = element("div");
       div3 = element("div");
       span3 = element("span");
       span3.textContent = "Pages";
-      t12 = space();
-      button2 = element("button");
-      button2.textContent = "+ New Page";
-      t14 = space();
+      t13 = space();
+      button3 = element("button");
+      button3.textContent = "+ New Page";
+      t15 = space();
       div4 = element("div");
       if_block2.c();
       attr(span0, "class", "on-notebook-icon");
@@ -3535,11 +3540,14 @@ function create_else_block(ctx) {
       );
       attr(button1, "class", "on-btn-quick-add");
       attr(button1, "title", "Create new section");
+      attr(button2, "type", "button");
+      attr(button2, "class", "on-btn-guide-sidebar");
+      attr(button2, "title", "Fluent OneNote Features & Shortcuts Guide");
       attr(div0, "class", "on-pane-header on-pane-header-with-action on-notebook-popover-container");
       attr(div1, "class", "on-list");
       attr(div2, "class", "on-sections-pane");
-      attr(button2, "class", "on-btn-quick-add");
-      attr(button2, "title", "New Note in section");
+      attr(button3, "class", "on-btn-quick-add");
+      attr(button3, "title", "New Note in section");
       attr(div3, "class", "on-pane-header on-pane-header-with-action");
       attr(div4, "class", "on-list");
       attr(div5, "class", "on-pages-pane");
@@ -3557,26 +3565,28 @@ function create_else_block(ctx) {
       append(div0, t5);
       append(div0, button1);
       append(div0, t7);
+      append(div0, button2);
+      append(div0, t8);
       if (if_block0)
         if_block0.m(div0, null);
-      ctx[35](div0);
-      append(div2, t8);
+      ctx[43](div0);
+      append(div2, t9);
       append(div2, div1);
       if (if_block1)
         if_block1.m(div1, null);
-      append(div1, t9);
+      append(div1, t10);
       for (let i = 0; i < each_blocks.length; i += 1) {
         if (each_blocks[i]) {
           each_blocks[i].m(div1, null);
         }
       }
-      insert(target, t10, anchor);
+      insert(target, t11, anchor);
       insert(target, div5, anchor);
       append(div5, div3);
       append(div3, span3);
-      append(div3, t12);
-      append(div3, button2);
-      append(div5, t14);
+      append(div3, t13);
+      append(div3, button3);
+      append(div5, t15);
       append(div5, div4);
       if_blocks[current_block_type_index].m(div4, null);
       current = true;
@@ -3586,25 +3596,43 @@ function create_else_block(ctx) {
             button0,
             "click",
             /*toggleNotebookDropdown*/
-            ctx[14]
+            ctx[21]
           ),
           listen(
             button1,
             "click",
             /*click_handler*/
-            ctx[32]
+            ctx[39]
+          ),
+          listen(
+            button2,
+            "mouseenter",
+            /*handleGuideMouseEnter*/
+            ctx[19]
+          ),
+          listen(
+            button2,
+            "mouseleave",
+            /*handleGuideMouseLeave*/
+            ctx[20]
           ),
           listen(
             button2,
             "click",
-            /*click_handler_2*/
-            ctx[36]
+            /*click_handler_1*/
+            ctx[40]
+          ),
+          listen(
+            button3,
+            "click",
+            /*click_handler_3*/
+            ctx[44]
           ),
           listen(
             div4,
             "scroll",
             /*scroll_handler*/
-            ctx[37]
+            ctx[45]
           )
         ];
         mounted = true;
@@ -3612,10 +3640,10 @@ function create_else_block(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$selectedNotebook*/
-      64) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[6] ? (
+      2048) && t2_value !== (t2_value = /*$selectedNotebook*/
+      (ctx2[11] ? (
         /*$selectedNotebook*/
-        ctx2[6].name
+        ctx2[11].name
       ) : "Select Notebook") + ""))
         set_data(t2, t2_value);
       if (!current || dirty[0] & /*showNotebookDropdown*/
@@ -3638,7 +3666,7 @@ function create_else_block(ctx) {
             transition_in(if_block0, 1);
           }
         } else {
-          if_block0 = create_if_block_6(ctx2);
+          if_block0 = create_if_block_8(ctx2);
           if_block0.c();
           transition_in(if_block0, 1);
           if_block0.m(div0, null);
@@ -3652,23 +3680,23 @@ function create_else_block(ctx) {
       }
       if (
         /*$sections*/
-        ctx2[8].length === 0
+        ctx2[13].length === 0
       ) {
         if (if_block1) {
         } else {
-          if_block1 = create_if_block_5(ctx2);
+          if_block1 = create_if_block_7(ctx2);
           if_block1.c();
-          if_block1.m(div1, t9);
+          if_block1.m(div1, t10);
         }
       } else if (if_block1) {
         if_block1.d(1);
         if_block1 = null;
       }
       if (dirty[0] & /*$sections*/
-      256) {
+      8192) {
         each_value_1 = ensure_array_like(
           /*$sections*/
-          ctx2[8]
+          ctx2[13]
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, div1, outro_and_destroy_block, create_each_block_1, null, get_each_context_1);
@@ -3716,12 +3744,12 @@ function create_else_block(ctx) {
     d(detaching) {
       if (detaching) {
         detach(div2);
-        detach(t10);
+        detach(t11);
         detach(div5);
       }
       if (if_block0)
         if_block0.d();
-      ctx[35](null);
+      ctx[43](null);
       if (if_block1)
         if_block1.d();
       for (let i = 0; i < each_blocks.length; i += 1) {
@@ -3733,7 +3761,7 @@ function create_else_block(ctx) {
     }
   };
 }
-function create_if_block2(ctx) {
+function create_if_block_2(ctx) {
   let div2;
   let div0;
   let t3;
@@ -3794,14 +3822,14 @@ function create_if_block2(ctx) {
     }
   };
 }
-function create_if_block_6(ctx) {
+function create_if_block_8(ctx) {
   let div2;
   let div0;
   let span0;
   let t0;
   let t1_value = (
     /*$notebooks*/
-    ctx[7].length + ""
+    ctx[12].length + ""
   );
   let t1;
   let t2;
@@ -3817,15 +3845,15 @@ function create_if_block_6(ctx) {
   let dispose;
   let if_block = (
     /*$notebooks*/
-    ctx[7].length === 0 && create_if_block_7(ctx)
+    ctx[12].length === 0 && create_if_block_9(ctx)
   );
   let each_value_2 = ensure_array_like(
     /*$notebooks*/
-    ctx[7]
+    ctx[12]
   );
   const get_key = (ctx2) => (
     /*nb*/
-    ctx2[53].folderPath
+    ctx2[65].folderPath
   );
   for (let i = 0; i < each_value_2.length; i += 1) {
     let child_ctx = get_each_context_2(ctx, each_value_2, i);
@@ -3885,11 +3913,11 @@ function create_if_block_6(ctx) {
             span1,
             "keydown",
             /*keydown_handler*/
-            ctx[33]
+            ctx[41]
           ),
           listen(span1, "click", stop_propagation(
-            /*click_handler_1*/
-            ctx[34]
+            /*click_handler_2*/
+            ctx[42]
           ))
         ];
         mounted = true;
@@ -3897,16 +3925,16 @@ function create_if_block_6(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$notebooks*/
-      128) && t1_value !== (t1_value = /*$notebooks*/
-      ctx2[7].length + ""))
+      4096) && t1_value !== (t1_value = /*$notebooks*/
+      ctx2[12].length + ""))
         set_data(t1, t1_value);
       if (
         /*$notebooks*/
-        ctx2[7].length === 0
+        ctx2[12].length === 0
       ) {
         if (if_block) {
         } else {
-          if_block = create_if_block_7(ctx2);
+          if_block = create_if_block_9(ctx2);
           if_block.c();
           if_block.m(div1, t6);
         }
@@ -3915,10 +3943,10 @@ function create_if_block_6(ctx) {
         if_block = null;
       }
       if (dirty[0] & /*$notebooks*/
-      128) {
+      4096) {
         each_value_2 = ensure_array_like(
           /*$notebooks*/
-          ctx2[7]
+          ctx2[12]
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_2, each_1_lookup, div1, outro_and_destroy_block, create_each_block_2, null, get_each_context_2);
@@ -3953,7 +3981,7 @@ function create_if_block_6(ctx) {
     }
   };
 }
-function create_if_block_7(ctx) {
+function create_if_block_9(ctx) {
   let div;
   return {
     c() {
@@ -3977,7 +4005,7 @@ function create_each_block_2(key_1, ctx) {
   let current;
   notebooktreeitem = new NotebookTreeItem_default({ props: { notebook: (
     /*nb*/
-    ctx[53]
+    ctx[65]
   ) } });
   return {
     key: key_1,
@@ -3996,9 +4024,9 @@ function create_each_block_2(key_1, ctx) {
       ctx = new_ctx;
       const notebooktreeitem_changes = {};
       if (dirty[0] & /*$notebooks*/
-      128)
+      4096)
         notebooktreeitem_changes.notebook = /*nb*/
-        ctx[53];
+        ctx[65];
       notebooktreeitem.$set(notebooktreeitem_changes);
     },
     i(local) {
@@ -4019,7 +4047,7 @@ function create_each_block_2(key_1, ctx) {
     }
   };
 }
-function create_if_block_5(ctx) {
+function create_if_block_7(ctx) {
   let div;
   return {
     c() {
@@ -4043,7 +4071,7 @@ function create_each_block_1(key_1, ctx) {
   let current;
   sectiontreeitem = new SectionTreeItem_default({ props: { sec: (
     /*sec*/
-    ctx[50]
+    ctx[62]
   ) } });
   return {
     key: key_1,
@@ -4062,9 +4090,9 @@ function create_each_block_1(key_1, ctx) {
       ctx = new_ctx;
       const sectiontreeitem_changes = {};
       if (dirty[0] & /*$sections*/
-      256)
+      8192)
         sectiontreeitem_changes.sec = /*sec*/
-        ctx[50];
+        ctx[62];
       sectiontreeitem.$set(sectiontreeitem_changes);
     },
     i(local) {
@@ -4106,12 +4134,12 @@ function create_else_block_2(ctx) {
     }
   };
 }
-function create_if_block_12(ctx) {
+function create_if_block_3(ctx) {
   let current_block_type_index;
   let if_block;
   let if_block_anchor;
   let current;
-  const if_block_creators = [create_if_block_2, create_else_block_1];
+  const if_block_creators = [create_if_block_4, create_else_block_1];
   const if_blocks = [];
   function select_block_type_2(ctx2, dirty) {
     if (
@@ -4121,7 +4149,7 @@ function create_if_block_12(ctx) {
       return 0;
     return 1;
   }
-  current_block_type_index = select_block_type_2(ctx, [-1, -1]);
+  current_block_type_index = select_block_type_2(ctx, [-1, -1, -1]);
   if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
@@ -4182,15 +4210,15 @@ function create_else_block_1(ctx) {
   let current;
   let if_block0 = (
     /*visibleRange*/
-    ctx[5].topPadding > 0 && create_if_block_4(ctx)
+    ctx[10].topPadding > 0 && create_if_block_6(ctx)
   );
   let each_value = ensure_array_like(
     /*visibleRange*/
-    ctx[5].pages
+    ctx[10].pages
   );
   const get_key = (ctx2) => (
     /*page*/
-    ctx2[47].filepath
+    ctx2[59].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context2(ctx, each_value, i);
@@ -4199,7 +4227,7 @@ function create_else_block_1(ctx) {
   }
   let if_block1 = (
     /*visibleRange*/
-    ctx[5].bottomPadding > 0 && create_if_block_3(ctx)
+    ctx[10].bottomPadding > 0 && create_if_block_5(ctx)
   );
   return {
     c() {
@@ -4232,12 +4260,12 @@ function create_else_block_1(ctx) {
     p(ctx2, dirty) {
       if (
         /*visibleRange*/
-        ctx2[5].topPadding > 0
+        ctx2[10].topPadding > 0
       ) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
         } else {
-          if_block0 = create_if_block_4(ctx2);
+          if_block0 = create_if_block_6(ctx2);
           if_block0.c();
           if_block0.m(t0.parentNode, t0);
         }
@@ -4246,10 +4274,10 @@ function create_else_block_1(ctx) {
         if_block0 = null;
       }
       if (dirty[0] & /*visibleRange, openPage, handlePageAuxClick, handlePageContextMenu*/
-      458784) {
+      58721280) {
         each_value = ensure_array_like(
           /*visibleRange*/
-          ctx2[5].pages
+          ctx2[10].pages
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, t1.parentNode, outro_and_destroy_block, create_each_block2, t1, get_each_context2);
@@ -4257,12 +4285,12 @@ function create_else_block_1(ctx) {
       }
       if (
         /*visibleRange*/
-        ctx2[5].bottomPadding > 0
+        ctx2[10].bottomPadding > 0
       ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_3(ctx2);
+          if_block1 = create_if_block_5(ctx2);
           if_block1.c();
           if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
         }
@@ -4301,7 +4329,7 @@ function create_else_block_1(ctx) {
     }
   };
 }
-function create_if_block_2(ctx) {
+function create_if_block_4(ctx) {
   let div;
   return {
     c() {
@@ -4322,7 +4350,7 @@ function create_if_block_2(ctx) {
     }
   };
 }
-function create_if_block_4(ctx) {
+function create_if_block_6(ctx) {
   let div;
   return {
     c() {
@@ -4331,7 +4359,7 @@ function create_if_block_4(ctx) {
         div,
         "height",
         /*visibleRange*/
-        ctx[5].topPadding + "px"
+        ctx[10].topPadding + "px"
       );
     },
     m(target, anchor) {
@@ -4339,12 +4367,12 @@ function create_if_block_4(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*visibleRange*/
-      32) {
+      1024) {
         set_style(
           div,
           "height",
           /*visibleRange*/
-          ctx2[5].topPadding + "px"
+          ctx2[10].topPadding + "px"
         );
       }
     },
@@ -4363,20 +4391,20 @@ function create_each_block2(key_1, ctx) {
     props: {
       page: (
         /*page*/
-        ctx[47]
+        ctx[59]
       ),
       depth: 0,
       onClick: (
         /*openPage*/
-        ctx[16]
+        ctx[23]
       ),
       onAuxClick: (
         /*handlePageAuxClick*/
-        ctx[17]
+        ctx[24]
       ),
       onContextMenu: (
         /*handlePageContextMenu*/
-        ctx[18]
+        ctx[25]
       )
     }
   });
@@ -4397,9 +4425,9 @@ function create_each_block2(key_1, ctx) {
       ctx = new_ctx;
       const pagetreeitem_changes = {};
       if (dirty[0] & /*visibleRange*/
-      32)
+      1024)
         pagetreeitem_changes.page = /*page*/
-        ctx[47];
+        ctx[59];
       pagetreeitem.$set(pagetreeitem_changes);
     },
     i(local) {
@@ -4420,7 +4448,7 @@ function create_each_block2(key_1, ctx) {
     }
   };
 }
-function create_if_block_3(ctx) {
+function create_if_block_5(ctx) {
   let div;
   return {
     c() {
@@ -4429,7 +4457,7 @@ function create_if_block_3(ctx) {
         div,
         "height",
         /*visibleRange*/
-        ctx[5].bottomPadding + "px"
+        ctx[10].bottomPadding + "px"
       );
     },
     m(target, anchor) {
@@ -4437,12 +4465,12 @@ function create_if_block_3(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*visibleRange*/
-      32) {
+      1024) {
         set_style(
           div,
           "height",
           /*visibleRange*/
-          ctx2[5].bottomPadding + "px"
+          ctx2[10].bottomPadding + "px"
         );
       }
     },
@@ -4453,54 +4481,285 @@ function create_if_block_3(ctx) {
     }
   };
 }
+function create_if_block_12(ctx) {
+  let div9;
+  let div0;
+  let span0;
+  let t1;
+  let span1;
+  let t3;
+  let div8;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div9 = element("div");
+      div0 = element("div");
+      span0 = element("span");
+      span0.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    FLUENT ONENOTE GUIDE`;
+      t1 = space();
+      span1 = element("span");
+      span1.textContent = "Click for full guide";
+      t3 = space();
+      div8 = element("div");
+      div8.innerHTML = `<div class="on-guide-item"><span class="on-guide-key">\u{1F310} All / \u{1F4D3} Current Scope</span> <span class="on-guide-desc">Toggle search between all notebooks and current active notebook</span></div> <div class="on-guide-item"><span class="on-guide-key">Cross-Pane Jump (\u2192 / \u2190)</span> <span class="on-guide-desc">ArrowRight on section to jump to pages; ArrowLeft on page to return to section</span></div> <div class="on-guide-item"><span class="on-guide-key">Background Tab Open</span> <span class="on-guide-desc">Middle-Click / Ctrl+Click / Ctrl+Enter opens note in new tab without closing popup</span></div> <div class="on-guide-item"><span class="on-guide-key">Folder-Notes &amp; Sub-Pages</span> <span class="on-guide-desc">Click title to open note; click chevron to expand/collapse nested sub-pages</span></div> <div class="on-guide-item"><span class="on-guide-key">Quick Note (Ctrl + N)</span> <span class="on-guide-desc">Instantly create a new note inside the active section</span></div> <div class="on-guide-item"><span class="on-guide-key">Physics Drag &amp; Drop</span> <span class="on-guide-desc">Reorder notebooks, sections, and sibling pages with 60px rAF auto-scroll</span></div> <div class="on-guide-item"><span class="on-guide-key">Right Click</span> <span class="on-guide-desc">Native context menus (Rename, Delete, New Note/Section)</span></div>`;
+      attr(span0, "class", "on-guide-popover-title");
+      attr(span1, "class", "on-guide-popover-link");
+      attr(span1, "role", "button");
+      attr(span1, "tabindex", "0");
+      attr(div0, "class", "on-guide-popover-header");
+      attr(div8, "class", "on-guide-popover-list");
+      attr(div9, "class", "on-guide-hover-popover");
+      set_style(
+        div9,
+        "top",
+        /*guidePopoverY*/
+        ctx[8] + "px"
+      );
+      set_style(
+        div9,
+        "left",
+        /*guidePopoverX*/
+        ctx[7] + "px"
+      );
+    },
+    m(target, anchor) {
+      insert(target, div9, anchor);
+      append(div9, div0);
+      append(div0, span0);
+      append(div0, t1);
+      append(div0, span1);
+      append(div9, t3);
+      append(div9, div8);
+      if (!mounted) {
+        dispose = [
+          listen(
+            span1,
+            "click",
+            /*click_handler_4*/
+            ctx[46]
+          ),
+          listen(
+            div9,
+            "mouseenter",
+            /*mouseenter_handler*/
+            ctx[47]
+          ),
+          listen(
+            div9,
+            "mouseleave",
+            /*handleGuideMouseLeave*/
+            ctx[20]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*guidePopoverY*/
+      256) {
+        set_style(
+          div9,
+          "top",
+          /*guidePopoverY*/
+          ctx2[8] + "px"
+        );
+      }
+      if (dirty[0] & /*guidePopoverX*/
+      128) {
+        set_style(
+          div9,
+          "left",
+          /*guidePopoverX*/
+          ctx2[7] + "px"
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div9);
+      }
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
+function create_if_block2(ctx) {
+  let div49;
+  let div48;
+  let div1;
+  let div0;
+  let t2;
+  let span1;
+  let t4;
+  let div47;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div49 = element("div");
+      div48 = element("div");
+      div1 = element("div");
+      div0 = element("div");
+      div0.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> <span>Fluent OneNote Features &amp; Shortcuts Guide</span>`;
+      t2 = space();
+      span1 = element("span");
+      span1.textContent = "\u2715";
+      t4 = space();
+      div47 = element("div");
+      div47.innerHTML = `<div class="on-guide-section"><div class="on-guide-section-title">\u26A1 Navigation &amp; Keyboard Shortcuts (\u5FEB\u6377\u952E\u4E0E\u6309\u952E\u6D41)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u2191 / \u2193</span> Item Traversal</div> <div class="on-guide-card-body">Navigate selection up and down in the active pane. In the search input, <kbd>\u2191</kbd> and <kbd>\u2193</kbd> traverse matches without losing input focus.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u2192 / \u2190</span> Cross-Pane Focus &amp; Sub-Pages</div> <div class="on-guide-card-body">Press <kbd>\u2192</kbd> on a section card to jump focus across into Pages. Press <kbd>\u2190</kbd> on any page to return to the exact section row. On Folder-Notes, <kbd>\u2192</kbd> / <kbd>\u2190</kbd> expands or collapses sub-pages.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Enter / Space</span> Open &amp; Dismiss</div> <div class="on-guide-card-body">Instantly open the selected note in your active Obsidian editor and dismiss the navigation popup.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + Click / Middle-Click</span> Background Tab</div> <div class="on-guide-card-body">Middle-click, <kbd>Ctrl+Click</kbd>, or <kbd>Ctrl+Enter</kbd> opens the note in a new background tab <strong>without closing the popup</strong>, ideal for batch opening references.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + N</span> Quick Note Creation</div> <div class="on-guide-card-body">Press <kbd>Ctrl+N</kbd> (or click <kbd>+ New Page</kbd>) to instantly create a new note inside the active section.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Delete / Backspace</span> Safe Trash Deletion</div> <div class="on-guide-card-body">Safely move note to trash with automatic child un-nesting protection. Deleting a parent Folder-Note promotes child notes to the section so data is never lost.</div></div></div></div> <div class="on-guide-section"><div class="on-guide-section-title">\u{1F50D} Fast Search &amp; Scope Modes (\u5168\u5C40\u4E0E\u5355\u7B14\u8BB0\u672C\u641C\u7D22)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Auto Focus</span> Instant Typing &amp; Full IME</div> <div class="on-guide-card-body">Popup automatically focuses the search bar on open. Guaranteed zero dropped keystrokes for Chinese, Japanese, and Korean IMEs (\u5FAE\u4FE1\u8F93\u5165\u6CD5, \u5FAE\u8F6F\u62FC\u97F3, \u641C\u72D7).</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u{1F310} All / \u{1F4D3} Current</span> One-Click Scope Toggle</div> <div class="on-guide-card-body">Click the toggle button in the search header to switch between <strong>Single Notebook Scoped Search</strong> (clean section badges) and <strong>Global Vault Search</strong> (composite <code>Notebook / Section</code> path badges).</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Escape</span> Progressive Clear / Close</div> <div class="on-guide-card-body">First press of <kbd>Escape</kbd> clears the search query; second press closes the navigation modal.</div></div></div></div> <div class="on-guide-section"><div class="on-guide-section-title">\u{1F4C1} Folder-Notes &amp; Physics Engine (\u6587\u4EF6\u5939\u7B14\u8BB0\u4E0E\u7269\u7406\u5F15\u64CE)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Fusion</span> Folder-Note Architecture</div> <div class="on-guide-card-body">When a folder and a markdown note share the same name in a section, they fuse into a parent node. Click the title to open the note; click the chevron to expand/collapse sub-pages.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Physics DND</span> 60px rAF Auto-Scroll</div> <div class="on-guide-card-body">Drag &amp; drop notebooks, sections, and sibling pages with 0ms visual latency. Approaching top or bottom boundaries smoothly auto-scrolls the list. Drag pages onto section cards to move files.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Right Click</span> Context Actions Menu</div> <div class="on-guide-card-body">Right-click any Notebook, Section, or Page to open native Obsidian context actions (Rename, Delete, New Note, New Section, Open in New Tab).</div></div></div></div>`;
+      attr(div0, "class", "on-guide-modal-title");
+      attr(span1, "class", "on-guide-modal-close");
+      attr(span1, "role", "button");
+      attr(span1, "tabindex", "0");
+      attr(span1, "title", "Close Guide");
+      attr(div1, "class", "on-guide-modal-header");
+      attr(div47, "class", "on-guide-modal-body");
+      attr(div48, "class", "on-guide-modal-dialog");
+      attr(div48, "role", "dialog");
+      attr(div48, "aria-modal", "true");
+      attr(div48, "tabindex", "-1");
+      attr(div49, "class", "on-guide-modal-backdrop");
+      attr(div49, "role", "presentation");
+    },
+    m(target, anchor) {
+      insert(target, div49, anchor);
+      append(div49, div48);
+      append(div48, div1);
+      append(div1, div0);
+      append(div1, t2);
+      append(div1, span1);
+      append(div48, t4);
+      append(div48, div47);
+      if (!mounted) {
+        dispose = [
+          listen(
+            span1,
+            "click",
+            /*click_handler_5*/
+            ctx[48]
+          ),
+          listen(
+            div49,
+            "click",
+            /*click_handler_6*/
+            ctx[49]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div49);
+      }
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
 function create_fragment4(ctx) {
   let div;
   let current_block_type_index;
-  let if_block;
+  let if_block0;
+  let t0;
+  let t1;
   let current;
   let mounted;
   let dispose;
-  const if_block_creators = [create_if_block2, create_else_block];
+  const if_block_creators = [create_if_block_2, create_else_block];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     if (!/*rootFolderExists*/
-    ctx2[13])
+    ctx2[18])
       return 0;
     return 1;
   }
-  current_block_type_index = select_block_type(ctx, [-1, -1]);
-  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  current_block_type_index = select_block_type(ctx, [-1, -1, -1]);
+  if_block0 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  let if_block1 = (
+    /*showGuideHoverPopover*/
+    ctx[6] && create_if_block_12(ctx)
+  );
+  let if_block2 = (
+    /*showGuideModal*/
+    ctx[5] && create_if_block2(ctx)
+  );
   return {
     c() {
       div = element("div");
-      if_block.c();
+      if_block0.c();
+      t0 = space();
+      if (if_block1)
+        if_block1.c();
+      t1 = space();
+      if (if_block2)
+        if_block2.c();
       attr(div, "class", "on-container");
     },
     m(target, anchor) {
       insert(target, div, anchor);
       if_blocks[current_block_type_index].m(div, null);
+      append(div, t0);
+      if (if_block1)
+        if_block1.m(div, null);
+      append(div, t1);
+      if (if_block2)
+        if_block2.m(div, null);
       current = true;
       if (!mounted) {
         dispose = listen(
           window_1,
           "click",
           /*handleWindowClick*/
-          ctx[15]
+          ctx[22]
         );
         mounted = true;
       }
     },
     p(ctx2, dirty) {
-      if_block.p(ctx2, dirty);
+      if_block0.p(ctx2, dirty);
+      if (
+        /*showGuideHoverPopover*/
+        ctx2[6]
+      ) {
+        if (if_block1) {
+          if_block1.p(ctx2, dirty);
+        } else {
+          if_block1 = create_if_block_12(ctx2);
+          if_block1.c();
+          if_block1.m(div, t1);
+        }
+      } else if (if_block1) {
+        if_block1.d(1);
+        if_block1 = null;
+      }
+      if (
+        /*showGuideModal*/
+        ctx2[5]
+      ) {
+        if (if_block2) {
+          if_block2.p(ctx2, dirty);
+        } else {
+          if_block2 = create_if_block2(ctx2);
+          if_block2.c();
+          if_block2.m(div, null);
+        }
+      } else if (if_block2) {
+        if_block2.d(1);
+        if_block2 = null;
+      }
     },
     i(local) {
       if (current)
         return;
-      transition_in(if_block);
+      transition_in(if_block0);
       current = true;
     },
     o(local) {
-      transition_out(if_block);
+      transition_out(if_block0);
       current = false;
     },
     d(detaching) {
@@ -4508,6 +4767,10 @@ function create_fragment4(ctx) {
         detach(div);
       }
       if_blocks[current_block_type_index].d();
+      if (if_block1)
+        if_block1.d();
+      if (if_block2)
+        if_block2.d();
       mounted = false;
       dispose();
     }
@@ -4541,11 +4804,11 @@ function instance4($$self, $$props, $$invalidate) {
   const vm = new OneNoteViewModel(app, plugin, dataService, rootFolder, initialExpandedPaths, initialSelectedSectionPath);
   setContext("vm", vm);
   const notebooks = vm.notebooks;
-  component_subscribe($$self, notebooks, (value) => $$invalidate(7, $notebooks = value));
+  component_subscribe($$self, notebooks, (value) => $$invalidate(12, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(6, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(11, $selectedNotebook = value));
   const sections = vm.sections;
-  component_subscribe($$self, sections, (value) => $$invalidate(8, $sections = value));
+  component_subscribe($$self, sections, (value) => $$invalidate(13, $sections = value));
   const selectedSection = vm.selectedSection;
   component_subscribe($$self, selectedSection, (value) => $$invalidate(2, $selectedSection = value));
   const activePagePath = vm.activePagePath;
@@ -4557,6 +4820,27 @@ function instance4($$self, $$props, $$invalidate) {
   let scrollTop = 0;
   let showNotebookDropdown = false;
   let popoverContainerEl;
+  let showGuideModal = false;
+  let showGuideHoverPopover = false;
+  let guidePopoverX = 0;
+  let guidePopoverY = 0;
+  let guideHoverTimeout = null;
+  function handleGuideMouseEnter(e) {
+    if (guideHoverTimeout)
+      clearTimeout(guideHoverTimeout);
+    const rect = e.currentTarget.getBoundingClientRect();
+    $$invalidate(7, guidePopoverX = rect.left + rect.width / 2);
+    $$invalidate(8, guidePopoverY = rect.bottom + 6);
+    $$invalidate(6, showGuideHoverPopover = true);
+  }
+  function handleGuideMouseLeave() {
+    $$invalidate(9, guideHoverTimeout = setTimeout(
+      () => {
+        $$invalidate(6, showGuideHoverPopover = false);
+      },
+      150
+    ));
+  }
   function toggleNotebookDropdown(e) {
     e.stopPropagation();
     $$invalidate(3, showNotebookDropdown = !showNotebookDropdown);
@@ -4680,13 +4964,17 @@ function instance4($$self, $$props, $$invalidate) {
     }
   }
   const click_handler = () => handleQuickNewSection();
+  const click_handler_1 = () => {
+    $$invalidate(6, showGuideHoverPopover = false);
+    $$invalidate(5, showGuideModal = true);
+  };
   const keydown_handler = (e) => {
     if (e.key === "Enter") {
       handleQuickNewNotebook();
       $$invalidate(3, showNotebookDropdown = false);
     }
   };
-  const click_handler_1 = () => {
+  const click_handler_2 = () => {
     handleQuickNewNotebook();
     $$invalidate(3, showNotebookDropdown = false);
   };
@@ -4696,35 +4984,46 @@ function instance4($$self, $$props, $$invalidate) {
       $$invalidate(4, popoverContainerEl);
     });
   }
-  const click_handler_2 = () => handleQuickNewNote();
+  const click_handler_3 = () => handleQuickNewNote();
   const scroll_handler = (e) => $$invalidate(1, scrollTop = e.currentTarget.scrollTop);
+  const click_handler_4 = () => {
+    $$invalidate(6, showGuideHoverPopover = false);
+    $$invalidate(5, showGuideModal = true);
+  };
+  const mouseenter_handler = () => {
+    if (guideHoverTimeout)
+      clearTimeout(guideHoverTimeout);
+  };
+  const click_handler_5 = () => $$invalidate(5, showGuideModal = false);
+  const click_handler_6 = (e) => e.target === e.currentTarget && $$invalidate(5, showGuideModal = false);
   $$self.$$set = ($$props2) => {
     if ("app" in $$props2)
-      $$invalidate(22, app = $$props2.app);
+      $$invalidate(29, app = $$props2.app);
     if ("plugin" in $$props2)
-      $$invalidate(23, plugin = $$props2.plugin);
+      $$invalidate(30, plugin = $$props2.plugin);
     if ("dataService" in $$props2)
-      $$invalidate(24, dataService = $$props2.dataService);
+      $$invalidate(31, dataService = $$props2.dataService);
     if ("rootFolder" in $$props2)
       $$invalidate(0, rootFolder = $$props2.rootFolder);
     if ("enableVirtualization" in $$props2)
-      $$invalidate(25, enableVirtualization = $$props2.enableVirtualization);
+      $$invalidate(32, enableVirtualization = $$props2.enableVirtualization);
     if ("initialExpandedPaths" in $$props2)
-      $$invalidate(26, initialExpandedPaths = $$props2.initialExpandedPaths);
+      $$invalidate(33, initialExpandedPaths = $$props2.initialExpandedPaths);
     if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(27, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
+      $$invalidate(34, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
     if ("onExpandedChanged" in $$props2)
-      $$invalidate(28, onExpandedChanged = $$props2.onExpandedChanged);
+      $$invalidate(35, onExpandedChanged = $$props2.onExpandedChanged);
     if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(29, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
+      $$invalidate(36, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
     if ("onPageOpened" in $$props2)
-      $$invalidate(30, onPageOpened = $$props2.onPageOpened);
+      $$invalidate(37, onPageOpened = $$props2.onPageOpened);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty[0] & /*$selectedSection, enableVirtualization, scrollTop*/
-    33554438) {
+    if ($$self.$$.dirty[0] & /*$selectedSection, scrollTop*/
+    6 | $$self.$$.dirty[1] & /*enableVirtualization*/
+    2) {
       $:
-        $$invalidate(5, visibleRange = (() => {
+        $$invalidate(10, visibleRange = (() => {
           const pages = $selectedSection ? $selectedSection.pages : [];
           if (!enableVirtualization || pages.length < 100) {
             return {
@@ -4747,15 +5046,16 @@ function instance4($$self, $$props, $$invalidate) {
     }
     if ($$self.$$.dirty[0] & /*rootFolder*/
     1 | $$self.$$.dirty[1] & /*vm*/
-    1) {
+    128) {
       $:
         if (rootFolder !== void 0) {
-          $$invalidate(31, vm.rootFolder = rootFolder, vm);
+          $$invalidate(38, vm.rootFolder = rootFolder, vm);
           vm.loadNotebooks();
         }
     }
-    if ($$self.$$.dirty[0] & /*$selectedSection, onSectionSelectedChanged*/
-    536870916) {
+    if ($$self.$$.dirty[0] & /*$selectedSection*/
+    4 | $$self.$$.dirty[1] & /*onSectionSelectedChanged*/
+    32) {
       $: {
         if ($selectedSection) {
           onSectionSelectedChanged($selectedSection.folderPath);
@@ -4769,6 +5069,11 @@ function instance4($$self, $$props, $$invalidate) {
     $selectedSection,
     showNotebookDropdown,
     popoverContainerEl,
+    showGuideModal,
+    showGuideHoverPopover,
+    guidePopoverX,
+    guidePopoverY,
+    guideHoverTimeout,
     visibleRange,
     $selectedNotebook,
     $notebooks,
@@ -4778,6 +5083,8 @@ function instance4($$self, $$props, $$invalidate) {
     sections,
     selectedSection,
     rootFolderExists,
+    handleGuideMouseEnter,
+    handleGuideMouseLeave,
     toggleNotebookDropdown,
     handleWindowClick,
     openPage,
@@ -4797,11 +5104,16 @@ function instance4($$self, $$props, $$invalidate) {
     onPageOpened,
     vm,
     click_handler,
-    keydown_handler,
     click_handler_1,
-    div0_binding,
+    keydown_handler,
     click_handler_2,
-    scroll_handler
+    div0_binding,
+    click_handler_3,
+    scroll_handler,
+    click_handler_4,
+    mouseenter_handler,
+    click_handler_5,
+    click_handler_6
   ];
 }
 var OneNoteView = class extends SvelteComponent {
@@ -4814,19 +5126,19 @@ var OneNoteView = class extends SvelteComponent {
       create_fragment4,
       safe_not_equal,
       {
-        app: 22,
-        plugin: 23,
-        dataService: 24,
+        app: 29,
+        plugin: 30,
+        dataService: 31,
         rootFolder: 0,
-        enableVirtualization: 25,
-        initialExpandedPaths: 26,
-        initialSelectedSectionPath: 27,
-        onExpandedChanged: 28,
-        onSectionSelectedChanged: 29,
-        onPageOpened: 30
+        enableVirtualization: 32,
+        initialExpandedPaths: 33,
+        initialSelectedSectionPath: 34,
+        onExpandedChanged: 35,
+        onSectionSelectedChanged: 36,
+        onPageOpened: 37
       },
       null,
-      [-1, -1]
+      [-1, -1, -1]
     );
   }
 };
@@ -4839,40 +5151,64 @@ var import_obsidian7 = require("obsidian");
 var { window: window_12 } = globals;
 function get_each_context3(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[78] = list[i];
+  child_ctx[91] = list[i];
   return child_ctx;
 }
 function get_each_context_12(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[81] = list[i];
+  child_ctx[94] = list[i];
   return child_ctx;
 }
 function get_each_context_22(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[84] = list[i];
+  child_ctx[97] = list[i];
   return child_ctx;
 }
-function create_if_block_11(ctx) {
+function create_if_block_13(ctx) {
   let div;
+  let span0;
   let t0;
   let t1;
   let t2;
+  let t3;
+  let span1;
+  let mounted;
+  let dispose;
   return {
     c() {
       div = element("div");
+      span0 = element("span");
       t0 = text('\u{1F4A1} Tip: Set a hotkey under Settings \u2192 Hotkeys \u2192 "Fluent OneNote: Open navigation popup" for instant access (');
       t1 = text(
         /*remainingTips*/
         ctx[2]
       );
       t2 = text(" reminders left)");
+      t3 = space();
+      span1 = element("span");
+      span1.textContent = "\u26A1 Features Guide";
+      attr(span1, "class", "on-tip-guide-link");
+      attr(span1, "role", "button");
+      attr(span1, "tabindex", "0");
       attr(div, "class", "on-tip-banner");
     },
     m(target, anchor) {
       insert(target, div, anchor);
-      append(div, t0);
-      append(div, t1);
-      append(div, t2);
+      append(div, span0);
+      append(span0, t0);
+      append(span0, t1);
+      append(span0, t2);
+      append(div, t3);
+      append(div, span1);
+      if (!mounted) {
+        dispose = listen(
+          span1,
+          "click",
+          /*click_handler*/
+          ctx[60]
+        );
+        mounted = true;
+      }
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*remainingTips*/
@@ -4887,10 +5223,12 @@ function create_if_block_11(ctx) {
       if (detaching) {
         detach(div);
       }
+      mounted = false;
+      dispose();
     }
   };
 }
-function create_if_block_10(ctx) {
+function create_if_block_122(ctx) {
   let span;
   let mounted;
   let dispose;
@@ -4909,8 +5247,8 @@ function create_if_block_10(ctx) {
         dispose = listen(
           span,
           "click",
-          /*click_handler*/
-          ctx[55]
+          /*click_handler_1*/
+          ctx[63]
         );
         mounted = true;
       }
@@ -4971,7 +5309,7 @@ function create_else_block_22(ctx) {
     }
   };
 }
-function create_if_block_9(ctx) {
+function create_if_block_11(ctx) {
   let svg;
   let circle;
   let line;
@@ -5031,9 +5369,9 @@ function create_else_block2(ctx) {
   let span1;
   let t2_value = (
     /*$selectedNotebook*/
-    (ctx[18] ? (
+    (ctx[23] ? (
       /*$selectedNotebook*/
-      ctx[18].name
+      ctx[23].name
     ) : "Select Notebook") + ""
   );
   let t2;
@@ -5068,26 +5406,26 @@ function create_else_block2(ctx) {
   let dispose;
   let if_block0 = (
     /*showNotebookDropdown*/
-    ctx[7] && create_if_block_72(ctx)
+    ctx[7] && create_if_block_92(ctx)
   );
   let if_block1 = (
     /*$sections*/
-    ctx[21].length === 0 && create_if_block_62(ctx)
+    ctx[26].length === 0 && create_if_block_82(ctx)
   );
   let each_value_1 = ensure_array_like(
     /*$sections*/
-    ctx[21]
+    ctx[26]
   );
   const get_key = (ctx2) => (
     /*sec*/
-    ctx2[81].folderPath
+    ctx2[94].folderPath
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_12(ctx, each_value_1, i);
     let key = get_key(child_ctx);
     each_1_lookup.set(key, each_blocks[i] = create_each_block_12(key, child_ctx));
   }
-  const if_block_creators = [create_if_block_13, create_if_block_42, create_if_block_52, create_else_block_12];
+  const if_block_creators = [create_if_block_32, create_if_block_62, create_if_block_72, create_else_block_12];
   const if_blocks = [];
   function select_block_type_2(ctx2, dirty) {
     if (
@@ -5102,12 +5440,12 @@ function create_else_block2(ctx) {
       return 1;
     if (
       /*$selectedSection*/
-      ctx2[15]
+      ctx2[20]
     )
       return 2;
     return 3;
   }
-  current_block_type_index = select_block_type_2(ctx, [-1, -1, -1]);
+  current_block_type_index = select_block_type_2(ctx, [-1, -1, -1, -1]);
   if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   return {
     c() {
@@ -5184,7 +5522,7 @@ function create_else_block2(ctx) {
       append(div0, t7);
       if (if_block0)
         if_block0.m(div0, null);
-      ctx[59](div0);
+      ctx[68](div0);
       append(div2, t8);
       append(div2, div1);
       if (if_block1)
@@ -5212,25 +5550,25 @@ function create_else_block2(ctx) {
             button0,
             "click",
             /*toggleNotebookDropdown*/
-            ctx[33]
+            ctx[40]
           ),
           listen(
             button1,
             "click",
-            /*click_handler_1*/
-            ctx[56]
+            /*click_handler_3*/
+            ctx[65]
           ),
           listen(
             button2,
             "click",
-            /*click_handler_3*/
-            ctx[60]
+            /*click_handler_5*/
+            ctx[69]
           ),
           listen(
             div4,
             "scroll",
             /*scroll_handler*/
-            ctx[61]
+            ctx[70]
           )
         ];
         mounted = true;
@@ -5238,10 +5576,10 @@ function create_else_block2(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$selectedNotebook*/
-      262144) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[18] ? (
+      8388608) && t2_value !== (t2_value = /*$selectedNotebook*/
+      (ctx2[23] ? (
         /*$selectedNotebook*/
-        ctx2[18].name
+        ctx2[23].name
       ) : "Select Notebook") + ""))
         set_data(t2, t2_value);
       if (!current || dirty[0] & /*showNotebookDropdown*/
@@ -5264,7 +5602,7 @@ function create_else_block2(ctx) {
             transition_in(if_block0, 1);
           }
         } else {
-          if_block0 = create_if_block_72(ctx2);
+          if_block0 = create_if_block_92(ctx2);
           if_block0.c();
           transition_in(if_block0, 1);
           if_block0.m(div0, null);
@@ -5278,11 +5616,11 @@ function create_else_block2(ctx) {
       }
       if (
         /*$sections*/
-        ctx2[21].length === 0
+        ctx2[26].length === 0
       ) {
         if (if_block1) {
         } else {
-          if_block1 = create_if_block_62(ctx2);
+          if_block1 = create_if_block_82(ctx2);
           if_block1.c();
           if_block1.m(div1, t9);
         }
@@ -5291,10 +5629,10 @@ function create_else_block2(ctx) {
         if_block1 = null;
       }
       if (dirty[0] & /*$sections, focusPane, $visibleSections, focusedSectionIndex*/
-      2165760) {
+      69304320) {
         each_value_1 = ensure_array_like(
           /*$sections*/
-          ctx2[21]
+          ctx2[26]
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, div1, outro_and_destroy_block, create_each_block_12, null, get_each_context_12);
@@ -5352,7 +5690,7 @@ function create_else_block2(ctx) {
       }
       if (if_block0)
         if_block0.d();
-      ctx[59](null);
+      ctx[68](null);
       if (if_block1)
         if_block1.d();
       for (let i = 0; i < each_blocks.length; i += 1) {
@@ -5364,7 +5702,7 @@ function create_else_block2(ctx) {
     }
   };
 }
-function create_if_block3(ctx) {
+function create_if_block_22(ctx) {
   let div2;
   let div0;
   let t3;
@@ -5425,14 +5763,14 @@ function create_if_block3(ctx) {
     }
   };
 }
-function create_if_block_72(ctx) {
+function create_if_block_92(ctx) {
   let div2;
   let div0;
   let span0;
   let t0;
   let t1_value = (
     /*$notebooks*/
-    ctx[20].length + ""
+    ctx[25].length + ""
   );
   let t1;
   let t2;
@@ -5448,15 +5786,15 @@ function create_if_block_72(ctx) {
   let dispose;
   let if_block = (
     /*$notebooks*/
-    ctx[20].length === 0 && create_if_block_8(ctx)
+    ctx[25].length === 0 && create_if_block_10(ctx)
   );
   let each_value_2 = ensure_array_like(
     /*$notebooks*/
-    ctx[20]
+    ctx[25]
   );
   const get_key = (ctx2) => (
     /*nb*/
-    ctx2[84].folderPath
+    ctx2[97].folderPath
   );
   for (let i = 0; i < each_value_2.length; i += 1) {
     let child_ctx = get_each_context_22(ctx, each_value_2, i);
@@ -5516,11 +5854,11 @@ function create_if_block_72(ctx) {
             span1,
             "keydown",
             /*keydown_handler*/
-            ctx[57]
+            ctx[66]
           ),
           listen(span1, "click", stop_propagation(
-            /*click_handler_2*/
-            ctx[58]
+            /*click_handler_4*/
+            ctx[67]
           ))
         ];
         mounted = true;
@@ -5528,16 +5866,16 @@ function create_if_block_72(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$notebooks*/
-      1048576) && t1_value !== (t1_value = /*$notebooks*/
-      ctx2[20].length + ""))
+      33554432) && t1_value !== (t1_value = /*$notebooks*/
+      ctx2[25].length + ""))
         set_data(t1, t1_value);
       if (
         /*$notebooks*/
-        ctx2[20].length === 0
+        ctx2[25].length === 0
       ) {
         if (if_block) {
         } else {
-          if_block = create_if_block_8(ctx2);
+          if_block = create_if_block_10(ctx2);
           if_block.c();
           if_block.m(div1, t6);
         }
@@ -5546,11 +5884,11 @@ function create_if_block_72(ctx) {
         if_block = null;
       }
       if (dirty[0] & /*$notebooks*/
-      1048576 | dirty[1] & /*selectNotebook*/
-      32) {
+      33554432 | dirty[1] & /*selectNotebook*/
+      4096) {
         each_value_2 = ensure_array_like(
           /*$notebooks*/
-          ctx2[20]
+          ctx2[25]
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_2, each_1_lookup, div1, outro_and_destroy_block, create_each_block_22, null, get_each_context_22);
@@ -5585,7 +5923,7 @@ function create_if_block_72(ctx) {
     }
   };
 }
-function create_if_block_8(ctx) {
+function create_if_block_10(ctx) {
   let div;
   return {
     c() {
@@ -5611,11 +5949,11 @@ function create_each_block_22(key_1, ctx) {
     props: {
       notebook: (
         /*nb*/
-        ctx[84]
+        ctx[97]
       ),
       onSelect: (
         /*selectNotebook*/
-        ctx[36]
+        ctx[43]
       )
     }
   });
@@ -5636,9 +5974,9 @@ function create_each_block_22(key_1, ctx) {
       ctx = new_ctx;
       const notebooktreeitem_changes = {};
       if (dirty[0] & /*$notebooks*/
-      1048576)
+      33554432)
         notebooktreeitem_changes.notebook = /*nb*/
-        ctx[84];
+        ctx[97];
       notebooktreeitem.$set(notebooktreeitem_changes);
     },
     i(local) {
@@ -5659,7 +5997,7 @@ function create_each_block_22(key_1, ctx) {
     }
   };
 }
-function create_if_block_62(ctx) {
+function create_if_block_82(ctx) {
   let div;
   return {
     c() {
@@ -5685,23 +6023,23 @@ function create_each_block_12(key_1, ctx) {
     props: {
       sec: (
         /*sec*/
-        ctx[81]
+        ctx[94]
       ),
       focusPane: (
         /*focusPane*/
-        ctx[10]
+        ctx[15]
       ),
       focusedFolderPath: (
         /*focusPane*/
-        ctx[10] === "sections" && /*$visibleSections*/
-        ctx[16][
+        ctx[15] === "sections" && /*$visibleSections*/
+        ctx[21][
           /*focusedSectionIndex*/
-          ctx[11]
+          ctx[16]
         ] ? (
           /*$visibleSections*/
-          ctx[16][
+          ctx[21][
             /*focusedSectionIndex*/
-            ctx[11]
+            ctx[16]
           ].folderPath
         ) : ""
       )
@@ -5724,25 +6062,25 @@ function create_each_block_12(key_1, ctx) {
       ctx = new_ctx;
       const sectiontreeitem_changes = {};
       if (dirty[0] & /*$sections*/
-      2097152)
+      67108864)
         sectiontreeitem_changes.sec = /*sec*/
-        ctx[81];
+        ctx[94];
       if (dirty[0] & /*focusPane*/
-      1024)
+      32768)
         sectiontreeitem_changes.focusPane = /*focusPane*/
-        ctx[10];
+        ctx[15];
       if (dirty[0] & /*focusPane, $visibleSections, focusedSectionIndex*/
-      68608)
+      2195456)
         sectiontreeitem_changes.focusedFolderPath = /*focusPane*/
-        ctx[10] === "sections" && /*$visibleSections*/
-        ctx[16][
+        ctx[15] === "sections" && /*$visibleSections*/
+        ctx[21][
           /*focusedSectionIndex*/
-          ctx[11]
+          ctx[16]
         ] ? (
           /*$visibleSections*/
-          ctx[16][
+          ctx[21][
             /*focusedSectionIndex*/
-            ctx[11]
+            ctx[16]
           ].folderPath
         ) : "";
       sectiontreeitem.$set(sectiontreeitem_changes);
@@ -5786,7 +6124,7 @@ function create_else_block_12(ctx) {
     }
   };
 }
-function create_if_block_52(ctx) {
+function create_if_block_72(ctx) {
   let div;
   return {
     c() {
@@ -5807,7 +6145,7 @@ function create_if_block_52(ctx) {
     }
   };
 }
-function create_if_block_42(ctx) {
+function create_if_block_62(ctx) {
   let div;
   let t0;
   let t1;
@@ -5847,7 +6185,7 @@ function create_if_block_42(ctx) {
     }
   };
 }
-function create_if_block_13(ctx) {
+function create_if_block_32(ctx) {
   let t0;
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
@@ -5856,15 +6194,15 @@ function create_if_block_13(ctx) {
   let current;
   let if_block0 = (
     /*visibleRange*/
-    ctx[14].topPadding > 0 && create_if_block_32(ctx)
+    ctx[19].topPadding > 0 && create_if_block_52(ctx)
   );
   let each_value = ensure_array_like(
     /*visibleRange*/
-    ctx[14].pages
+    ctx[19].pages
   );
   const get_key = (ctx2) => (
     /*page*/
-    ctx2[78].filepath
+    ctx2[91].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context3(ctx, each_value, i);
@@ -5873,7 +6211,7 @@ function create_if_block_13(ctx) {
   }
   let if_block1 = (
     /*visibleRange*/
-    ctx[14].bottomPadding > 0 && create_if_block_22(ctx)
+    ctx[19].bottomPadding > 0 && create_if_block_42(ctx)
   );
   return {
     c() {
@@ -5906,12 +6244,12 @@ function create_if_block_13(ctx) {
     p(ctx2, dirty) {
       if (
         /*visibleRange*/
-        ctx2[14].topPadding > 0
+        ctx2[19].topPadding > 0
       ) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
         } else {
-          if_block0 = create_if_block_32(ctx2);
+          if_block0 = create_if_block_52(ctx2);
           if_block0.c();
           if_block0.m(t0.parentNode, t0);
         }
@@ -5920,11 +6258,11 @@ function create_if_block_13(ctx) {
         if_block0 = null;
       }
       if (dirty[0] & /*visibleRange, focusPane, focusedPagePath*/
-      21504 | dirty[1] & /*openPage, handlePageAuxClick, handlePageContextMenu*/
-      896) {
+      688128 | dirty[1] & /*openPage, handlePageAuxClick, handlePageContextMenu*/
+      114688) {
         each_value = ensure_array_like(
           /*visibleRange*/
-          ctx2[14].pages
+          ctx2[19].pages
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value, each_1_lookup, t1.parentNode, outro_and_destroy_block, create_each_block3, t1, get_each_context3);
@@ -5932,12 +6270,12 @@ function create_if_block_13(ctx) {
       }
       if (
         /*visibleRange*/
-        ctx2[14].bottomPadding > 0
+        ctx2[19].bottomPadding > 0
       ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_22(ctx2);
+          if_block1 = create_if_block_42(ctx2);
           if_block1.c();
           if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
         }
@@ -5976,7 +6314,7 @@ function create_if_block_13(ctx) {
     }
   };
 }
-function create_if_block_32(ctx) {
+function create_if_block_52(ctx) {
   let div;
   return {
     c() {
@@ -5985,7 +6323,7 @@ function create_if_block_32(ctx) {
         div,
         "height",
         /*visibleRange*/
-        ctx[14].topPadding + "px"
+        ctx[19].topPadding + "px"
       );
     },
     m(target, anchor) {
@@ -5993,12 +6331,12 @@ function create_if_block_32(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*visibleRange*/
-      16384) {
+      524288) {
         set_style(
           div,
           "height",
           /*visibleRange*/
-          ctx2[14].topPadding + "px"
+          ctx2[19].topPadding + "px"
         );
       }
     },
@@ -6017,28 +6355,28 @@ function create_each_block3(key_1, ctx) {
     props: {
       page: (
         /*page*/
-        ctx[78]
+        ctx[91]
       ),
       depth: 0,
       focusPane: (
         /*focusPane*/
-        ctx[10]
+        ctx[15]
       ),
       focusedPagePath: (
         /*focusedPagePath*/
-        ctx[12]
+        ctx[17]
       ),
       onClick: (
         /*openPage*/
-        ctx[38]
+        ctx[45]
       ),
       onAuxClick: (
         /*handlePageAuxClick*/
-        ctx[39]
+        ctx[46]
       ),
       onContextMenu: (
         /*handlePageContextMenu*/
-        ctx[40]
+        ctx[47]
       )
     }
   });
@@ -6059,17 +6397,17 @@ function create_each_block3(key_1, ctx) {
       ctx = new_ctx;
       const pagetreeitem_changes = {};
       if (dirty[0] & /*visibleRange*/
-      16384)
+      524288)
         pagetreeitem_changes.page = /*page*/
-        ctx[78];
+        ctx[91];
       if (dirty[0] & /*focusPane*/
-      1024)
+      32768)
         pagetreeitem_changes.focusPane = /*focusPane*/
-        ctx[10];
+        ctx[15];
       if (dirty[0] & /*focusedPagePath*/
-      4096)
+      131072)
         pagetreeitem_changes.focusedPagePath = /*focusedPagePath*/
-        ctx[12];
+        ctx[17];
       pagetreeitem.$set(pagetreeitem_changes);
     },
     i(local) {
@@ -6090,7 +6428,7 @@ function create_each_block3(key_1, ctx) {
     }
   };
 }
-function create_if_block_22(ctx) {
+function create_if_block_42(ctx) {
   let div;
   return {
     c() {
@@ -6099,7 +6437,7 @@ function create_if_block_22(ctx) {
         div,
         "height",
         /*visibleRange*/
-        ctx[14].bottomPadding + "px"
+        ctx[19].bottomPadding + "px"
       );
     },
     m(target, anchor) {
@@ -6107,12 +6445,12 @@ function create_if_block_22(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*visibleRange*/
-      16384) {
+      524288) {
         set_style(
           div,
           "height",
           /*visibleRange*/
-          ctx2[14].bottomPadding + "px"
+          ctx2[19].bottomPadding + "px"
         );
       }
     },
@@ -6120,6 +6458,185 @@ function create_if_block_22(ctx) {
       if (detaching) {
         detach(div);
       }
+    }
+  };
+}
+function create_if_block_14(ctx) {
+  let div9;
+  let div0;
+  let span0;
+  let t1;
+  let span1;
+  let t3;
+  let div8;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div9 = element("div");
+      div0 = element("div");
+      span0 = element("span");
+      span0.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    FLUENT ONENOTE GUIDE`;
+      t1 = space();
+      span1 = element("span");
+      span1.textContent = "Click for full guide";
+      t3 = space();
+      div8 = element("div");
+      div8.innerHTML = `<div class="on-guide-item"><span class="on-guide-key">\u{1F310} All / \u{1F4D3} Current Scope</span> <span class="on-guide-desc">Toggle search between all notebooks and current active notebook</span></div> <div class="on-guide-item"><span class="on-guide-key">Cross-Pane Jump (\u2192 / \u2190)</span> <span class="on-guide-desc">ArrowRight on section to jump to pages; ArrowLeft on page to return to section</span></div> <div class="on-guide-item"><span class="on-guide-key">Background Tab Open</span> <span class="on-guide-desc">Middle-Click / Ctrl+Click / Ctrl+Enter opens note in new tab without closing popup</span></div> <div class="on-guide-item"><span class="on-guide-key">Folder-Notes &amp; Sub-Pages</span> <span class="on-guide-desc">Click title to open note; click chevron to expand/collapse nested sub-pages</span></div> <div class="on-guide-item"><span class="on-guide-key">Quick Note (Ctrl + N)</span> <span class="on-guide-desc">Instantly create a new note inside the active section</span></div> <div class="on-guide-item"><span class="on-guide-key">Physics Drag &amp; Drop</span> <span class="on-guide-desc">Reorder notebooks, sections, and sibling pages with 60px rAF auto-scroll</span></div> <div class="on-guide-item"><span class="on-guide-key">Right Click</span> <span class="on-guide-desc">Native context menus (Rename, Delete, New Note/Section)</span></div>`;
+      attr(span0, "class", "on-guide-popover-title");
+      attr(span1, "class", "on-guide-popover-link");
+      attr(span1, "role", "button");
+      attr(span1, "tabindex", "0");
+      attr(div0, "class", "on-guide-popover-header");
+      attr(div8, "class", "on-guide-popover-list");
+      attr(div9, "class", "on-guide-hover-popover");
+      set_style(
+        div9,
+        "top",
+        /*guidePopoverY*/
+        ctx[12] + "px"
+      );
+      set_style(
+        div9,
+        "left",
+        /*guidePopoverX*/
+        ctx[11] + "px"
+      );
+    },
+    m(target, anchor) {
+      insert(target, div9, anchor);
+      append(div9, div0);
+      append(div0, span0);
+      append(div0, t1);
+      append(div0, span1);
+      append(div9, t3);
+      append(div9, div8);
+      if (!mounted) {
+        dispose = [
+          listen(
+            span1,
+            "click",
+            /*click_handler_6*/
+            ctx[71]
+          ),
+          listen(
+            div9,
+            "mouseenter",
+            /*mouseenter_handler*/
+            ctx[72]
+          ),
+          listen(
+            div9,
+            "mouseleave",
+            /*handleGuideMouseLeave*/
+            ctx[39]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*guidePopoverY*/
+      4096) {
+        set_style(
+          div9,
+          "top",
+          /*guidePopoverY*/
+          ctx2[12] + "px"
+        );
+      }
+      if (dirty[0] & /*guidePopoverX*/
+      2048) {
+        set_style(
+          div9,
+          "left",
+          /*guidePopoverX*/
+          ctx2[11] + "px"
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div9);
+      }
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
+function create_if_block3(ctx) {
+  let div49;
+  let div48;
+  let div1;
+  let div0;
+  let t2;
+  let span1;
+  let t4;
+  let div47;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div49 = element("div");
+      div48 = element("div");
+      div1 = element("div");
+      div0 = element("div");
+      div0.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> <span>Fluent OneNote Features &amp; Shortcuts Guide</span>`;
+      t2 = space();
+      span1 = element("span");
+      span1.textContent = "\u2715";
+      t4 = space();
+      div47 = element("div");
+      div47.innerHTML = `<div class="on-guide-section"><div class="on-guide-section-title">\u26A1 Navigation &amp; Keyboard Shortcuts (\u5FEB\u6377\u952E\u4E0E\u6309\u952E\u6D41)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u2191 / \u2193</span> Item Traversal</div> <div class="on-guide-card-body">Navigate selection up and down in the active pane. In the search input, <kbd>\u2191</kbd> and <kbd>\u2193</kbd> traverse matches without losing input focus.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u2192 / \u2190</span> Cross-Pane Focus &amp; Sub-Pages</div> <div class="on-guide-card-body">Press <kbd>\u2192</kbd> on a section card to jump focus across into Pages. Press <kbd>\u2190</kbd> on any page to return to the exact section row. On Folder-Notes, <kbd>\u2192</kbd> / <kbd>\u2190</kbd> expands or collapses sub-pages.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Enter / Space</span> Open &amp; Dismiss</div> <div class="on-guide-card-body">Instantly open the selected note in your active Obsidian editor and dismiss the navigation popup.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + Click / Middle-Click</span> Background Tab</div> <div class="on-guide-card-body">Middle-click, <kbd>Ctrl+Click</kbd>, or <kbd>Ctrl+Enter</kbd> opens the note in a new background tab <strong>without closing the popup</strong>, ideal for batch opening references.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + N</span> Quick Note Creation</div> <div class="on-guide-card-body">Press <kbd>Ctrl+N</kbd> (or click <kbd>+ New Page</kbd>) to instantly create a new note inside the active section.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Delete / Backspace</span> Safe Trash Deletion</div> <div class="on-guide-card-body">Safely move note to trash with automatic child un-nesting protection. Deleting a parent Folder-Note promotes child notes to the section so data is never lost.</div></div></div></div> <div class="on-guide-section"><div class="on-guide-section-title">\u{1F50D} Fast Search &amp; Scope Modes (\u5168\u5C40\u4E0E\u5355\u7B14\u8BB0\u672C\u641C\u7D22)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Auto Focus</span> Instant Typing &amp; Full IME</div> <div class="on-guide-card-body">Popup automatically focuses the search bar on open. Guaranteed zero dropped keystrokes for Chinese, Japanese, and Korean IMEs (\u5FAE\u4FE1\u8F93\u5165\u6CD5, \u5FAE\u8F6F\u62FC\u97F3, \u641C\u72D7).</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">\u{1F310} All / \u{1F4D3} Current</span> One-Click Scope Toggle</div> <div class="on-guide-card-body">Click the toggle button in the search header to switch between <strong>Single Notebook Scoped Search</strong> (clean section badges) and <strong>Global Vault Search</strong> (composite <code>Notebook / Section</code> path badges).</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Escape</span> Progressive Clear / Close</div> <div class="on-guide-card-body">First press of <kbd>Escape</kbd> clears the search query; second press closes the navigation modal.</div></div></div></div> <div class="on-guide-section"><div class="on-guide-section-title">\u{1F4C1} Folder-Notes &amp; Physics Engine (\u6587\u4EF6\u5939\u7B14\u8BB0\u4E0E\u7269\u7406\u5F15\u64CE)</div> <div class="on-guide-grid"><div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Fusion</span> Folder-Note Architecture</div> <div class="on-guide-card-body">When a folder and a markdown note share the same name in a section, they fuse into a parent node. Click the title to open the note; click the chevron to expand/collapse sub-pages.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Physics DND</span> 60px rAF Auto-Scroll</div> <div class="on-guide-card-body">Drag &amp; drop notebooks, sections, and sibling pages with 0ms visual latency. Approaching top or bottom boundaries smoothly auto-scrolls the list. Drag pages onto section cards to move files.</div></div> <div class="on-guide-card"><div class="on-guide-card-header"><span class="on-guide-badge-pill">Right Click</span> Context Actions Menu</div> <div class="on-guide-card-body">Right-click any Notebook, Section, or Page to open native Obsidian context actions (Rename, Delete, New Note, New Section, Open in New Tab).</div></div></div></div>`;
+      attr(div0, "class", "on-guide-modal-title");
+      attr(span1, "class", "on-guide-modal-close");
+      attr(span1, "role", "button");
+      attr(span1, "tabindex", "0");
+      attr(span1, "title", "Close Guide");
+      attr(div1, "class", "on-guide-modal-header");
+      attr(div47, "class", "on-guide-modal-body");
+      attr(div48, "class", "on-guide-modal-dialog");
+      attr(div48, "role", "dialog");
+      attr(div48, "aria-modal", "true");
+      attr(div48, "tabindex", "-1");
+      attr(div49, "class", "on-guide-modal-backdrop");
+      attr(div49, "role", "presentation");
+    },
+    m(target, anchor) {
+      insert(target, div49, anchor);
+      append(div49, div48);
+      append(div48, div1);
+      append(div1, div0);
+      append(div1, t2);
+      append(div1, span1);
+      append(div48, t4);
+      append(div48, div47);
+      if (!mounted) {
+        dispose = [
+          listen(
+            span1,
+            "click",
+            /*click_handler_7*/
+            ctx[73]
+          ),
+          listen(
+            div49,
+            "click",
+            /*click_handler_8*/
+            ctx[74]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div49);
+      }
+      mounted = false;
+      run_all(dispose);
     }
   };
 }
@@ -6133,43 +6650,55 @@ function create_fragment5(ctx) {
   let input_placeholder_value;
   let t2;
   let t3;
-  let button;
-  let button_title_value;
+  let button0;
+  let button0_title_value;
   let t4;
+  let button1;
+  let t5;
   let div1;
   let current_block_type_index;
   let if_block3;
+  let t6;
+  let t7;
   let current;
   let mounted;
   let dispose;
   let if_block0 = (
     /*showTip*/
-    ctx[1] && create_if_block_11(ctx)
+    ctx[1] && create_if_block_13(ctx)
   );
   let if_block1 = (
     /*$filterQueryStore*/
-    ctx[6] && create_if_block_10(ctx)
+    ctx[6] && create_if_block_122(ctx)
   );
   function select_block_type(ctx2, dirty) {
     if (
       /*$searchAllNotebooks*/
-      ctx2[17]
+      ctx2[22]
     )
-      return create_if_block_9;
+      return create_if_block_11;
     return create_else_block_22;
   }
-  let current_block_type = select_block_type(ctx, [-1, -1, -1]);
+  let current_block_type = select_block_type(ctx, [-1, -1, -1, -1]);
   let if_block2 = current_block_type(ctx);
-  const if_block_creators = [create_if_block3, create_else_block2];
+  const if_block_creators = [create_if_block_22, create_else_block2];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
     if (!/*$rootFolderExists*/
-    ctx2[19])
+    ctx2[24])
       return 0;
     return 1;
   }
-  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1]);
+  current_block_type_index = select_block_type_1(ctx, [-1, -1, -1, -1]);
   if_block3 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  let if_block4 = (
+    /*showGuideHoverPopover*/
+    ctx[10] && create_if_block_14(ctx)
+  );
+  let if_block5 = (
+    /*showGuideModal*/
+    ctx[9] && create_if_block3(ctx)
+  );
   return {
     c() {
       div2 = element("div");
@@ -6178,41 +6707,53 @@ function create_fragment5(ctx) {
       t0 = space();
       div0 = element("div");
       span = element("span");
-      span.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+      span.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="2" y1="21" x2="16.65" y2="16.65"></line></svg>`;
       t1 = space();
       input = element("input");
       t2 = space();
       if (if_block1)
         if_block1.c();
       t3 = space();
-      button = element("button");
+      button0 = element("button");
       if_block2.c();
       t4 = space();
+      button1 = element("button");
+      button1.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+      t5 = space();
       div1 = element("div");
       if_block3.c();
+      t6 = space();
+      if (if_block4)
+        if_block4.c();
+      t7 = space();
+      if (if_block5)
+        if_block5.c();
       attr(span, "class", "on-filter-icon");
       attr(input, "type", "text");
       attr(input, "class", "on-filter-input");
       attr(input, "placeholder", input_placeholder_value = /*$searchAllNotebooks*/
-      ctx[17] ? "Search across all notebooks..." : (
+      ctx[22] ? "Search across all notebooks..." : (
         /*$selectedNotebook*/
-        ctx[18] ? `Search in "${/*$selectedNotebook*/
-        ctx[18].name}"...` : "Type to search page or section..."
+        ctx[23] ? `Search in "${/*$selectedNotebook*/
+        ctx[23].name}"...` : "Type to search page or section..."
       ));
-      attr(button, "type", "button");
-      attr(button, "class", "on-filter-btn-global");
-      attr(button, "title", button_title_value = /*$searchAllNotebooks*/
-      ctx[17] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
-      ctx[18] ? (
+      attr(button0, "type", "button");
+      attr(button0, "class", "on-filter-btn-global");
+      attr(button0, "title", button0_title_value = /*$searchAllNotebooks*/
+      ctx[22] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx[23] ? (
         /*$selectedNotebook*/
-        ctx[18].name
+        ctx[23].name
       ) : "Active"}) (Click to switch to All Notebooks)`);
       toggle_class(
-        button,
+        button0,
         "active",
         /*$searchAllNotebooks*/
-        ctx[17]
+        ctx[22]
       );
+      attr(button1, "type", "button");
+      attr(button1, "class", "on-btn-guide");
+      attr(button1, "title", "Fluent OneNote Features & Shortcuts Guide");
       attr(div0, "class", "on-filter-bar");
       attr(div1, "class", "on-dual-pane");
       attr(div2, "class", "on-modal-container");
@@ -6234,17 +6775,25 @@ function create_fragment5(ctx) {
         /*$filterQueryStore*/
         ctx[6]
       );
-      ctx[54](input);
+      ctx[62](input);
       append(div0, t2);
       if (if_block1)
         if_block1.m(div0, null);
       append(div0, t3);
-      append(div0, button);
-      if_block2.m(button, null);
-      append(div2, t4);
+      append(div0, button0);
+      if_block2.m(button0, null);
+      append(div0, t4);
+      append(div0, button1);
+      append(div2, t5);
       append(div2, div1);
       if_blocks[current_block_type_index].m(div1, null);
-      ctx[62](div2);
+      append(div2, t6);
+      if (if_block4)
+        if_block4.m(div2, null);
+      append(div2, t7);
+      if (if_block5)
+        if_block5.m(div2, null);
+      ctx[75](div2);
       current = true;
       if (!mounted) {
         dispose = [
@@ -6252,31 +6801,49 @@ function create_fragment5(ctx) {
             window_12,
             "click",
             /*handleWindowClick*/
-            ctx[34]
+            ctx[41]
           ),
           listen(
             input,
             "input",
             /*input_input_handler*/
-            ctx[53]
+            ctx[61]
           ),
           listen(
-            button,
+            button0,
             "click",
             /*toggleGlobalSearch*/
-            ctx[32]
+            ctx[37]
+          ),
+          listen(
+            button1,
+            "mouseenter",
+            /*handleGuideMouseEnter*/
+            ctx[38]
+          ),
+          listen(
+            button1,
+            "mouseleave",
+            /*handleGuideMouseLeave*/
+            ctx[39]
+          ),
+          listen(
+            button1,
+            "click",
+            /*click_handler_2*/
+            ctx[64]
           ),
           listen(
             div2,
             "keydown",
             /*handleKeydown*/
-            ctx[43]
+            ctx[50]
           ),
           listen(
             div2,
             "pointerdown",
             /*handleContainerPointerDown*/
-            ctx[35]
+            ctx[42]
           )
         ];
         mounted = true;
@@ -6290,7 +6857,7 @@ function create_fragment5(ctx) {
         if (if_block0) {
           if_block0.p(ctx2, dirty);
         } else {
-          if_block0 = create_if_block_11(ctx2);
+          if_block0 = create_if_block_13(ctx2);
           if_block0.c();
           if_block0.m(div2, t0);
         }
@@ -6299,11 +6866,11 @@ function create_fragment5(ctx) {
         if_block0 = null;
       }
       if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
-      393216 && input_placeholder_value !== (input_placeholder_value = /*$searchAllNotebooks*/
-      ctx2[17] ? "Search across all notebooks..." : (
+      12582912 && input_placeholder_value !== (input_placeholder_value = /*$searchAllNotebooks*/
+      ctx2[22] ? "Search across all notebooks..." : (
         /*$selectedNotebook*/
-        ctx2[18] ? `Search in "${/*$selectedNotebook*/
-        ctx2[18].name}"...` : "Type to search page or section..."
+        ctx2[23] ? `Search in "${/*$selectedNotebook*/
+        ctx2[23].name}"...` : "Type to search page or section..."
       ))) {
         attr(input, "placeholder", input_placeholder_value);
       }
@@ -6323,7 +6890,7 @@ function create_fragment5(ctx) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_10(ctx2);
+          if_block1 = create_if_block_122(ctx2);
           if_block1.c();
           if_block1.m(div0, t3);
         }
@@ -6336,25 +6903,25 @@ function create_fragment5(ctx) {
         if_block2 = current_block_type(ctx2);
         if (if_block2) {
           if_block2.c();
-          if_block2.m(button, null);
+          if_block2.m(button0, null);
         }
       }
       if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
-      393216 && button_title_value !== (button_title_value = /*$searchAllNotebooks*/
-      ctx2[17] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
-      ctx2[18] ? (
+      12582912 && button0_title_value !== (button0_title_value = /*$searchAllNotebooks*/
+      ctx2[22] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx2[23] ? (
         /*$selectedNotebook*/
-        ctx2[18].name
+        ctx2[23].name
       ) : "Active"}) (Click to switch to All Notebooks)`)) {
-        attr(button, "title", button_title_value);
+        attr(button0, "title", button0_title_value);
       }
       if (!current || dirty[0] & /*$searchAllNotebooks*/
-      131072) {
+      4194304) {
         toggle_class(
-          button,
+          button0,
           "active",
           /*$searchAllNotebooks*/
-          ctx2[17]
+          ctx2[22]
         );
       }
       let previous_block_index = current_block_type_index;
@@ -6377,6 +6944,36 @@ function create_fragment5(ctx) {
         transition_in(if_block3, 1);
         if_block3.m(div1, null);
       }
+      if (
+        /*showGuideHoverPopover*/
+        ctx2[10]
+      ) {
+        if (if_block4) {
+          if_block4.p(ctx2, dirty);
+        } else {
+          if_block4 = create_if_block_14(ctx2);
+          if_block4.c();
+          if_block4.m(div2, t7);
+        }
+      } else if (if_block4) {
+        if_block4.d(1);
+        if_block4 = null;
+      }
+      if (
+        /*showGuideModal*/
+        ctx2[9]
+      ) {
+        if (if_block5) {
+          if_block5.p(ctx2, dirty);
+        } else {
+          if_block5 = create_if_block3(ctx2);
+          if_block5.c();
+          if_block5.m(div2, null);
+        }
+      } else if (if_block5) {
+        if_block5.d(1);
+        if_block5 = null;
+      }
     },
     i(local) {
       if (current)
@@ -6394,12 +6991,16 @@ function create_fragment5(ctx) {
       }
       if (if_block0)
         if_block0.d();
-      ctx[54](null);
+      ctx[62](null);
       if (if_block1)
         if_block1.d();
       if_block2.d();
       if_blocks[current_block_type_index].d();
-      ctx[62](null);
+      if (if_block4)
+        if_block4.d();
+      if (if_block5)
+        if_block5.d();
+      ctx[75](null);
       mounted = false;
       run_all(dispose);
     }
@@ -6437,23 +7038,23 @@ function instance5($$self, $$props, $$invalidate) {
   const vm = new OneNoteViewModel(app, plugin, dataService, rootFolder, initialExpandedPaths, initialSelectedSectionPath);
   setContext("vm", vm);
   const notebooks = vm.notebooks;
-  component_subscribe($$self, notebooks, (value) => $$invalidate(20, $notebooks = value));
+  component_subscribe($$self, notebooks, (value) => $$invalidate(25, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(18, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(23, $selectedNotebook = value));
   const sections = vm.sections;
-  component_subscribe($$self, sections, (value) => $$invalidate(21, $sections = value));
+  component_subscribe($$self, sections, (value) => $$invalidate(26, $sections = value));
   const selectedSection = vm.selectedSection;
-  component_subscribe($$self, selectedSection, (value) => $$invalidate(15, $selectedSection = value));
+  component_subscribe($$self, selectedSection, (value) => $$invalidate(20, $selectedSection = value));
   const activePagePath = vm.activePagePath;
-  component_subscribe($$self, activePagePath, (value) => $$invalidate(63, $activePagePath = value));
+  component_subscribe($$self, activePagePath, (value) => $$invalidate(76, $activePagePath = value));
   const rootFolderExists = vm.rootFolderExists;
-  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(19, $rootFolderExists = value));
+  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(24, $rootFolderExists = value));
   const filterQueryStore = vm.filterQuery;
   component_subscribe($$self, filterQueryStore, (value) => $$invalidate(6, $filterQueryStore = value));
   const searchAllNotebooks = vm.searchAllNotebooks;
-  component_subscribe($$self, searchAllNotebooks, (value) => $$invalidate(17, $searchAllNotebooks = value));
+  component_subscribe($$self, searchAllNotebooks, (value) => $$invalidate(22, $searchAllNotebooks = value));
   const visibleSections = vm.visibleSections;
-  component_subscribe($$self, visibleSections, (value) => $$invalidate(16, $visibleSections = value));
+  component_subscribe($$self, visibleSections, (value) => $$invalidate(21, $visibleSections = value));
   const filteredPages = vm.filteredPages;
   component_subscribe($$self, filteredPages, (value) => $$invalidate(5, $filteredPages = value));
   function toggleGlobalSearch(e) {
@@ -6464,7 +7065,7 @@ function instance5($$self, $$props, $$invalidate) {
     const nextVal = !$searchAllNotebooks;
     vm.searchAllNotebooks.set(nextVal);
     if (plugin && plugin.settings) {
-      $$invalidate(44, plugin.settings.searchAllNotebooks = nextVal, plugin);
+      $$invalidate(51, plugin.settings.searchAllNotebooks = nextVal, plugin);
       void plugin.saveSettings();
     }
     searchInputEl == null ? void 0 : searchInputEl.focus();
@@ -6472,6 +7073,27 @@ function instance5($$self, $$props, $$invalidate) {
   let scrollTop = 0;
   let showNotebookDropdown = false;
   let popoverContainerEl;
+  let showGuideModal = false;
+  let showGuideHoverPopover = false;
+  let guidePopoverX = 0;
+  let guidePopoverY = 0;
+  let guideHoverTimeout = null;
+  function handleGuideMouseEnter(e) {
+    if (guideHoverTimeout)
+      clearTimeout(guideHoverTimeout);
+    const rect = e.currentTarget.getBoundingClientRect();
+    $$invalidate(11, guidePopoverX = rect.left + rect.width / 2);
+    $$invalidate(12, guidePopoverY = rect.bottom + 6);
+    $$invalidate(10, showGuideHoverPopover = true);
+  }
+  function handleGuideMouseLeave() {
+    $$invalidate(13, guideHoverTimeout = setTimeout(
+      () => {
+        $$invalidate(10, showGuideHoverPopover = false);
+      },
+      150
+    ));
+  }
   function toggleNotebookDropdown(e) {
     e.stopPropagation();
     $$invalidate(7, showNotebookDropdown = !showNotebookDropdown);
@@ -6507,8 +7129,8 @@ function instance5($$self, $$props, $$invalidate) {
     if (activeFilePath) {
       set_store_value(activePagePath, $activePagePath = activeFilePath, $activePagePath);
       vm.autoRevealActivePage(activeFilePath);
-      $$invalidate(10, focusPane = "pages");
-      $$invalidate(12, focusedPagePath = activeFilePath);
+      $$invalidate(15, focusPane = "pages");
+      $$invalidate(17, focusedPagePath = activeFilePath);
     }
     syncSectionIndexToSelectedSection();
     setTimeout(
@@ -6563,10 +7185,10 @@ function instance5($$self, $$props, $$invalidate) {
   }
   function selectSection(sec) {
     vm.selectSection(sec);
-    $$invalidate(10, focusPane = "sections");
+    $$invalidate(15, focusPane = "sections");
     const index = $visibleSections.findIndex((s) => s.folderPath === sec.folderPath);
     if (index !== -1) {
-      $$invalidate(11, focusedSectionIndex = index);
+      $$invalidate(16, focusedSectionIndex = index);
     }
     onSectionSelectedChanged(sec.folderPath);
     EventBus.emit("section:selected" /* SECTION_SELECTED */, { section: sec, sourceId: instanceId });
@@ -6617,8 +7239,8 @@ function instance5($$self, $$props, $$invalidate) {
     ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => {
       vm.loadNotebooks();
       if (nextFocusPath) {
-        $$invalidate(12, focusedPagePath = nextFocusPath);
-        $$invalidate(10, focusPane = "pages");
+        $$invalidate(17, focusedPagePath = nextFocusPath);
+        $$invalidate(15, focusPane = "pages");
         setTimeout(scrollFocusedIntoView, 10);
       }
     });
@@ -6651,8 +7273,8 @@ function instance5($$self, $$props, $$invalidate) {
       const newFile = await ContextMenuHelper.createNewPage(activeApp, targetFolderPath);
       if (newFile) {
         vm.loadNotebooks();
-        $$invalidate(10, focusPane = "pages");
-        $$invalidate(12, focusedPagePath = newFile.path);
+        $$invalidate(15, focusPane = "pages");
+        $$invalidate(17, focusedPagePath = newFile.path);
         openPage({
           name: newFile.basename,
           filepath: newFile.path
@@ -6677,10 +7299,10 @@ function instance5($$self, $$props, $$invalidate) {
           });
         }
         vm.loadNotebooks();
-        $$invalidate(10, focusPane = "sections");
+        $$invalidate(15, focusPane = "sections");
         const index = $visibleSections.findIndex((s) => s.folderPath === newFolder.path);
         if (index !== -1) {
-          $$invalidate(11, focusedSectionIndex = index);
+          $$invalidate(16, focusedSectionIndex = index);
           set_store_value(selectedSection, $selectedSection = $visibleSections[index], $selectedSection);
         }
         setTimeout(scrollFocusedIntoView, 50);
@@ -6704,8 +7326,8 @@ function instance5($$self, $$props, $$invalidate) {
       await ContextMenuHelper.deletePageSafely(activeApp, pageToDelete);
       vm.loadNotebooks();
       if (nextFocusPath) {
-        $$invalidate(12, focusedPagePath = nextFocusPath);
-        $$invalidate(10, focusPane = "pages");
+        $$invalidate(17, focusedPagePath = nextFocusPath);
+        $$invalidate(15, focusPane = "pages");
         setTimeout(scrollFocusedIntoView, 10);
       }
     }
@@ -6731,7 +7353,7 @@ function instance5($$self, $$props, $$invalidate) {
         e.preventDefault();
         e.stopPropagation();
         if (trimmedQuery) {
-          $$invalidate(10, focusPane = "pages");
+          $$invalidate(15, focusPane = "pages");
         }
         if (focusPane === "sections") {
           handleSectionsKeydown(e.key);
@@ -6815,22 +7437,22 @@ function instance5($$self, $$props, $$invalidate) {
       return;
     switch (key) {
       case "ArrowUp": {
-        $$invalidate(11, focusedSectionIndex = Math.max(0, focusedSectionIndex - 1));
+        $$invalidate(16, focusedSectionIndex = Math.max(0, focusedSectionIndex - 1));
         const sec = $visibleSections[focusedSectionIndex];
         if (sec) {
           set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
           if (sec.pages.length > 0)
-            $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+            $$invalidate(17, focusedPagePath = sec.pages[0].filepath);
         }
         break;
       }
       case "ArrowDown": {
-        $$invalidate(11, focusedSectionIndex = Math.min($visibleSections.length - 1, focusedSectionIndex + 1));
+        $$invalidate(16, focusedSectionIndex = Math.min($visibleSections.length - 1, focusedSectionIndex + 1));
         const sec = $visibleSections[focusedSectionIndex];
         if (sec) {
           set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
           if (sec.pages.length > 0)
-            $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+            $$invalidate(17, focusedPagePath = sec.pages[0].filepath);
         }
         break;
       }
@@ -6842,8 +7464,8 @@ function instance5($$self, $$props, $$invalidate) {
           } else {
             set_store_value(selectedSection, $selectedSection = sec, $selectedSection);
             if (sec.pages.length > 0) {
-              $$invalidate(10, focusPane = "pages");
-              $$invalidate(12, focusedPagePath = sec.pages[0].filepath);
+              $$invalidate(15, focusPane = "pages");
+              $$invalidate(17, focusedPagePath = sec.pages[0].filepath);
             }
           }
         }
@@ -6868,7 +7490,7 @@ function instance5($$self, $$props, $$invalidate) {
     const currentSec = $selectedSection;
     const index = $visibleSections.findIndex((s) => s.folderPath === currentSec.folderPath);
     if (index !== -1) {
-      $$invalidate(11, focusedSectionIndex = index);
+      $$invalidate(16, focusedSectionIndex = index);
     }
   }
   function handlePagesKeydown(key) {
@@ -6882,17 +7504,17 @@ function instance5($$self, $$props, $$invalidate) {
     switch (key) {
       case "ArrowUp": {
         const prevIdx = Math.max(0, currentIdx - 1);
-        $$invalidate(12, focusedPagePath = ((_a = visibleFlatPages[prevIdx]) == null ? void 0 : _a.filepath) || "");
+        $$invalidate(17, focusedPagePath = ((_a = visibleFlatPages[prevIdx]) == null ? void 0 : _a.filepath) || "");
         break;
       }
       case "ArrowDown": {
         const nextIdx = Math.min(visibleFlatPages.length - 1, currentIdx + 1);
-        $$invalidate(12, focusedPagePath = ((_b = visibleFlatPages[nextIdx]) == null ? void 0 : _b.filepath) || "");
+        $$invalidate(17, focusedPagePath = ((_b = visibleFlatPages[nextIdx]) == null ? void 0 : _b.filepath) || "");
         break;
       }
       case "ArrowLeft":
         if (!trimmedQuery) {
-          $$invalidate(10, focusPane = "sections");
+          $$invalidate(15, focusPane = "sections");
           syncSectionIndexToSelectedSection();
         }
         break;
@@ -6912,6 +7534,7 @@ function instance5($$self, $$props, $$invalidate) {
       el.scrollIntoView({ block: "nearest", behavior: "auto" });
     }
   }
+  const click_handler = () => $$invalidate(9, showGuideModal = true);
   function input_input_handler() {
     $filterQueryStore = this.value;
     filterQueryStore.set($filterQueryStore);
@@ -6919,18 +7542,22 @@ function instance5($$self, $$props, $$invalidate) {
   function input_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       searchInputEl = $$value;
-      $$invalidate(9, searchInputEl);
+      $$invalidate(14, searchInputEl);
     });
   }
-  const click_handler = () => set_store_value(filterQueryStore, $filterQueryStore = "", $filterQueryStore);
-  const click_handler_1 = () => handleQuickNewSection();
+  const click_handler_1 = () => set_store_value(filterQueryStore, $filterQueryStore = "", $filterQueryStore);
+  const click_handler_2 = () => {
+    $$invalidate(10, showGuideHoverPopover = false);
+    $$invalidate(9, showGuideModal = true);
+  };
+  const click_handler_3 = () => handleQuickNewSection();
   const keydown_handler = (e) => {
     if (e.key === "Enter") {
       handleQuickNewNotebook();
       $$invalidate(7, showNotebookDropdown = false);
     }
   };
-  const click_handler_2 = () => {
+  const click_handler_4 = () => {
     handleQuickNewNotebook();
     $$invalidate(7, showNotebookDropdown = false);
   };
@@ -6940,46 +7567,56 @@ function instance5($$self, $$props, $$invalidate) {
       $$invalidate(8, popoverContainerEl);
     });
   }
-  const click_handler_3 = () => handleQuickNewNote();
+  const click_handler_5 = () => handleQuickNewNote();
   const scroll_handler = (e) => $$invalidate(3, scrollTop = e.currentTarget.scrollTop);
+  const click_handler_6 = () => {
+    $$invalidate(10, showGuideHoverPopover = false);
+    $$invalidate(9, showGuideModal = true);
+  };
+  const mouseenter_handler = () => {
+    if (guideHoverTimeout)
+      clearTimeout(guideHoverTimeout);
+  };
+  const click_handler_7 = () => $$invalidate(9, showGuideModal = false);
+  const click_handler_8 = (e) => e.target === e.currentTarget && $$invalidate(9, showGuideModal = false);
   function div2_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](() => {
       modalContainerEl = $$value;
-      $$invalidate(13, modalContainerEl);
+      $$invalidate(18, modalContainerEl);
     });
   }
   $$self.$$set = ($$props2) => {
     if ("app" in $$props2)
-      $$invalidate(45, app = $$props2.app);
+      $$invalidate(52, app = $$props2.app);
     if ("plugin" in $$props2)
-      $$invalidate(44, plugin = $$props2.plugin);
+      $$invalidate(51, plugin = $$props2.plugin);
     if ("dataService" in $$props2)
-      $$invalidate(46, dataService = $$props2.dataService);
+      $$invalidate(53, dataService = $$props2.dataService);
     if ("rootFolder" in $$props2)
       $$invalidate(0, rootFolder = $$props2.rootFolder);
     if ("enableVirtualization" in $$props2)
-      $$invalidate(47, enableVirtualization = $$props2.enableVirtualization);
+      $$invalidate(54, enableVirtualization = $$props2.enableVirtualization);
     if ("showTip" in $$props2)
       $$invalidate(1, showTip = $$props2.showTip);
     if ("remainingTips" in $$props2)
       $$invalidate(2, remainingTips = $$props2.remainingTips);
     if ("onPageOpened" in $$props2)
-      $$invalidate(48, onPageOpened = $$props2.onPageOpened);
+      $$invalidate(55, onPageOpened = $$props2.onPageOpened);
     if ("initialExpandedPaths" in $$props2)
-      $$invalidate(49, initialExpandedPaths = $$props2.initialExpandedPaths);
+      $$invalidate(56, initialExpandedPaths = $$props2.initialExpandedPaths);
     if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(50, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
+      $$invalidate(57, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
     if ("onExpandedChanged" in $$props2)
-      $$invalidate(51, onExpandedChanged = $$props2.onExpandedChanged);
+      $$invalidate(58, onExpandedChanged = $$props2.onExpandedChanged);
     if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(52, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
+      $$invalidate(59, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
   };
   $$self.$$.update = () => {
     if ($$self.$$.dirty[0] & /*$filteredPages, scrollTop*/
     40 | $$self.$$.dirty[1] & /*enableVirtualization*/
-    65536) {
+    8388608) {
       $:
-        $$invalidate(14, visibleRange = (() => {
+        $$invalidate(19, visibleRange = (() => {
           if (!enableVirtualization || $filteredPages.length < 100) {
             return {
               pages: $filteredPages,
@@ -7008,9 +7645,9 @@ function instance5($$self, $$props, $$invalidate) {
     48) {
       $:
         if (trimmedQuery) {
-          $$invalidate(10, focusPane = "pages");
+          $$invalidate(15, focusPane = "pages");
           if ($filteredPages.length > 0) {
-            $$invalidate(12, focusedPagePath = $filteredPages[0].filepath);
+            $$invalidate(17, focusedPagePath = $filteredPages[0].filepath);
           }
         }
     }
@@ -7025,6 +7662,11 @@ function instance5($$self, $$props, $$invalidate) {
     $filterQueryStore,
     showNotebookDropdown,
     popoverContainerEl,
+    showGuideModal,
+    showGuideHoverPopover,
+    guidePopoverX,
+    guidePopoverY,
+    guideHoverTimeout,
     searchInputEl,
     focusPane,
     focusedSectionIndex,
@@ -7049,6 +7691,8 @@ function instance5($$self, $$props, $$invalidate) {
     visibleSections,
     filteredPages,
     toggleGlobalSearch,
+    handleGuideMouseEnter,
+    handleGuideMouseLeave,
     toggleNotebookDropdown,
     handleWindowClick,
     handleContainerPointerDown,
@@ -7069,15 +7713,21 @@ function instance5($$self, $$props, $$invalidate) {
     initialSelectedSectionPath,
     onExpandedChanged,
     onSectionSelectedChanged,
+    click_handler,
     input_input_handler,
     input_binding,
-    click_handler,
     click_handler_1,
-    keydown_handler,
     click_handler_2,
-    div0_binding,
     click_handler_3,
+    keydown_handler,
+    click_handler_4,
+    div0_binding,
+    click_handler_5,
     scroll_handler,
+    click_handler_6,
+    mouseenter_handler,
+    click_handler_7,
+    click_handler_8,
     div2_binding
   ];
 }
@@ -7091,21 +7741,21 @@ var OneNoteModalView = class extends SvelteComponent {
       create_fragment5,
       safe_not_equal,
       {
-        app: 45,
-        plugin: 44,
-        dataService: 46,
+        app: 52,
+        plugin: 51,
+        dataService: 53,
         rootFolder: 0,
-        enableVirtualization: 47,
+        enableVirtualization: 54,
         showTip: 1,
         remainingTips: 2,
-        onPageOpened: 48,
-        initialExpandedPaths: 49,
-        initialSelectedSectionPath: 50,
-        onExpandedChanged: 51,
-        onSectionSelectedChanged: 52
+        onPageOpened: 55,
+        initialExpandedPaths: 56,
+        initialSelectedSectionPath: 57,
+        onExpandedChanged: 58,
+        onSectionSelectedChanged: 59
       },
       null,
-      [-1, -1, -1]
+      [-1, -1, -1, -1]
     );
   }
 };

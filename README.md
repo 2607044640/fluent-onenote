@@ -86,6 +86,7 @@ Whenever you need to switch notes or capture a thought, press your hotkey, brows
 | **Toggle Sub-pages / Expand** | `ArrowRight` / `ArrowLeft` | Expand or collapse nested sub-pages |
 | **Open Note & Dismiss** | `Enter` / `Space` | Open note in active editor and close popup |
 | **Open in Background Tab** | `Middle-Click` / `Ctrl+Click` / `Ctrl+Enter` | Open in new tab without closing popup |
+| **Open Feature Guide** | Click `(?)` button in header | Open full interactive features & shortcuts guide |
 | **Create New Note** | `Ctrl + N` (or `+ New Page` button) | Create a new note inside active section |
 | **Search Notes** | Type any key | Search across all notes with instant IME support |
 | **Clear Search / Close** | `Escape` | First press clears query; second press closes modal |
