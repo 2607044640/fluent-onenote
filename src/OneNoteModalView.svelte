@@ -88,6 +88,27 @@
     let showNotebookDropdown: boolean = false;
     let popoverContainerEl: HTMLElement;
 
+    // Features & Shortcuts Guide State
+    let showGuideModal: boolean = false;
+    let showGuideHoverPopover: boolean = false;
+    let guidePopoverX: number = 0;
+    let guidePopoverY: number = 0;
+    let guideHoverTimeout: any = null;
+
+    function handleGuideMouseEnter(e: MouseEvent) {
+        if (guideHoverTimeout) clearTimeout(guideHoverTimeout);
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        guidePopoverX = rect.left + rect.width / 2;
+        guidePopoverY = rect.bottom + 6;
+        showGuideHoverPopover = true;
+    }
+
+    function handleGuideMouseLeave() {
+        guideHoverTimeout = setTimeout(() => {
+            showGuideHoverPopover = false;
+        }, 150);
+    }
+
     function toggleNotebookDropdown(e: MouseEvent) {
         e.stopPropagation();
         showNotebookDropdown = !showNotebookDropdown;
@@ -613,7 +634,9 @@
 >
     {#if showTip}
         <div class="on-tip-banner">
-            💡 Tip: Set a hotkey under Settings → Hotkeys → "Fluent OneNote: Open navigation popup" for instant access ({remainingTips} reminders left)
+            <span>💡 Tip: Set a hotkey under Settings → Hotkeys → "Fluent OneNote: Open navigation popup" for instant access ({remainingTips} reminders left)</span>
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <span class="on-tip-guide-link" role="button" tabindex="0" on:click={() => showGuideModal = true}>⚡ Features Guide</span>
         </div>
     {/if}
 
@@ -622,7 +645,7 @@
         <span class="on-filter-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="2" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
         </span>
         <input 
@@ -661,6 +684,22 @@
                 </svg>
                 <span class="on-filter-btn-label">Current</span>
             {/if}
+        </button>
+
+        <!-- Features & Shortcuts Guide Trigger Button -->
+        <button 
+            type="button" 
+            class="on-btn-guide" 
+            on:mouseenter={handleGuideMouseEnter}
+            on:mouseleave={handleGuideMouseLeave}
+            on:click={() => { showGuideHoverPopover = false; showGuideModal = true; }}
+            title="Fluent OneNote Features & Shortcuts Guide"
+        >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
         </button>
     </div>
 
@@ -785,4 +824,151 @@
             </div>
         {/if}
     </div>
+
+    <!-- Quick Hover Guide Popover -->
+    {#if showGuideHoverPopover}
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div 
+            class="on-guide-hover-popover"
+            style="top: {guidePopoverY}px; left: {guidePopoverX}px;"
+            on:mouseenter={() => { if (guideHoverTimeout) clearTimeout(guideHoverTimeout); }}
+            on:mouseleave={handleGuideMouseLeave}
+        >
+            <div class="on-guide-popover-header">
+                <span class="on-guide-popover-title">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    FLUENT ONENOTE GUIDE
+                </span>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <span class="on-guide-popover-link" role="button" tabindex="0" on:click={() => { showGuideHoverPopover = false; showGuideModal = true; }}>
+                    Click for full guide
+                </span>
+            </div>
+            <div class="on-guide-popover-list">
+                <div class="on-guide-item">
+                    <span class="on-guide-key">🌐 All / 📓 Current Scope</span>
+                    <span class="on-guide-desc">Toggle search between all notebooks and current active notebook</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Cross-Pane Jump (→ / ←)</span>
+                    <span class="on-guide-desc">ArrowRight on section to jump to pages; ArrowLeft on page to return to section</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Background Tab Open</span>
+                    <span class="on-guide-desc">Middle-Click / Ctrl+Click / Ctrl+Enter opens note in new tab without closing popup</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Folder-Notes & Sub-Pages</span>
+                    <span class="on-guide-desc">Click title to open note; click chevron to expand/collapse nested sub-pages</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Quick Note (Ctrl + N)</span>
+                    <span class="on-guide-desc">Instantly create a new note inside the active section</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Physics Drag & Drop</span>
+                    <span class="on-guide-desc">Reorder notebooks, sections, and sibling pages with 60px rAF auto-scroll</span>
+                </div>
+                <div class="on-guide-item">
+                    <span class="on-guide-key">Right Click</span>
+                    <span class="on-guide-desc">Native context menus (Rename, Delete, New Note/Section)</span>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    <!-- Features & Shortcuts Full Guide Modal -->
+    {#if showGuideModal}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="on-guide-modal-backdrop" on:click={(e) => e.target === e.currentTarget && (showGuideModal = false)} role="presentation">
+            <div class="on-guide-modal-dialog" role="dialog" aria-modal="true" tabindex="-1">
+                <div class="on-guide-modal-header">
+                    <div class="on-guide-modal-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span>Fluent OneNote Features & Shortcuts Guide</span>
+                    </div>
+                    <span class="on-guide-modal-close" on:click={() => showGuideModal = false} role="button" tabindex="0" title="Close Guide">✕</span>
+                </div>
+                <div class="on-guide-modal-body">
+                    <!-- 1. Keyboard Shortcuts -->
+                    <div class="on-guide-section">
+                        <div class="on-guide-section-title">⚡ Navigation & Keyboard Shortcuts (快捷键与按键流)</div>
+                        <div class="on-guide-grid">
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">↑ / ↓</span> Item Traversal</div>
+                                <div class="on-guide-card-body">Navigate selection up and down in the active pane. In the search input, <kbd>↑</kbd> and <kbd>↓</kbd> traverse matches without losing input focus.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">→ / ←</span> Cross-Pane Focus & Sub-Pages</div>
+                                <div class="on-guide-card-body">Press <kbd>→</kbd> on a section card to jump focus across into Pages. Press <kbd>←</kbd> on any page to return to the exact section row. On Folder-Notes, <kbd>→</kbd> / <kbd>←</kbd> expands or collapses sub-pages.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Enter / Space</span> Open & Dismiss</div>
+                                <div class="on-guide-card-body">Instantly open the selected note in your active Obsidian editor and dismiss the navigation popup.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + Click / Middle-Click</span> Background Tab</div>
+                                <div class="on-guide-card-body">Middle-click, <kbd>Ctrl+Click</kbd>, or <kbd>Ctrl+Enter</kbd> opens the note in a new background tab <strong>without closing the popup</strong>, ideal for batch opening references.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Ctrl + N</span> Quick Note Creation</div>
+                                <div class="on-guide-card-body">Press <kbd>Ctrl+N</kbd> (or click <kbd>+ New Page</kbd>) to instantly create a new note inside the active section.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Delete / Backspace</span> Safe Trash Deletion</div>
+                                <div class="on-guide-card-body">Safely move note to trash with automatic child un-nesting protection. Deleting a parent Folder-Note promotes child notes to the section so data is never lost.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Search & Scope -->
+                    <div class="on-guide-section">
+                        <div class="on-guide-section-title">🔍 Fast Search & Scope Modes (全局与单笔记本搜索)</div>
+                        <div class="on-guide-grid">
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Auto Focus</span> Instant Typing & Full IME</div>
+                                <div class="on-guide-card-body">Popup automatically focuses the search bar on open. Guaranteed zero dropped keystrokes for Chinese, Japanese, and Korean IMEs (微信输入法, 微软拼音, 搜狗).</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">🌐 All / 📓 Current</span> One-Click Scope Toggle</div>
+                                <div class="on-guide-card-body">Click the toggle button in the search header to switch between <strong>Single Notebook Scoped Search</strong> (clean section badges) and <strong>Global Vault Search</strong> (composite <code>Notebook / Section</code> path badges).</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Escape</span> Progressive Clear / Close</div>
+                                <div class="on-guide-card-body">First press of <kbd>Escape</kbd> clears the search query; second press closes the navigation modal.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Hierarchy & Physics -->
+                    <div class="on-guide-section">
+                        <div class="on-guide-section-title">📁 Folder-Notes & Physics Engine (文件夹笔记与物理引擎)</div>
+                        <div class="on-guide-grid">
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Fusion</span> Folder-Note Architecture</div>
+                                <div class="on-guide-card-body">When a folder and a markdown note share the same name in a section, they fuse into a parent node. Click the title to open the note; click the chevron to expand/collapse sub-pages.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Physics DND</span> 60px rAF Auto-Scroll</div>
+                                <div class="on-guide-card-body">Drag & drop notebooks, sections, and sibling pages with 0ms visual latency. Approaching top or bottom boundaries smoothly auto-scrolls the list. Drag pages onto section cards to move files.</div>
+                            </div>
+                            <div class="on-guide-card">
+                                <div class="on-guide-card-header"><span class="on-guide-badge-pill">Right Click</span> Context Actions Menu</div>
+                                <div class="on-guide-card-body">Right-click any Notebook, Section, or Page to open native Obsidian context actions (Rename, Delete, New Note, New Section, Open in New Tab).</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
 </div>
