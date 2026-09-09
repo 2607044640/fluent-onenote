@@ -16,6 +16,10 @@ export interface GuideQuickItem {
 
 export const GUIDE_QUICK_ITEMS: GuideQuickItem[] = [
     {
+        key: "📁 Root Folder Scope",
+        desc: "Scans dedicated folder (default: 'OneNote') or entire vault if blank (Settings)"
+    },
+    {
         key: "🌐 All / 📓 Current Scope",
         desc: "Toggle search between all notebooks and current active notebook"
     },

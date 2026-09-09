@@ -4,6 +4,7 @@
     export let show: boolean = false;
     export let x: number = 0;
     export let y: number = 0;
+    export let rootFolder: string = "";
     export let onOpenFullGuide: () => void = () => {};
     export let onMouseEnter: () => void = () => {};
     export let onMouseLeave: () => void = () => {};
@@ -30,6 +31,10 @@
             <span class="on-guide-popover-link" role="button" tabindex="0" on:click={onOpenFullGuide}>
                 Click for full guide
             </span>
+        </div>
+        <div class="on-guide-scope-banner">
+            <span class="on-guide-scope-label">Root Scope:</span>
+            <span class="on-guide-scope-val">{rootFolder.trim() ? `📁 ${rootFolder.trim()}` : "🌐 Entire Vault"}</span>
         </div>
         <div class="on-guide-popover-list">
             {#each GUIDE_QUICK_ITEMS as item}

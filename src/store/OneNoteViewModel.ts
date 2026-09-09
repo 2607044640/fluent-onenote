@@ -1,5 +1,5 @@
 import { writable, derived, get, type Writable } from "svelte/store";
-import { App, Notice } from "obsidian";
+import { App, Notice, TFolder } from "obsidian";
 import type { NotebookInfo, SectionInfo, PageInfo } from "../types";
 import type FluentOneNotePlugin from "../main";
 import { DataService } from "../DataService";
@@ -444,9 +444,11 @@ export class OneNoteViewModel {
     // Helpers
     // =============================================
     private checkFolderExists(path: string): boolean {
-        if (path === "/") return true;
-        const file = this.app.vault.getAbstractFileByPath(path);
-        return !!file;
+        if (!path) return true;
+        const trimmed = path.trim().replace(/^\/+|\/+$/g, "");
+        if (trimmed === "" || trimmed === "/") return true;
+        const file = this.app.vault.getAbstractFileByPath(trimmed);
+        return file instanceof TFolder;
     }
 
     private findSectionByPath(list: SectionInfo[], path: string): SectionInfo | null {

@@ -81,7 +81,7 @@ For underlying architecture specifications, state management, API signatures, an
 
 Go to **Obsidian Settings -> Community Plugins -> Fluent OneNote**:
 
-1. **Root Folder Path**: Vault folder to act as notebook root (default: `OneNote`). Leave empty to scan entire vault.
+1. **Root Folder Path**: Vault folder to act as notebook root (default: `OneNote`). Folders within act as Notebooks, sub-folders as Sections. Leave empty (or `/`) to scan entire vault as notebooks.
 2. **Display Mode**: Choose between `Floating popup only` or `Both (sidebar + floating popup)`.
 3. **Global Search by Default**: Toggle whether the search popup defaults to searching across all notebooks or only the current notebook.
 4. **DOM Virtualization**: Optional viewport optimization for sections containing thousands of notes.

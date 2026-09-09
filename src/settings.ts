@@ -113,9 +113,9 @@ export class FluentOneNoteSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName("Root Folder Path")
-            .setDesc("The folder path to scan for OneNote style notebooks (e.g. 'OneNote/Original Game'). Leave empty to scan the entire vault.")
+            .setDesc("The base folder path scanned for OneNote-style notebooks. Dedicated folder mode (default: 'OneNote'): keeps notebooks neatly organized in a dedicated directory without mixing with daily notes or attachments. Vault root mode: leave empty (or '/') to scan your entire vault as notebooks.")
             .addText(text => text
-                .setPlaceholder("e.g. OneNote/Original Game")
+                .setPlaceholder("e.g. OneNote (or leave blank for entire vault)")
                 .setValue(this.plugin.settings.rootFolder)
                 .onChange(async (value) => {
                     this.plugin.settings.rootFolder = value.trim();

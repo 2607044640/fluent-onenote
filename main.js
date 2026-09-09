@@ -97,7 +97,7 @@ var VaultScanner = class {
    *         └── Pages (notes inside section, supporting multi-level sub-pages)
    */
   scanNotebooks(rootFolder) {
-    const rootPath = rootFolder.trim();
+    const rootPath = (rootFolder || "").trim().replace(/^\/+|\/+$/g, "");
     const rootAbstract = rootPath === "" ? this.app.vault.getRoot() : this.app.vault.getAbstractFileByPath(rootPath);
     if (!rootAbstract || !(rootAbstract instanceof import_obsidian2.TFolder)) {
       return [];
@@ -2911,6 +2911,10 @@ var PageTreeItem_default = PageTreeItem;
 // src/guideData.ts
 var GUIDE_QUICK_ITEMS = [
   {
+    key: "\u{1F4C1} Root Folder Scope",
+    desc: "Scans dedicated folder (default: 'OneNote') or entire vault if blank (Settings)"
+  },
+  {
     key: "\u{1F310} All / \u{1F4D3} Current Scope",
     desc: "Toggle search between all notebooks and current active notebook"
   },
@@ -3020,17 +3024,28 @@ var GUIDE_SECTIONS = [
 // src/OneNoteGuideHoverPopover.svelte
 function get_each_context3(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[6] = list[i];
+  child_ctx[7] = list[i];
   return child_ctx;
 }
 function create_if_block3(ctx) {
-  let div2;
+  let div3;
   let div0;
   let span0;
   let t1;
   let span1;
   let t3;
   let div1;
+  let span2;
+  let t5;
+  let span3;
+  let t6_value = (
+    /*rootFolder*/
+    ctx[3].trim() ? `\u{1F4C1} ${/*rootFolder*/
+    ctx[3].trim()}` : "\u{1F310} Entire Vault"
+  );
+  let t6;
+  let t7;
+  let div2;
   let mounted;
   let dispose;
   let each_value = ensure_array_like(GUIDE_QUICK_ITEMS);
@@ -3040,7 +3055,7 @@ function create_if_block3(ctx) {
   }
   return {
     c() {
-      div2 = element("div");
+      div3 = element("div");
       div0 = element("div");
       span0 = element("span");
       span0.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -3050,6 +3065,13 @@ function create_if_block3(ctx) {
       span1.textContent = "Click for full guide";
       t3 = space();
       div1 = element("div");
+      span2 = element("span");
+      span2.textContent = "Root Scope:";
+      t5 = space();
+      span3 = element("span");
+      t6 = text(t6_value);
+      t7 = space();
+      div2 = element("div");
       for (let i = 0; i < each_blocks.length; i += 1) {
         each_blocks[i].c();
       }
@@ -3058,32 +3080,41 @@ function create_if_block3(ctx) {
       attr(span1, "role", "button");
       attr(span1, "tabindex", "0");
       attr(div0, "class", "on-guide-popover-header");
-      attr(div1, "class", "on-guide-popover-list");
-      attr(div2, "class", "on-guide-hover-popover");
+      attr(span2, "class", "on-guide-scope-label");
+      attr(span3, "class", "on-guide-scope-val");
+      attr(div1, "class", "on-guide-scope-banner");
+      attr(div2, "class", "on-guide-popover-list");
+      attr(div3, "class", "on-guide-hover-popover");
       set_style(
-        div2,
+        div3,
         "top",
         /*y*/
         ctx[2] + "px"
       );
       set_style(
-        div2,
+        div3,
         "left",
         /*x*/
         ctx[1] + "px"
       );
     },
     m(target, anchor) {
-      insert(target, div2, anchor);
-      append(div2, div0);
+      insert(target, div3, anchor);
+      append(div3, div0);
       append(div0, span0);
       append(div0, t1);
       append(div0, span1);
-      append(div2, t3);
-      append(div2, div1);
+      append(div3, t3);
+      append(div3, div1);
+      append(div1, span2);
+      append(div1, t5);
+      append(div1, span3);
+      append(span3, t6);
+      append(div3, t7);
+      append(div3, div2);
       for (let i = 0; i < each_blocks.length; i += 1) {
         if (each_blocks[i]) {
-          each_blocks[i].m(div1, null);
+          each_blocks[i].m(div2, null);
         }
       }
       if (!mounted) {
@@ -3091,23 +3122,23 @@ function create_if_block3(ctx) {
           listen(span1, "click", function() {
             if (is_function(
               /*onOpenFullGuide*/
-              ctx[3]
-            ))
-              ctx[3].apply(this, arguments);
-          }),
-          listen(div2, "mouseenter", function() {
-            if (is_function(
-              /*onMouseEnter*/
               ctx[4]
             ))
               ctx[4].apply(this, arguments);
           }),
-          listen(div2, "mouseleave", function() {
+          listen(div3, "mouseenter", function() {
             if (is_function(
-              /*onMouseLeave*/
+              /*onMouseEnter*/
               ctx[5]
             ))
               ctx[5].apply(this, arguments);
+          }),
+          listen(div3, "mouseleave", function() {
+            if (is_function(
+              /*onMouseLeave*/
+              ctx[6]
+            ))
+              ctx[6].apply(this, arguments);
           })
         ];
         mounted = true;
@@ -3115,10 +3146,15 @@ function create_if_block3(ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
+      if (dirty & /*rootFolder*/
+      8 && t6_value !== (t6_value = /*rootFolder*/
+      ctx[3].trim() ? `\u{1F4C1} ${/*rootFolder*/
+      ctx[3].trim()}` : "\u{1F310} Entire Vault"))
+        set_data(t6, t6_value);
       if (dirty & /*y*/
       4) {
         set_style(
-          div2,
+          div3,
           "top",
           /*y*/
           ctx[2] + "px"
@@ -3127,7 +3163,7 @@ function create_if_block3(ctx) {
       if (dirty & /*x*/
       2) {
         set_style(
-          div2,
+          div3,
           "left",
           /*x*/
           ctx[1] + "px"
@@ -3136,7 +3172,7 @@ function create_if_block3(ctx) {
     },
     d(detaching) {
       if (detaching) {
-        detach(div2);
+        detach(div3);
       }
       destroy_each(each_blocks, detaching);
       mounted = false;
@@ -3155,11 +3191,11 @@ function create_each_block3(ctx) {
       div = element("div");
       span0 = element("span");
       span0.textContent = `${/*item*/
-      ctx[6].key}`;
+      ctx[7].key}`;
       t1 = space();
       span1 = element("span");
       span1.textContent = `${/*item*/
-      ctx[6].desc}`;
+      ctx[7].desc}`;
       t3 = space();
       attr(span0, "class", "on-guide-key");
       attr(span1, "class", "on-guide-desc");
@@ -3229,6 +3265,7 @@ function instance5($$self, $$props, $$invalidate) {
   let { show = false } = $$props;
   let { x = 0 } = $$props;
   let { y = 0 } = $$props;
+  let { rootFolder = "" } = $$props;
   let { onOpenFullGuide = () => {
   } } = $$props;
   let { onMouseEnter = () => {
@@ -3242,14 +3279,16 @@ function instance5($$self, $$props, $$invalidate) {
       $$invalidate(1, x = $$props2.x);
     if ("y" in $$props2)
       $$invalidate(2, y = $$props2.y);
+    if ("rootFolder" in $$props2)
+      $$invalidate(3, rootFolder = $$props2.rootFolder);
     if ("onOpenFullGuide" in $$props2)
-      $$invalidate(3, onOpenFullGuide = $$props2.onOpenFullGuide);
+      $$invalidate(4, onOpenFullGuide = $$props2.onOpenFullGuide);
     if ("onMouseEnter" in $$props2)
-      $$invalidate(4, onMouseEnter = $$props2.onMouseEnter);
+      $$invalidate(5, onMouseEnter = $$props2.onMouseEnter);
     if ("onMouseLeave" in $$props2)
-      $$invalidate(5, onMouseLeave = $$props2.onMouseLeave);
+      $$invalidate(6, onMouseLeave = $$props2.onMouseLeave);
   };
-  return [show, x, y, onOpenFullGuide, onMouseEnter, onMouseLeave];
+  return [show, x, y, rootFolder, onOpenFullGuide, onMouseEnter, onMouseLeave];
 }
 var OneNoteGuideHoverPopover = class extends SvelteComponent {
   constructor(options) {
@@ -3258,9 +3297,10 @@ var OneNoteGuideHoverPopover = class extends SvelteComponent {
       show: 0,
       x: 1,
       y: 2,
-      onOpenFullGuide: 3,
-      onMouseEnter: 4,
-      onMouseLeave: 5
+      rootFolder: 3,
+      onOpenFullGuide: 4,
+      onMouseEnter: 5,
+      onMouseLeave: 6
     });
   }
 };
@@ -4205,10 +4245,13 @@ var _OneNoteViewModel = class _OneNoteViewModel {
   // Helpers
   // =============================================
   checkFolderExists(path) {
-    if (path === "/")
+    if (!path)
       return true;
-    const file = this.app.vault.getAbstractFileByPath(path);
-    return !!file;
+    const trimmed = path.trim().replace(/^\/+|\/+$/g, "");
+    if (trimmed === "" || trimmed === "/")
+      return true;
+    const file = this.app.vault.getAbstractFileByPath(trimmed);
+    return file instanceof import_obsidian5.TFolder;
   }
   findSectionByPath(list, path) {
     for (const sec of list) {
@@ -4397,12 +4440,12 @@ var OneNoteViewModel = _OneNoteViewModel;
 var { window: window_1 } = globals;
 function get_each_context5(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[58] = list[i];
+  child_ctx[59] = list[i];
   return child_ctx;
 }
 function get_each_context_12(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[61] = list[i];
+  child_ctx[62] = list[i];
   return child_ctx;
 }
 function create_else_block(ctx) {
@@ -4454,33 +4497,33 @@ function create_else_block(ctx) {
       ),
       notebooks: (
         /*$notebooks*/
-        ctx[12]
+        ctx[13]
       ),
       onSelect: (
         /*func*/
-        ctx[41]
+        ctx[42]
       ),
       onNewNotebook: (
         /*handleQuickNewNotebook*/
-        ctx[28]
+        ctx[29]
       ),
       onClose: (
         /*func_1*/
-        ctx[42]
+        ctx[43]
       )
     }
   });
   let if_block0 = (
     /*$sections*/
-    ctx[13].length === 0 && create_if_block_5(ctx)
+    ctx[14].length === 0 && create_if_block_5(ctx)
   );
   let each_value_1 = ensure_array_like(
     /*$sections*/
-    ctx[13]
+    ctx[14]
   );
   const get_key = (ctx2) => (
     /*sec*/
-    ctx2[61].folderPath
+    ctx2[62].folderPath
   );
   for (let i = 0; i < each_value_1.length; i += 1) {
     let child_ctx = get_each_context_12(ctx, each_value_1, i);
@@ -4580,7 +4623,7 @@ function create_else_block(ctx) {
       append(div0, button2);
       append(div0, t8);
       mount_component(notebookpopover, div0, null);
-      ctx[43](div0);
+      ctx[44](div0);
       append(div2, t9);
       append(div2, div1);
       if (if_block0)
@@ -4607,43 +4650,43 @@ function create_else_block(ctx) {
             button0,
             "click",
             /*toggleNotebookDropdown*/
-            ctx[21]
+            ctx[22]
           ),
           listen(
             button1,
             "click",
             /*click_handler*/
-            ctx[39]
+            ctx[40]
           ),
           listen(
             button2,
             "mouseenter",
             /*handleGuideMouseEnter*/
-            ctx[19]
+            ctx[20]
           ),
           listen(
             button2,
             "mouseleave",
             /*handleGuideMouseLeave*/
-            ctx[20]
+            ctx[21]
           ),
           listen(
             button2,
             "click",
             /*click_handler_1*/
-            ctx[40]
+            ctx[41]
           ),
           listen(
             button3,
             "click",
             /*click_handler_2*/
-            ctx[44]
+            ctx[45]
           ),
           listen(
             div4,
             "scroll",
             /*scroll_handler*/
-            ctx[45]
+            ctx[46]
           )
         ];
         mounted = true;
@@ -4672,21 +4715,21 @@ function create_else_block(ctx) {
         notebookpopover_changes.show = /*showNotebookDropdown*/
         ctx2[3];
       if (dirty[0] & /*$notebooks*/
-      4096)
+      8192)
         notebookpopover_changes.notebooks = /*$notebooks*/
-        ctx2[12];
+        ctx2[13];
       if (dirty[0] & /*showNotebookDropdown*/
       8)
         notebookpopover_changes.onSelect = /*func*/
-        ctx2[41];
+        ctx2[42];
       if (dirty[0] & /*showNotebookDropdown*/
       8)
         notebookpopover_changes.onClose = /*func_1*/
-        ctx2[42];
+        ctx2[43];
       notebookpopover.$set(notebookpopover_changes);
       if (
         /*$sections*/
-        ctx2[13].length === 0
+        ctx2[14].length === 0
       ) {
         if (if_block0) {
         } else {
@@ -4699,10 +4742,10 @@ function create_else_block(ctx) {
         if_block0 = null;
       }
       if (dirty[0] & /*$sections*/
-      8192) {
+      16384) {
         each_value_1 = ensure_array_like(
           /*$sections*/
-          ctx2[13]
+          ctx2[14]
         );
         group_outros();
         each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx2, each_value_1, each_1_lookup, div1, outro_and_destroy_block, create_each_block_12, null, get_each_context_12);
@@ -4754,7 +4797,7 @@ function create_else_block(ctx) {
         detach(div5);
       }
       destroy_component(notebookpopover);
-      ctx[43](null);
+      ctx[44](null);
       if (if_block0)
         if_block0.d();
       for (let i = 0; i < each_blocks.length; i += 1) {
@@ -4851,7 +4894,7 @@ function create_each_block_12(key_1, ctx) {
   let current;
   sectiontreeitem = new SectionTreeItem_default({ props: { sec: (
     /*sec*/
-    ctx[61]
+    ctx[62]
   ) } });
   return {
     key: key_1,
@@ -4870,9 +4913,9 @@ function create_each_block_12(key_1, ctx) {
       ctx = new_ctx;
       const sectiontreeitem_changes = {};
       if (dirty[0] & /*$sections*/
-      8192)
+      16384)
         sectiontreeitem_changes.sec = /*sec*/
-        ctx[61];
+        ctx[62];
       sectiontreeitem.$set(sectiontreeitem_changes);
     },
     i(local) {
@@ -4998,7 +5041,7 @@ function create_else_block_1(ctx) {
   );
   const get_key = (ctx2) => (
     /*page*/
-    ctx2[58].filepath
+    ctx2[59].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context5(ctx, each_value, i);
@@ -5054,7 +5097,7 @@ function create_else_block_1(ctx) {
         if_block0 = null;
       }
       if (dirty[0] & /*visibleRange, openPage, handlePageAuxClick, handlePageContextMenu*/
-      58721280) {
+      117441536) {
         each_value = ensure_array_like(
           /*visibleRange*/
           ctx2[10].pages
@@ -5171,20 +5214,20 @@ function create_each_block5(key_1, ctx) {
     props: {
       page: (
         /*page*/
-        ctx[58]
+        ctx[59]
       ),
       depth: 0,
       onClick: (
         /*openPage*/
-        ctx[23]
+        ctx[24]
       ),
       onAuxClick: (
         /*handlePageAuxClick*/
-        ctx[24]
+        ctx[25]
       ),
       onContextMenu: (
         /*handlePageContextMenu*/
-        ctx[25]
+        ctx[26]
       )
     }
   });
@@ -5207,7 +5250,7 @@ function create_each_block5(key_1, ctx) {
       if (dirty[0] & /*visibleRange*/
       1024)
         pagetreeitem_changes.page = /*page*/
-        ctx[58];
+        ctx[59];
       pagetreeitem.$set(pagetreeitem_changes);
     },
     i(local) {
@@ -5275,8 +5318,8 @@ function create_fragment7(ctx) {
   const if_block_creators = [create_if_block5, create_else_block];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
-    if (!/*rootFolderExists*/
-    ctx2[18])
+    if (!/*$rootFolderExists*/
+    ctx2[12])
       return 0;
     return 1;
   }
@@ -5296,17 +5339,21 @@ function create_fragment7(ctx) {
         /*guidePopoverY*/
         ctx[8]
       ),
+      rootFolder: (
+        /*rootFolder*/
+        ctx[0]
+      ),
       onOpenFullGuide: (
         /*func_2*/
-        ctx[46]
+        ctx[47]
       ),
       onMouseEnter: (
         /*func_3*/
-        ctx[47]
+        ctx[48]
       ),
       onMouseLeave: (
         /*handleGuideMouseLeave*/
-        ctx[20]
+        ctx[21]
       )
     }
   });
@@ -5318,7 +5365,7 @@ function create_fragment7(ctx) {
       ),
       onClose: (
         /*func_4*/
-        ctx[48]
+        ctx[49]
       )
     }
   });
@@ -5345,13 +5392,32 @@ function create_fragment7(ctx) {
           window_1,
           "click",
           /*handleWindowClick*/
-          ctx[22]
+          ctx[23]
         );
         mounted = true;
       }
     },
     p(ctx2, dirty) {
-      if_block.p(ctx2, dirty);
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type(ctx2, dirty);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block.c();
+        } else {
+          if_block.p(ctx2, dirty);
+        }
+        transition_in(if_block, 1);
+        if_block.m(div, t0);
+      }
       const onenoteguidehoverpopover_changes = {};
       if (dirty[0] & /*showGuideHoverPopover*/
       64)
@@ -5365,14 +5431,18 @@ function create_fragment7(ctx) {
       256)
         onenoteguidehoverpopover_changes.y = /*guidePopoverY*/
         ctx2[8];
+      if (dirty[0] & /*rootFolder*/
+      1)
+        onenoteguidehoverpopover_changes.rootFolder = /*rootFolder*/
+        ctx2[0];
       if (dirty[0] & /*showGuideHoverPopover, showGuideModal*/
       96)
         onenoteguidehoverpopover_changes.onOpenFullGuide = /*func_2*/
-        ctx2[46];
+        ctx2[47];
       if (dirty[0] & /*guideHoverTimeout*/
       512)
         onenoteguidehoverpopover_changes.onMouseEnter = /*func_3*/
-        ctx2[47];
+        ctx2[48];
       onenoteguidehoverpopover.$set(onenoteguidehoverpopover_changes);
       const onenoteguidemodal_changes = {};
       if (dirty[0] & /*showGuideModal*/
@@ -5382,7 +5452,7 @@ function create_fragment7(ctx) {
       if (dirty[0] & /*showGuideModal*/
       32)
         onenoteguidemodal_changes.onClose = /*func_4*/
-        ctx2[48];
+        ctx2[49];
       onenoteguidemodal.$set(onenoteguidemodal_changes);
     },
     i(local) {
@@ -5421,6 +5491,7 @@ function instance7($$self, $$props, $$invalidate) {
   let visibleRange;
   let $selectedNotebook;
   let $selectedSection;
+  let $rootFolderExists;
   let $notebooks;
   let $sections;
   let { app } = $$props;
@@ -5439,15 +5510,16 @@ function instance7($$self, $$props, $$invalidate) {
   const vm = new OneNoteViewModel(app, plugin, dataService, rootFolder, initialExpandedPaths, initialSelectedSectionPath);
   setContext("vm", vm);
   const notebooks = vm.notebooks;
-  component_subscribe($$self, notebooks, (value) => $$invalidate(12, $notebooks = value));
+  component_subscribe($$self, notebooks, (value) => $$invalidate(13, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
   component_subscribe($$self, selectedNotebook, (value) => $$invalidate(11, $selectedNotebook = value));
   const sections = vm.sections;
-  component_subscribe($$self, sections, (value) => $$invalidate(13, $sections = value));
+  component_subscribe($$self, sections, (value) => $$invalidate(14, $sections = value));
   const selectedSection = vm.selectedSection;
   component_subscribe($$self, selectedSection, (value) => $$invalidate(2, $selectedSection = value));
   const activePagePath = vm.activePagePath;
   const rootFolderExists = vm.rootFolderExists;
+  component_subscribe($$self, rootFolderExists, (value) => $$invalidate(12, $rootFolderExists = value));
   const draggedItemId = vm.draggedItemId;
   const dragOverId = vm.dragOverId;
   const dragPosition = vm.dragPosition;
@@ -5624,30 +5696,30 @@ function instance7($$self, $$props, $$invalidate) {
   const func_4 = () => $$invalidate(5, showGuideModal = false);
   $$self.$$set = ($$props2) => {
     if ("app" in $$props2)
-      $$invalidate(29, app = $$props2.app);
+      $$invalidate(30, app = $$props2.app);
     if ("plugin" in $$props2)
-      $$invalidate(30, plugin = $$props2.plugin);
+      $$invalidate(31, plugin = $$props2.plugin);
     if ("dataService" in $$props2)
-      $$invalidate(31, dataService = $$props2.dataService);
+      $$invalidate(32, dataService = $$props2.dataService);
     if ("rootFolder" in $$props2)
       $$invalidate(0, rootFolder = $$props2.rootFolder);
     if ("enableVirtualization" in $$props2)
-      $$invalidate(32, enableVirtualization = $$props2.enableVirtualization);
+      $$invalidate(33, enableVirtualization = $$props2.enableVirtualization);
     if ("initialExpandedPaths" in $$props2)
-      $$invalidate(33, initialExpandedPaths = $$props2.initialExpandedPaths);
+      $$invalidate(34, initialExpandedPaths = $$props2.initialExpandedPaths);
     if ("initialSelectedSectionPath" in $$props2)
-      $$invalidate(34, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
+      $$invalidate(35, initialSelectedSectionPath = $$props2.initialSelectedSectionPath);
     if ("onExpandedChanged" in $$props2)
-      $$invalidate(35, onExpandedChanged = $$props2.onExpandedChanged);
+      $$invalidate(36, onExpandedChanged = $$props2.onExpandedChanged);
     if ("onSectionSelectedChanged" in $$props2)
-      $$invalidate(36, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
+      $$invalidate(37, onSectionSelectedChanged = $$props2.onSectionSelectedChanged);
     if ("onPageOpened" in $$props2)
-      $$invalidate(37, onPageOpened = $$props2.onPageOpened);
+      $$invalidate(38, onPageOpened = $$props2.onPageOpened);
   };
   $$self.$$.update = () => {
     if ($$self.$$.dirty[0] & /*$selectedSection, scrollTop*/
     6 | $$self.$$.dirty[1] & /*enableVirtualization*/
-    2) {
+    4) {
       $:
         $$invalidate(10, visibleRange = (() => {
           const pages = $selectedSection ? $selectedSection.pages : [];
@@ -5672,16 +5744,16 @@ function instance7($$self, $$props, $$invalidate) {
     }
     if ($$self.$$.dirty[0] & /*rootFolder*/
     1 | $$self.$$.dirty[1] & /*vm*/
-    128) {
+    256) {
       $:
         if (rootFolder !== void 0) {
-          $$invalidate(38, vm.rootFolder = rootFolder, vm);
+          $$invalidate(39, vm.rootFolder = rootFolder, vm);
           vm.loadNotebooks();
         }
     }
     if ($$self.$$.dirty[0] & /*$selectedSection*/
     4 | $$self.$$.dirty[1] & /*onSectionSelectedChanged*/
-    32) {
+    64) {
       $: {
         if ($selectedSection) {
           onSectionSelectedChanged($selectedSection.folderPath);
@@ -5702,6 +5774,7 @@ function instance7($$self, $$props, $$invalidate) {
     guideHoverTimeout,
     visibleRange,
     $selectedNotebook,
+    $rootFolderExists,
     $notebooks,
     $sections,
     notebooks,
@@ -5751,16 +5824,16 @@ var OneNoteView = class extends SvelteComponent {
       create_fragment7,
       safe_not_equal,
       {
-        app: 29,
-        plugin: 30,
-        dataService: 31,
+        app: 30,
+        plugin: 31,
+        dataService: 32,
         rootFolder: 0,
-        enableVirtualization: 32,
-        initialExpandedPaths: 33,
-        initialSelectedSectionPath: 34,
-        onExpandedChanged: 35,
-        onSectionSelectedChanged: 36,
-        onPageOpened: 37
+        enableVirtualization: 33,
+        initialExpandedPaths: 34,
+        initialSelectedSectionPath: 35,
+        onExpandedChanged: 36,
+        onSectionSelectedChanged: 37,
+        onPageOpened: 38
       },
       null,
       [-1, -1, -1]
@@ -6860,7 +6933,7 @@ function create_fragment8(ctx) {
   let div2;
   let t0;
   let div0;
-  let span;
+  let span0;
   let t1;
   let input;
   let input_placeholder_value;
@@ -6869,14 +6942,23 @@ function create_fragment8(ctx) {
   let button0;
   let button0_title_value;
   let t4;
-  let button1;
+  let span1;
+  let t5_value = (
+    /*rootFolder*/
+    ctx[0].trim() ? `\u{1F4C1} ${/*rootFolder*/
+    ctx[0].trim()}` : "\u{1F310} Vault"
+  );
   let t5;
+  let span1_title_value;
+  let t6;
+  let button1;
+  let t7;
   let div1;
   let current_block_type_index;
   let if_block3;
-  let t6;
+  let t8;
   let onenoteguidehoverpopover;
-  let t7;
+  let t9;
   let onenoteguidemodal;
   let current;
   let mounted;
@@ -6923,6 +7005,10 @@ function create_fragment8(ctx) {
         /*guidePopoverY*/
         ctx[12]
       ),
+      rootFolder: (
+        /*rootFolder*/
+        ctx[0]
+      ),
       onOpenFullGuide: (
         /*func_1*/
         ctx[70]
@@ -6956,8 +7042,8 @@ function create_fragment8(ctx) {
         if_block0.c();
       t0 = space();
       div0 = element("div");
-      span = element("span");
-      span.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="2" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+      span0 = element("span");
+      span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="2" y1="21" x2="16.65" y2="16.65"></line></svg>`;
       t1 = space();
       input = element("input");
       t2 = space();
@@ -6967,16 +7053,19 @@ function create_fragment8(ctx) {
       button0 = element("button");
       if_block2.c();
       t4 = space();
+      span1 = element("span");
+      t5 = text(t5_value);
+      t6 = space();
       button1 = element("button");
       button1.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
-      t5 = space();
+      t7 = space();
       div1 = element("div");
       if_block3.c();
-      t6 = space();
+      t8 = space();
       create_component(onenoteguidehoverpopover.$$.fragment);
-      t7 = space();
+      t9 = space();
       create_component(onenoteguidemodal.$$.fragment);
-      attr(span, "class", "on-filter-icon");
+      attr(span0, "class", "on-filter-icon");
       attr(input, "type", "text");
       attr(input, "class", "on-filter-input");
       attr(input, "placeholder", input_placeholder_value = /*$searchAllNotebooks*/
@@ -6999,6 +7088,10 @@ function create_fragment8(ctx) {
         /*$searchAllNotebooks*/
         ctx[22]
       );
+      attr(span1, "class", "on-root-scope-badge");
+      attr(span1, "title", span1_title_value = /*rootFolder*/
+      ctx[0].trim() ? `Active Root: "${/*rootFolder*/
+      ctx[0].trim()}" (Change in Plugin Settings)` : "Active Root: Entire Vault (Change in Plugin Settings)");
       attr(button1, "type", "button");
       attr(button1, "class", "on-btn-guide");
       attr(button1, "title", "Fluent OneNote Features & Shortcuts Guide");
@@ -7015,7 +7108,7 @@ function create_fragment8(ctx) {
         if_block0.m(div2, null);
       append(div2, t0);
       append(div2, div0);
-      append(div0, span);
+      append(div0, span0);
       append(div0, t1);
       append(div0, input);
       set_input_value(
@@ -7031,13 +7124,16 @@ function create_fragment8(ctx) {
       append(div0, button0);
       if_block2.m(button0, null);
       append(div0, t4);
+      append(div0, span1);
+      append(span1, t5);
+      append(div0, t6);
       append(div0, button1);
-      append(div2, t5);
+      append(div2, t7);
       append(div2, div1);
       if_blocks[current_block_type_index].m(div1, null);
-      append(div2, t6);
+      append(div2, t8);
       mount_component(onenoteguidehoverpopover, div2, null);
-      append(div2, t7);
+      append(div2, t9);
       mount_component(onenoteguidemodal, div2, null);
       ctx[73](div2);
       current = true;
@@ -7170,6 +7266,17 @@ function create_fragment8(ctx) {
           ctx2[22]
         );
       }
+      if ((!current || dirty[0] & /*rootFolder*/
+      1) && t5_value !== (t5_value = /*rootFolder*/
+      ctx2[0].trim() ? `\u{1F4C1} ${/*rootFolder*/
+      ctx2[0].trim()}` : "\u{1F310} Vault"))
+        set_data(t5, t5_value);
+      if (!current || dirty[0] & /*rootFolder*/
+      1 && span1_title_value !== (span1_title_value = /*rootFolder*/
+      ctx2[0].trim() ? `Active Root: "${/*rootFolder*/
+      ctx2[0].trim()}" (Change in Plugin Settings)` : "Active Root: Entire Vault (Change in Plugin Settings)")) {
+        attr(span1, "title", span1_title_value);
+      }
       let previous_block_index = current_block_type_index;
       current_block_type_index = select_block_type_1(ctx2, dirty);
       if (current_block_type_index === previous_block_index) {
@@ -7203,6 +7310,10 @@ function create_fragment8(ctx) {
       4096)
         onenoteguidehoverpopover_changes.y = /*guidePopoverY*/
         ctx2[12];
+      if (dirty[0] & /*rootFolder*/
+      1)
+        onenoteguidehoverpopover_changes.rootFolder = /*rootFolder*/
+        ctx2[0];
       if (dirty[0] & /*showGuideHoverPopover, showGuideModal*/
       1536)
         onenoteguidehoverpopover_changes.onOpenFullGuide = /*func_1*/
@@ -8154,7 +8265,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     new import_obsidian9.Setting(containerEl).setName("Folder Navigation").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Root Folder Path").setDesc("The folder path to scan for OneNote style notebooks (e.g. 'OneNote/Original Game'). Leave empty to scan the entire vault.").addText((text2) => text2.setPlaceholder("e.g. OneNote/Original Game").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
+    new import_obsidian9.Setting(containerEl).setName("Root Folder Path").setDesc("The base folder path scanned for OneNote-style notebooks. Dedicated folder mode (default: 'OneNote'): keeps notebooks neatly organized in a dedicated directory without mixing with daily notes or attachments. Vault root mode: leave empty (or '/') to scan your entire vault as notebooks.").addText((text2) => text2.setPlaceholder("e.g. OneNote (or leave blank for entire vault)").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
       this.plugin.settings.rootFolder = value.trim();
       await this.plugin.saveSettings();
     }));

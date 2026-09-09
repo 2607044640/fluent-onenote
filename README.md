@@ -99,7 +99,7 @@ Whenever you need to switch notes or capture a thought, press your hotkey, brows
 
 Go to **Obsidian Settings** -> **Community Plugins** -> **Fluent OneNote**:
 
-- **Root Folder Path**: The root vault folder containing your notebooks (default: `OneNote`). Leave blank to scan your entire vault.
+- **Root Folder Path**: The base directory scanned for OneNote-style notebooks (default: `OneNote`). Folders within act as Notebooks, sub-folders as Sections. Leave empty (or `/`) to scan your entire vault as notebooks.
 - **Display Mode**: Toggle between `Floating popup only` and `Both (sidebar + floating popup)`.
 - **Global Search by Default**: Toggle whether the search popup defaults to searching across all notebooks or only the current notebook.
 - **DOM Virtualization**: Optional viewport optimization for sections containing large numbers of notes.

@@ -11,7 +11,7 @@ export class VaultScanner {
      *         └── Pages (notes inside section, supporting multi-level sub-pages)
      */
     scanNotebooks(rootFolder: string): NotebookInfo[] {
-        const rootPath = rootFolder.trim();
+        const rootPath = (rootFolder || "").trim().replace(/^\/+|\/+$/g, "");
         const rootAbstract = rootPath === "" ? this.app.vault.getRoot() : this.app.vault.getAbstractFileByPath(rootPath);
         
         if (!rootAbstract || !(rootAbstract instanceof TFolder)) {

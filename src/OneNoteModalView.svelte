@@ -688,6 +688,14 @@
             {/if}
         </button>
 
+        <!-- Root Folder Scope Indicator & Tip -->
+        <span 
+            class="on-root-scope-badge" 
+            title={rootFolder.trim() ? `Active Root: "${rootFolder.trim()}" (Change in Plugin Settings)` : "Active Root: Entire Vault (Change in Plugin Settings)"}
+        >
+            {rootFolder.trim() ? `📁 ${rootFolder.trim()}` : "🌐 Vault"}
+        </span>
+
         <!-- Features & Shortcuts Guide Trigger Button -->
         <button 
             type="button" 
@@ -813,6 +821,7 @@
         show={showGuideHoverPopover}
         x={guidePopoverX}
         y={guidePopoverY}
+        {rootFolder}
         onOpenFullGuide={() => { showGuideHoverPopover = false; showGuideModal = true; }}
         onMouseEnter={() => { if (guideHoverTimeout) clearTimeout(guideHoverTimeout); }}
         onMouseLeave={handleGuideMouseLeave}

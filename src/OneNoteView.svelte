@@ -253,7 +253,7 @@
 <svelte:window on:click={handleWindowClick} />
 
 <div class="on-container">
-    {#if !rootFolderExists}
+    {#if !$rootFolderExists}
         <div class="on-error-container">
             <div class="on-error-header">
                 <span class="on-error-icon">⚠️</span>
@@ -369,6 +369,7 @@
         show={showGuideHoverPopover}
         x={guidePopoverX}
         y={guidePopoverY}
+        {rootFolder}
         onOpenFullGuide={() => { showGuideHoverPopover = false; showGuideModal = true; }}
         onMouseEnter={() => { if (guideHoverTimeout) clearTimeout(guideHoverTimeout); }}
         onMouseLeave={handleGuideMouseLeave}
