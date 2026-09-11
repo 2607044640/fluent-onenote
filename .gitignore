@@ -9,3 +9,6 @@ desktop.ini
 
 # Private development references
 DEVELOPMENT.md
+
+# Local runtime data
+data.json
