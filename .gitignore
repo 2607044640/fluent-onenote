@@ -7,6 +7,13 @@ Thumbs.db
 desktop.ini
 *.log
 
+# Environment and secrets
+.env
+.env*
+*.env
+*.pem
+*.key
+
 # Private development references
 DEVELOPMENT.md
 

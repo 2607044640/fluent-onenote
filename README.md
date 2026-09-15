@@ -91,6 +91,7 @@ Whenever you need to switch notes or capture a thought, press your hotkey, brows
 | **Search Notes** | Type any key | Search across all notes with instant IME support |
 | **Clear Search / Close** | `Escape` | First press clears query; second press closes modal |
 | **Delete Note Safely** | `Delete` / `Backspace` (on Page) | Move note to trash with sub-page protection |
+| **Inline Rename** | `F2` (hover/focus) / Right-Click -> Rename | Edit notebook, section, or note name inline |
 | **Context Menu** | `Right-Click` on any item | Native actions (Rename, Delete, Create Section/Note) |
 
 ---
