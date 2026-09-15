@@ -1,8 +1,83 @@
 import { App, Menu, Notice, TFile, TFolder } from "obsidian";
-import { type SectionInfo, type PageInfo } from "./types";
+import { type SectionInfo, type PageInfo, type NotebookInfo } from "./types";
 import { DEFAULT_UNTITLED_NOTE_NAME, DEFAULT_NEW_SECTION_NAME } from "./constants";
 
 export class ContextMenuHelper {
+
+    /**
+     * Show right-click context menu for a Notebook (folder)
+     */
+    static showNotebookContextMenu(
+        e: MouseEvent,
+        app: App,
+        nb: NotebookInfo,
+        onRefresh: () => void,
+        onRename?: () => void
+    ) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const menu = new Menu();
+
+        // 1. Rename Notebook
+        menu.addItem((item) => {
+            item.setTitle("Rename notebook")
+                .setIcon("edit-3")
+                .onClick(() => {
+                    if (onRename) onRename();
+                });
+        });
+
+        // 2. New Section inside Notebook
+        menu.addItem((item) => {
+            item.setTitle("New section")
+                .setIcon("folder-plus")
+                .onClick(async () => {
+                    await ContextMenuHelper.createNewSection(app, nb.folderPath);
+                    onRefresh();
+                });
+        });
+
+        menu.addSeparator();
+
+        // 3. Copy Notebook Path
+        menu.addItem((item) => {
+            item.setTitle("Copy notebook path")
+                .setIcon("link")
+                .onClick(() => {
+                    void navigator.clipboard.writeText(nb.folderPath);
+                    new Notice("Copied notebook path to clipboard");
+                });
+        });
+
+        // 4. Show in System Explorer
+        menu.addItem((item) => {
+            item.setTitle("Show in system explorer")
+                .setIcon("folder-open")
+                .onClick(() => {
+                    const abstractFile = app.vault.getAbstractFileByPath(nb.folderPath);
+                    if (abstractFile) {
+                        (app as unknown as { showInFolder: (path: string) => void }).showInFolder(abstractFile.path);
+                    }
+                });
+        });
+
+        // 5. Delete Notebook (move folder & contents safely to system trash)
+        menu.addItem((item) => {
+            item.setTitle("Delete notebook")
+                .setIcon("trash")
+                .onClick(async () => {
+                    const abstractFile = app.vault.getAbstractFileByPath(nb.folderPath);
+                    if (abstractFile && abstractFile instanceof TFolder) {
+                        await app.fileManager.trashFile(abstractFile);
+                        new Notice(`Moved notebook "${nb.name}" to trash`);
+                        onRefresh();
+                    }
+                });
+        });
+
+        menu.showAtMouseEvent(e);
+    }
 
     /**
      * Show right-click context menu for a Section (folder)
@@ -11,14 +86,24 @@ export class ContextMenuHelper {
         e: MouseEvent, 
         app: App, 
         sec: SectionInfo,
-        onRefresh: () => void
+        onRefresh: () => void,
+        onRename?: () => void
     ) {
         e.preventDefault();
         e.stopPropagation();
 
         const menu = new Menu();
 
-        // 1. New Page inside Section
+        // 1. Rename Section
+        menu.addItem((item) => {
+            item.setTitle("Rename section")
+                .setIcon("edit-3")
+                .onClick(() => {
+                    if (onRename) onRename();
+                });
+        });
+
+        // 2. New Page inside Section
         menu.addItem((item) => {
             item.setTitle("New page")
                 .setIcon("file-plus")
@@ -28,7 +113,7 @@ export class ContextMenuHelper {
                 });
         });
 
-        // 2. New Section (Sub-section)
+        // 3. New Section (Sub-section)
         menu.addItem((item) => {
             item.setTitle("New section")
                 .setIcon("folder-plus")
@@ -40,7 +125,7 @@ export class ContextMenuHelper {
 
         menu.addSeparator();
 
-        // 3. Copy Section Path
+        // 4. Copy Section Path
         menu.addItem((item) => {
             item.setTitle("Copy section path")
                 .setIcon("link")
@@ -50,7 +135,7 @@ export class ContextMenuHelper {
                 });
         });
 
-        // 4. Show in System Explorer
+        // 5. Show in System Explorer
         menu.addItem((item) => {
             item.setTitle("Show in system explorer")
                 .setIcon("folder-open")
@@ -62,7 +147,7 @@ export class ContextMenuHelper {
                 });
         });
 
-        // 5. Delete Section (move folder & contents safely to system trash)
+        // 6. Delete Section (move folder & contents safely to system trash)
         menu.addItem((item) => {
             item.setTitle("Delete section")
                 .setIcon("trash")
@@ -87,14 +172,24 @@ export class ContextMenuHelper {
         app: App, 
         page: PageInfo,
         secFolderPath: string,
-        onRefresh: () => void
+        onRefresh: () => void,
+        onRename?: () => void
     ) {
         e.preventDefault();
         e.stopPropagation();
 
         const menu = new Menu();
 
-        // 1. New Sub Page (Create child note under this page)
+        // 1. Rename Note
+        menu.addItem((item) => {
+            item.setTitle("Rename note")
+                .setIcon("edit-3")
+                .onClick(() => {
+                    if (onRename) onRename();
+                });
+        });
+
+        // 2. New Sub Page (Create child note under this page)
         menu.addItem((item) => {
             item.setTitle("New sub page")
                 .setIcon("file-plus")
@@ -104,7 +199,7 @@ export class ContextMenuHelper {
                 });
         });
 
-        // 2. New Page in same Section
+        // 3. New Page in same Section
         if (secFolderPath) {
             menu.addItem((item) => {
                 item.setTitle("New page in section")
@@ -116,7 +211,7 @@ export class ContextMenuHelper {
             });
         }
 
-        // 3. Copy Obsidian Link [[Page Name]]
+        // 4. Copy Obsidian Link [[Page Name]]
         menu.addItem((item) => {
             item.setTitle("Copy Obsidian link")
                 .setIcon("link")
@@ -129,7 +224,7 @@ export class ContextMenuHelper {
 
         menu.addSeparator();
 
-        // 4. Show in System Explorer
+        // 5. Show in System Explorer
         menu.addItem((item) => {
             item.setTitle("Show in system explorer")
                 .setIcon("folder-open")
@@ -141,7 +236,7 @@ export class ContextMenuHelper {
                 });
         });
 
-        // 5. Delete Page options
+        // 6. Delete Page options
         const hasSubPages = (page.children && page.children.length > 0) || !!page.folderPath;
         if (hasSubPages) {
             menu.addItem((item) => {
@@ -172,6 +267,141 @@ export class ContextMenuHelper {
         }
 
         menu.showAtMouseEvent(e);
+    }
+
+    /** Helper: Rename a Notebook folder */
+    public static async renameNotebook(app: App, nb: NotebookInfo, newName: string): Promise<boolean> {
+        const cleanName = newName.trim();
+        if (!cleanName) {
+            new Notice("Notebook name cannot be empty");
+            return false;
+        }
+        if (cleanName === nb.name) {
+            return false;
+        }
+        if (/[\\/:*?"<>|]/.test(cleanName)) {
+            new Notice('Notebook name contains invalid characters (/ \\ : * ? " < > |)');
+            return false;
+        }
+
+        const folder = app.vault.getAbstractFileByPath(nb.folderPath);
+        if (!folder || !(folder instanceof TFolder)) {
+            new Notice("Notebook folder not found");
+            return false;
+        }
+
+        const parentDir = folder.parent ? folder.parent.path : "";
+        const newPath = (!parentDir || parentDir === "/") ? cleanName : `${parentDir}/${cleanName}`;
+
+        if (app.vault.getAbstractFileByPath(newPath)) {
+            new Notice(`A notebook with name "${cleanName}" already exists`);
+            return false;
+        }
+
+        try {
+            await app.fileManager.renameFile(folder, newPath);
+            new Notice(`Renamed notebook to "${cleanName}"`);
+            return true;
+        } catch (err: any) {
+            console.error("Failed to rename notebook:", err);
+            new Notice(`Failed to rename notebook: ${err?.message || err}`);
+            return false;
+        }
+    }
+
+    /** Helper: Rename a Section folder */
+    public static async renameSection(app: App, sec: SectionInfo, newName: string): Promise<boolean> {
+        const cleanName = newName.trim();
+        if (!cleanName) {
+            new Notice("Section name cannot be empty");
+            return false;
+        }
+        if (cleanName === sec.name) {
+            return false;
+        }
+        if (/[\\/:*?"<>|]/.test(cleanName)) {
+            new Notice('Section name contains invalid characters (/ \\ : * ? " < > |)');
+            return false;
+        }
+
+        const folder = app.vault.getAbstractFileByPath(sec.folderPath);
+        if (!folder || !(folder instanceof TFolder)) {
+            new Notice("Section folder not found");
+            return false;
+        }
+
+        const parentDir = folder.parent ? folder.parent.path : "";
+        const newPath = (!parentDir || parentDir === "/") ? cleanName : `${parentDir}/${cleanName}`;
+
+        if (app.vault.getAbstractFileByPath(newPath)) {
+            new Notice(`A section with name "${cleanName}" already exists`);
+            return false;
+        }
+
+        try {
+            await app.fileManager.renameFile(folder, newPath);
+            new Notice(`Renamed section to "${cleanName}"`);
+            return true;
+        } catch (err: any) {
+            console.error("Failed to rename section:", err);
+            new Notice(`Failed to rename section: ${err?.message || err}`);
+            return false;
+        }
+    }
+
+    /** Helper: Rename a Note file (and its companion folder if Folder-Note) */
+    public static async renamePage(app: App, page: PageInfo, newName: string): Promise<boolean> {
+        const cleanName = newName.replace(/\.md$/i, "").trim();
+        if (!cleanName) {
+            new Notice("Note name cannot be empty");
+            return false;
+        }
+        if (cleanName === page.name) {
+            return false;
+        }
+        if (/[\\/:*?"<>|]/.test(cleanName)) {
+            new Notice('Note name contains invalid characters (/ \\ : * ? " < > |)');
+            return false;
+        }
+
+        const file = app.vault.getAbstractFileByPath(page.filepath);
+        if (!file || !(file instanceof TFile)) {
+            new Notice("Note file not found");
+            return false;
+        }
+
+        const parentDir = file.parent ? file.parent.path : "";
+        const newFilePath = (!parentDir || parentDir === "/") ? `${cleanName}.md` : `${parentDir}/${cleanName}.md`;
+
+        if (app.vault.getAbstractFileByPath(newFilePath)) {
+            new Notice(`A note with name "${cleanName}" already exists`);
+            return false;
+        }
+
+        // Check if this note is a Folder-Note (has companion folder)
+        const companionFolderPath = (!parentDir || parentDir === "/") ? page.name : `${parentDir}/${page.name}`;
+        const companionFolder = app.vault.getAbstractFileByPath(companionFolderPath);
+        const hasCompanionFolder = companionFolder && companionFolder instanceof TFolder;
+
+        try {
+            // 1. Rename the markdown note file
+            await app.fileManager.renameFile(file, newFilePath);
+
+            // 2. If companion folder exists, rename the companion folder as well to maintain Folder-Note fusion!
+            if (hasCompanionFolder) {
+                const newFolderPath = (!parentDir || parentDir === "/") ? cleanName : `${parentDir}/${cleanName}`;
+                if (!app.vault.getAbstractFileByPath(newFolderPath)) {
+                    await app.fileManager.renameFile(companionFolder, newFolderPath);
+                }
+            }
+
+            new Notice(`Renamed note to "${cleanName}"`);
+            return true;
+        } catch (err: any) {
+            console.error("Failed to rename note:", err);
+            new Notice(`Failed to rename note: ${err?.message || err}`);
+            return false;
+        }
     }
 
     /** Helper: Create a new sub-page note under an existing page */

@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { onMount, onDestroy, getContext, tick } from "svelte";
     import type { OneNoteViewModel } from "./store/OneNoteViewModel";
+    import { ContextMenuHelper } from "./ContextMenuHelper";
     import { NotebookInfo } from "./types";
 
     export let notebook: NotebookInfo;
@@ -12,6 +13,100 @@
     const draggedItemId = vm.draggedItemId;
     const dragOverId = vm.dragOverId;
     const dragPosition = vm.dragPosition;
+
+    let isEditing = false;
+    let editName = notebook.name;
+    let isHovered = false;
+    let inputEl: HTMLInputElement;
+
+    $: if (!isEditing) {
+        editName = notebook.name;
+    }
+
+    async function startInlineRename() {
+        editName = notebook.name;
+        isEditing = true;
+        await tick();
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.select();
+        }
+    }
+
+    async function commitRename() {
+        if (!isEditing) return;
+        const trimmed = editName.trim();
+        if (!trimmed || trimmed === notebook.name) {
+            cancelRename();
+            return;
+        }
+        isEditing = false;
+        const activeApp = vm.app || (window as any).app;
+        if (activeApp) {
+            const success = await ContextMenuHelper.renameNotebook(activeApp, notebook, trimmed);
+            if (success) {
+                if ($selectedNotebook && $selectedNotebook.folderPath === notebook.folderPath) {
+                    const parentDir = notebook.folderPath.includes("/") 
+                        ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) 
+                        : "";
+                    const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
+                    $selectedNotebook = { ...$selectedNotebook, folderPath: newPath, name: trimmed };
+                }
+                vm.loadNotebooks();
+            }
+        }
+    }
+
+    function cancelRename() {
+        editName = notebook.name;
+        isEditing = false;
+    }
+
+    function handleInputKeydown(e: KeyboardEvent) {
+        e.stopPropagation();
+        if (e.key === "Enter" && !e.isComposing) {
+            e.preventDefault();
+            commitRename();
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            cancelRename();
+        }
+    }
+
+    function handleInputBlur() {
+        commitRename();
+    }
+
+    function handleContextMenu(e: MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        const activeApp = vm.app || (window as any).app;
+        if (activeApp) {
+            ContextMenuHelper.showNotebookContextMenu(
+                e, 
+                activeApp, 
+                notebook, 
+                () => vm.loadNotebooks(), 
+                () => startInlineRename()
+            );
+        }
+    }
+
+    function handleWindowKeydown(e: KeyboardEvent) {
+        if (e.key === "F2" && isHovered && !isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+            startInlineRename();
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener("keydown", handleWindowKeydown);
+    });
+
+    onDestroy(() => {
+        window.removeEventListener("keydown", handleWindowKeydown);
+    });
 
     function getRecursiveSectionPageCount(nb: NotebookInfo): number {
         let count = 0;
@@ -32,16 +127,21 @@
         class:drag-over-top={$dragOverId === notebook.folderPath && $dragPosition === "top"}
         class:drag-over-bottom={$dragOverId === notebook.folderPath && $dragPosition === "bottom"}
         class:is-dragging={$draggedItemId === notebook.folderPath}
-        draggable="true"
-        on:dragstart={(e) => vm.handleDragStart(e, notebook.folderPath, "notebook")}
-        on:dragover|stopPropagation={(e) => vm.handleDragOver(e, notebook.folderPath, "notebook")}
-        on:dragleave={(e) => vm.handleDragLeave(e, notebook.folderPath)}
-        on:drop|stopPropagation={(e) => vm.handleDrop(e, notebook.folderPath, "notebook")}
+        draggable={!isEditing}
+        on:mouseenter={() => isHovered = true}
+        on:mouseleave={() => isHovered = false}
+        on:dragstart={(e) => !isEditing && vm.handleDragStart(e, notebook.folderPath, "notebook")}
+        on:dragover|stopPropagation={(e) => !isEditing && vm.handleDragOver(e, notebook.folderPath, "notebook")}
+        on:dragleave={(e) => !isEditing && vm.handleDragLeave(e, notebook.folderPath)}
+        on:drop|stopPropagation={(e) => !isEditing && vm.handleDrop(e, notebook.folderPath, "notebook")}
         on:dragend={() => vm.handleDragEnd()}
         on:click={() => {
-            vm.selectNotebook(notebook);
-            onSelect(notebook);
+            if (!isEditing) {
+                vm.selectNotebook(notebook);
+                onSelect(notebook);
+            }
         }}
+        on:contextmenu={handleContextMenu}
         role="button"
         tabindex="0"
     >
@@ -54,7 +154,21 @@
             </svg>
         </span>
         
-        <span class="on-name">{notebook.name}</span>
+        {#if isEditing}
+            <input 
+                type="text" 
+                class="on-rename-input" 
+                bind:this={inputEl}
+                bind:value={editName}
+                on:click|stopPropagation
+                on:mousedown|stopPropagation
+                on:pointerdown|stopPropagation
+                on:keydown={handleInputKeydown}
+                on:blur={handleInputBlur}
+            />
+        {:else}
+            <span class="on-name">{notebook.name}</span>
+        {/if}
         <span class="on-count">{notebook.sections.length}</span>
     </div>
 </div>

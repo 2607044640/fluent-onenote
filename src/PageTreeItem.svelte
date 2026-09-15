@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { onMount, onDestroy, getContext, tick } from "svelte";
     import type { OneNoteViewModel } from "./store/OneNoteViewModel";
+    import { ContextMenuHelper } from "./ContextMenuHelper";
     import { type PageInfo } from "./types";
 
     export let page: PageInfo;
@@ -11,7 +12,7 @@
     // Callbacks
     export let onClick: (page: PageInfo, inNewTab: boolean) => void = () => {};
     export let onAuxClick: (e: MouseEvent, page: PageInfo) => void = () => {};
-    export let onContextMenu: (e: MouseEvent, page: PageInfo) => void = () => {};
+    export let onContextMenu: ((e: MouseEvent, page: PageInfo, onRename?: () => void) => void) | null = null;
 
     const vm = getContext<OneNoteViewModel>("vm");
 
@@ -20,13 +21,105 @@
     const dragOverId = vm.dragOverId;
     const dragPosition = vm.dragPosition;
 
+    let isEditing = false;
+    let editName = page.name;
+    let isHovered = false;
+    let inputEl: HTMLInputElement;
+
     $: isFocused = focusPane === "pages" && focusedPagePath === page.filepath;
+
+    $: if (!isEditing) {
+        editName = page.name;
+    }
+
+    async function startInlineRename() {
+        editName = page.name;
+        isEditing = true;
+        await tick();
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.select();
+        }
+    }
+
+    async function commitRename() {
+        if (!isEditing) return;
+        const trimmed = editName.replace(/\.md$/i, "").trim();
+        if (!trimmed || trimmed === page.name) {
+            cancelRename();
+            return;
+        }
+        isEditing = false;
+        const activeApp = vm.app || (window as any).app;
+        if (activeApp) {
+            const success = await ContextMenuHelper.renamePage(activeApp, page, trimmed);
+            if (success) {
+                vm.loadNotebooks();
+            }
+        }
+    }
+
+    function cancelRename() {
+        editName = page.name;
+        isEditing = false;
+    }
+
+    function handleInputKeydown(e: KeyboardEvent) {
+        e.stopPropagation();
+        if (e.key === "Enter" && !e.isComposing) {
+            e.preventDefault();
+            commitRename();
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            cancelRename();
+        }
+    }
+
+    function handleInputBlur() {
+        commitRename();
+    }
 
     function handleChevronClick(e: MouseEvent) {
         e.stopPropagation();
         page.isExpanded = !page.isExpanded;
         page = { ...page };
     }
+
+    function handleItemContextMenu(e: MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onContextMenu) {
+            onContextMenu(e, page, () => startInlineRename());
+        } else {
+            const activeApp = vm.app || (window as any).app;
+            if (activeApp) {
+                ContextMenuHelper.showPageContextMenu(
+                    e, 
+                    activeApp, 
+                    page, 
+                    "", 
+                    () => vm.loadNotebooks(),
+                    () => startInlineRename()
+                );
+            }
+        }
+    }
+
+    function handleWindowKeydown(e: KeyboardEvent) {
+        if (e.key === "F2" && (isHovered || isFocused) && !isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+            startInlineRename();
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener("keydown", handleWindowKeydown);
+    });
+
+    onDestroy(() => {
+        window.removeEventListener("keydown", handleWindowKeydown);
+    });
 </script>
 
 <div class="on-page-wrapper">
@@ -39,18 +132,22 @@
         class:drag-over-bottom={$dragOverId === page.filepath && $dragPosition === "bottom"}
         class:is-dragging={$draggedItemId === page.filepath}
         style="padding-left: {depth * 14 + 10}px;"
-        draggable="true"
-        on:dragstart={(e) => vm.handleDragStart(e, page.filepath, "page")}
-        on:dragover|stopPropagation={(e) => vm.handleDragOver(e, page.filepath, "page")}
-        on:dragleave={(e) => vm.handleDragLeave(e, page.filepath)}
-        on:drop|stopPropagation={(e) => vm.handleDrop(e, page.filepath, "page")}
+        draggable={!isEditing}
+        on:mouseenter={() => isHovered = true}
+        on:mouseleave={() => isHovered = false}
+        on:dragstart={(e) => !isEditing && vm.handleDragStart(e, page.filepath, "page")}
+        on:dragover|stopPropagation={(e) => !isEditing && vm.handleDragOver(e, page.filepath, "page")}
+        on:dragleave={(e) => !isEditing && vm.handleDragLeave(e, page.filepath)}
+        on:drop|stopPropagation={(e) => !isEditing && vm.handleDrop(e, page.filepath, "page")}
         on:dragend={() => vm.handleDragEnd()}
         on:click={(e) => {
-            const inNewTab = e.ctrlKey || e.metaKey;
-            onClick(page, inNewTab);
+            if (!isEditing) {
+                const inNewTab = e.ctrlKey || e.metaKey;
+                onClick(page, inNewTab);
+            }
         }}
-        on:auxclick={(e) => onAuxClick(e, page)}
-        on:contextmenu={(e) => onContextMenu(e, page)}
+        on:auxclick={(e) => !isEditing && onAuxClick(e, page)}
+        on:contextmenu={handleItemContextMenu}
         role="button"
         tabindex="0"
     >
@@ -77,8 +174,22 @@
             </svg>
         </span>
 
-        <!-- Note Name -->
-        <span class="on-name">{page.name}</span>
+        <!-- Note Name / Inline Rename Input -->
+        {#if isEditing}
+            <input 
+                type="text" 
+                class="on-rename-input" 
+                bind:this={inputEl}
+                bind:value={editName}
+                on:click|stopPropagation
+                on:mousedown|stopPropagation
+                on:pointerdown|stopPropagation
+                on:keydown={handleInputKeydown}
+                on:blur={handleInputBlur}
+            />
+        {:else}
+            <span class="on-name">{page.name}</span>
+        {/if}
         
         {#if page.sectionName}
             <span class="on-section-tag">{page.sectionName}</span>
@@ -95,7 +206,7 @@
                 {focusedPagePath}
                 {onClick}
                 {onAuxClick}
-                {onContextMenu}
+                onContextMenu={onContextMenu}
             />
         {/each}
     {/if}

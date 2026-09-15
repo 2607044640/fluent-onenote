@@ -284,7 +284,7 @@
         }
     }
 
-    function handlePageContextMenu(e: MouseEvent, page: PageInfo) {
+    function handlePageContextMenu(e: MouseEvent, page: PageInfo, onRename?: () => void) {
         e.preventDefault();
         e.stopPropagation();
         const activeApp = app || (window as any).app;
@@ -306,7 +306,7 @@
                 focusPane = "pages";
                 setTimeout(scrollFocusedIntoView, 10);
             }
-        });
+        }, onRename);
     }
 
     function openCurrentSelection(inNewTab: boolean = false) {
@@ -402,8 +402,8 @@
     }
 
     function handleKeydown(e: KeyboardEvent) {
-        // 0. IME Composition Guard: Allow Chinese/Japanese IME candidates selection & Enter commit without interception
-        if (e.isComposing || e.keyCode === 229) {
+        // 0. IME Composition Guard & Inline Rename Input Guard
+        if (e.isComposing || e.keyCode === 229 || (e.target as HTMLElement)?.classList?.contains("on-rename-input") || (document.activeElement as HTMLElement)?.classList?.contains("on-rename-input")) {
             return;
         }
 

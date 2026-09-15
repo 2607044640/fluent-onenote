@@ -44,6 +44,10 @@ export const GUIDE_QUICK_ITEMS: GuideQuickItem[] = [
         desc: "Reorder notebooks, sections, and sibling pages with 60px rAF auto-scroll"
     },
     {
+        key: "F2 / Right Click",
+        desc: "Inline rename notebook, section, or note directly in place"
+    },
+    {
         key: "Right Click",
         desc: "Native context menus (Rename, Delete, New Note/Section)"
     }
@@ -53,6 +57,11 @@ export const GUIDE_SECTIONS: GuideSectionData[] = [
     {
         title: "⚡ Navigation & Keyboard Shortcuts (快捷键与按键流)",
         cards: [
+            {
+                badge: "F2",
+                title: "Inline Rename (行内重命名)",
+                description: "Hover over or focus any Notebook, Section, or Note and press <kbd>F2</kbd> (or right-click → Rename) to edit the name inline with <kbd>Enter</kbd> to save and <kbd>Escape</kbd> to cancel."
+            },
             {
                 badge: "↑ / ↓",
                 title: "Item Traversal",

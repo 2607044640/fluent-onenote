@@ -199,12 +199,12 @@
         }
     }
 
-    function handlePageContextMenu(e: MouseEvent, page: PageInfo) {
+    function handlePageContextMenu(e: MouseEvent, page: PageInfo, onRename?: () => void) {
         e.preventDefault();
         e.stopPropagation();
         const activeApp = app || (window as any).app;
         if (activeApp) {
-            ContextMenuHelper.showPageContextMenu(e, activeApp, page, $selectedSection?.folderPath || "", () => vm.loadNotebooks());
+            ContextMenuHelper.showPageContextMenu(e, activeApp, page, $selectedSection?.folderPath || "", () => vm.loadNotebooks(), onRename);
         }
     }
 

@@ -205,6 +205,27 @@ body .workspace-leaf-content[data-type=fluent-onenote-sections] .view-content {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.on-rename-input {
+  flex-grow: 1;
+  min-width: 0;
+  height: 24px;
+  background-color: var(--background-primary, #1e1e1e) !important;
+  border: 1.5px solid var(--interactive-accent, #e5a00d) !important;
+  border-radius: 4px !important;
+  color: var(--text-normal, #ffffff) !important;
+  padding: 1px 6px !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px var(--interactive-accent, #e5a00d), 0 0 8px rgba(229, 160, 13, 0.25) !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  cursor: text !important;
+}
+.on-rename-input:focus {
+  border-color: var(--interactive-accent, #e5a00d) !important;
+  box-shadow: 0 0 0 1px var(--interactive-accent, #e5a00d), 0 0 8px rgba(229, 160, 13, 0.35) !important;
+}
 .on-count {
   font-size: 10px;
   color: var(--on-text-muted);

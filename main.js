@@ -548,6 +548,12 @@ function setContext(key, context) {
 function getContext(key) {
   return get_current_component().$$.context.get(key);
 }
+function bubble(component, event) {
+  const callbacks = component.$$.callbacks[event.type];
+  if (callbacks) {
+    callbacks.slice().forEach((fn) => fn.call(this, event));
+  }
+}
 
 // node_modules/svelte/src/runtime/internal/scheduler.js
 var dirty_components = [];
@@ -561,6 +567,10 @@ function schedule_update() {
     update_scheduled = true;
     resolved_promise.then(flush);
   }
+}
+function tick() {
+  schedule_update();
+  return resolved_promise;
 }
 function add_render_callback(fn) {
   render_callbacks.push(fn);
@@ -1141,27 +1151,538 @@ if (typeof window !== "undefined")
 // src/OneNoteView.svelte
 var import_obsidian6 = require("obsidian");
 
+// src/ContextMenuHelper.ts
+var import_obsidian3 = require("obsidian");
+var ContextMenuHelper = class _ContextMenuHelper {
+  /**
+   * Show right-click context menu for a Notebook (folder)
+   */
+  static showNotebookContextMenu(e, app, nb, onRefresh, onRename) {
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = new import_obsidian3.Menu();
+    menu.addItem((item) => {
+      item.setTitle("Rename notebook").setIcon("edit-3").onClick(() => {
+        if (onRename)
+          onRename();
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("New section").setIcon("folder-plus").onClick(async () => {
+        await _ContextMenuHelper.createNewSection(app, nb.folderPath);
+        onRefresh();
+      });
+    });
+    menu.addSeparator();
+    menu.addItem((item) => {
+      item.setTitle("Copy notebook path").setIcon("link").onClick(() => {
+        void navigator.clipboard.writeText(nb.folderPath);
+        new import_obsidian3.Notice("Copied notebook path to clipboard");
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("Show in system explorer").setIcon("folder-open").onClick(() => {
+        const abstractFile = app.vault.getAbstractFileByPath(nb.folderPath);
+        if (abstractFile) {
+          app.showInFolder(abstractFile.path);
+        }
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("Delete notebook").setIcon("trash").onClick(async () => {
+        const abstractFile = app.vault.getAbstractFileByPath(nb.folderPath);
+        if (abstractFile && abstractFile instanceof import_obsidian3.TFolder) {
+          await app.fileManager.trashFile(abstractFile);
+          new import_obsidian3.Notice(`Moved notebook "${nb.name}" to trash`);
+          onRefresh();
+        }
+      });
+    });
+    menu.showAtMouseEvent(e);
+  }
+  /**
+   * Show right-click context menu for a Section (folder)
+   */
+  static showSectionContextMenu(e, app, sec, onRefresh, onRename) {
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = new import_obsidian3.Menu();
+    menu.addItem((item) => {
+      item.setTitle("Rename section").setIcon("edit-3").onClick(() => {
+        if (onRename)
+          onRename();
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("New page").setIcon("file-plus").onClick(async () => {
+        await _ContextMenuHelper.createNewPage(app, sec.folderPath);
+        onRefresh();
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("New section").setIcon("folder-plus").onClick(async () => {
+        await _ContextMenuHelper.createNewSection(app, sec.folderPath);
+        onRefresh();
+      });
+    });
+    menu.addSeparator();
+    menu.addItem((item) => {
+      item.setTitle("Copy section path").setIcon("link").onClick(() => {
+        void navigator.clipboard.writeText(sec.folderPath);
+        new import_obsidian3.Notice("Copied section path to clipboard");
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("Show in system explorer").setIcon("folder-open").onClick(() => {
+        const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
+        if (abstractFile) {
+          app.showInFolder(abstractFile.path);
+        }
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("Delete section").setIcon("trash").onClick(async () => {
+        const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
+        if (abstractFile && abstractFile instanceof import_obsidian3.TFolder) {
+          await app.fileManager.trashFile(abstractFile);
+          new import_obsidian3.Notice(`Moved section "${sec.name}" to trash`);
+          onRefresh();
+        }
+      });
+    });
+    menu.showAtMouseEvent(e);
+  }
+  /**
+   * Show right-click context menu for a Page (note file)
+   */
+  static showPageContextMenu(e, app, page, secFolderPath, onRefresh, onRename) {
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = new import_obsidian3.Menu();
+    menu.addItem((item) => {
+      item.setTitle("Rename note").setIcon("edit-3").onClick(() => {
+        if (onRename)
+          onRename();
+      });
+    });
+    menu.addItem((item) => {
+      item.setTitle("New sub page").setIcon("file-plus").onClick(async () => {
+        await _ContextMenuHelper.createNewSubPage(app, page);
+        onRefresh();
+      });
+    });
+    if (secFolderPath) {
+      menu.addItem((item) => {
+        item.setTitle("New page in section").setIcon("file-plus").onClick(async () => {
+          await _ContextMenuHelper.createNewPage(app, secFolderPath);
+          onRefresh();
+        });
+      });
+    }
+    menu.addItem((item) => {
+      item.setTitle("Copy Obsidian link").setIcon("link").onClick(() => {
+        const wikiLink = `[[${page.name}]]`;
+        void navigator.clipboard.writeText(wikiLink);
+        new import_obsidian3.Notice(`Copied ${wikiLink} to clipboard`);
+      });
+    });
+    menu.addSeparator();
+    menu.addItem((item) => {
+      item.setTitle("Show in system explorer").setIcon("folder-open").onClick(() => {
+        const abstractFile = app.vault.getAbstractFileByPath(page.filepath);
+        if (abstractFile) {
+          app.showInFolder(abstractFile.path);
+        }
+      });
+    });
+    const hasSubPages = page.children && page.children.length > 0 || !!page.folderPath;
+    if (hasSubPages) {
+      menu.addItem((item) => {
+        item.setTitle("Delete note (Keep sub-pages)").setIcon("trash").onClick(async () => {
+          await _ContextMenuHelper.deletePageSafely(app, page);
+          onRefresh();
+        });
+      });
+      menu.addItem((item) => {
+        item.setTitle("Delete note & all sub-pages").setIcon("trash-2").onClick(async () => {
+          await _ContextMenuHelper.deletePageAndAllSubPages(app, page);
+          onRefresh();
+        });
+      });
+    } else {
+      menu.addItem((item) => {
+        item.setTitle("Delete note").setIcon("trash").onClick(async () => {
+          await _ContextMenuHelper.deletePageSafely(app, page);
+          onRefresh();
+        });
+      });
+    }
+    menu.showAtMouseEvent(e);
+  }
+  /** Helper: Rename a Notebook folder */
+  static async renameNotebook(app, nb, newName) {
+    const cleanName = newName.trim();
+    if (!cleanName) {
+      new import_obsidian3.Notice("Notebook name cannot be empty");
+      return false;
+    }
+    if (cleanName === nb.name) {
+      return false;
+    }
+    if (/[\\/:*?"<>|]/.test(cleanName)) {
+      new import_obsidian3.Notice('Notebook name contains invalid characters (/ \\ : * ? " < > |)');
+      return false;
+    }
+    const folder = app.vault.getAbstractFileByPath(nb.folderPath);
+    if (!folder || !(folder instanceof import_obsidian3.TFolder)) {
+      new import_obsidian3.Notice("Notebook folder not found");
+      return false;
+    }
+    const parentDir = folder.parent ? folder.parent.path : "";
+    const newPath = !parentDir || parentDir === "/" ? cleanName : `${parentDir}/${cleanName}`;
+    if (app.vault.getAbstractFileByPath(newPath)) {
+      new import_obsidian3.Notice(`A notebook with name "${cleanName}" already exists`);
+      return false;
+    }
+    try {
+      await app.fileManager.renameFile(folder, newPath);
+      new import_obsidian3.Notice(`Renamed notebook to "${cleanName}"`);
+      return true;
+    } catch (err) {
+      console.error("Failed to rename notebook:", err);
+      new import_obsidian3.Notice(`Failed to rename notebook: ${(err == null ? void 0 : err.message) || err}`);
+      return false;
+    }
+  }
+  /** Helper: Rename a Section folder */
+  static async renameSection(app, sec, newName) {
+    const cleanName = newName.trim();
+    if (!cleanName) {
+      new import_obsidian3.Notice("Section name cannot be empty");
+      return false;
+    }
+    if (cleanName === sec.name) {
+      return false;
+    }
+    if (/[\\/:*?"<>|]/.test(cleanName)) {
+      new import_obsidian3.Notice('Section name contains invalid characters (/ \\ : * ? " < > |)');
+      return false;
+    }
+    const folder = app.vault.getAbstractFileByPath(sec.folderPath);
+    if (!folder || !(folder instanceof import_obsidian3.TFolder)) {
+      new import_obsidian3.Notice("Section folder not found");
+      return false;
+    }
+    const parentDir = folder.parent ? folder.parent.path : "";
+    const newPath = !parentDir || parentDir === "/" ? cleanName : `${parentDir}/${cleanName}`;
+    if (app.vault.getAbstractFileByPath(newPath)) {
+      new import_obsidian3.Notice(`A section with name "${cleanName}" already exists`);
+      return false;
+    }
+    try {
+      await app.fileManager.renameFile(folder, newPath);
+      new import_obsidian3.Notice(`Renamed section to "${cleanName}"`);
+      return true;
+    } catch (err) {
+      console.error("Failed to rename section:", err);
+      new import_obsidian3.Notice(`Failed to rename section: ${(err == null ? void 0 : err.message) || err}`);
+      return false;
+    }
+  }
+  /** Helper: Rename a Note file (and its companion folder if Folder-Note) */
+  static async renamePage(app, page, newName) {
+    const cleanName = newName.replace(/\.md$/i, "").trim();
+    if (!cleanName) {
+      new import_obsidian3.Notice("Note name cannot be empty");
+      return false;
+    }
+    if (cleanName === page.name) {
+      return false;
+    }
+    if (/[\\/:*?"<>|]/.test(cleanName)) {
+      new import_obsidian3.Notice('Note name contains invalid characters (/ \\ : * ? " < > |)');
+      return false;
+    }
+    const file = app.vault.getAbstractFileByPath(page.filepath);
+    if (!file || !(file instanceof import_obsidian3.TFile)) {
+      new import_obsidian3.Notice("Note file not found");
+      return false;
+    }
+    const parentDir = file.parent ? file.parent.path : "";
+    const newFilePath = !parentDir || parentDir === "/" ? `${cleanName}.md` : `${parentDir}/${cleanName}.md`;
+    if (app.vault.getAbstractFileByPath(newFilePath)) {
+      new import_obsidian3.Notice(`A note with name "${cleanName}" already exists`);
+      return false;
+    }
+    const companionFolderPath = !parentDir || parentDir === "/" ? page.name : `${parentDir}/${page.name}`;
+    const companionFolder = app.vault.getAbstractFileByPath(companionFolderPath);
+    const hasCompanionFolder = companionFolder && companionFolder instanceof import_obsidian3.TFolder;
+    try {
+      await app.fileManager.renameFile(file, newFilePath);
+      if (hasCompanionFolder) {
+        const newFolderPath = !parentDir || parentDir === "/" ? cleanName : `${parentDir}/${cleanName}`;
+        if (!app.vault.getAbstractFileByPath(newFolderPath)) {
+          await app.fileManager.renameFile(companionFolder, newFolderPath);
+        }
+      }
+      new import_obsidian3.Notice(`Renamed note to "${cleanName}"`);
+      return true;
+    } catch (err) {
+      console.error("Failed to rename note:", err);
+      new import_obsidian3.Notice(`Failed to rename note: ${(err == null ? void 0 : err.message) || err}`);
+      return false;
+    }
+  }
+  /** Helper: Create a new sub-page note under an existing page */
+  static async createNewSubPage(app, page) {
+    let targetFolderPath = page.folderPath;
+    if (!targetFolderPath) {
+      const file = app.vault.getAbstractFileByPath(page.filepath);
+      if (!(file instanceof import_obsidian3.TFile))
+        return null;
+      const parentFolderPath = file.parent ? file.parent.path : "";
+      const folderName = page.name;
+      const newFolderPath = !parentFolderPath || parentFolderPath === "/" ? folderName : `${parentFolderPath}/${folderName}`;
+      let targetFolder = app.vault.getAbstractFileByPath(newFolderPath);
+      if (!targetFolder) {
+        targetFolder = await app.vault.createFolder(newFolderPath);
+      }
+      const newMainNotePath = `${newFolderPath}/${file.name}`;
+      if (file.path !== newMainNotePath) {
+        await app.fileManager.renameFile(file, newMainNotePath);
+      }
+      targetFolderPath = newFolderPath;
+    }
+    return await _ContextMenuHelper.createNewPage(app, targetFolderPath);
+  }
+  /** Helper: Create a new markdown page in specified folder path */
+  static async createNewPage(app, sectionFolderPath) {
+    let baseName = DEFAULT_UNTITLED_NOTE_NAME;
+    let folderPath = sectionFolderPath;
+    if (!folderPath) {
+      folderPath = "";
+    }
+    let targetPath = folderPath ? `${folderPath}/${baseName}.md` : `${baseName}.md`;
+    let counter = 1;
+    while (app.vault.getAbstractFileByPath(targetPath)) {
+      targetPath = folderPath ? `${folderPath}/${baseName} ${counter}.md` : `${baseName} ${counter}.md`;
+      counter++;
+    }
+    const folder = app.vault.getAbstractFileByPath(folderPath);
+    if (!folder && folderPath) {
+      await app.vault.createFolder(folderPath);
+    }
+    const newFile = await app.vault.create(targetPath, "");
+    return newFile;
+  }
+  /** Helper: Create a new sibling section in the parent directory of specified section */
+  static async createNewSection(app, currentSectionPath) {
+    const folder = app.vault.getAbstractFileByPath(currentSectionPath);
+    let targetPath = "";
+    if (folder) {
+      const parentDir = folder.parent ? folder.parent.path : "";
+      const parentPath = !parentDir || parentDir === "/" ? "" : parentDir;
+      let baseName = DEFAULT_NEW_SECTION_NAME;
+      targetPath = parentPath ? `${parentPath}/${baseName}` : baseName;
+      let counter = 1;
+      while (app.vault.getAbstractFileByPath(targetPath)) {
+        targetPath = parentPath ? `${parentPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
+        counter++;
+      }
+    } else {
+      let baseName = DEFAULT_NEW_SECTION_NAME;
+      targetPath = currentSectionPath ? `${currentSectionPath}/${baseName}` : baseName;
+      let counter = 1;
+      while (app.vault.getAbstractFileByPath(targetPath)) {
+        targetPath = currentSectionPath ? `${currentSectionPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
+        counter++;
+      }
+    }
+    const newFolder = await app.vault.createFolder(targetPath);
+    return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
+  }
+  /**
+   * Delete a page safely. If it is a Folder-Note with sub-pages:
+   * 1. Safely promote all child sub-pages up to the parent section folder.
+   * 2. Move main note file to system trash.
+   * 3. Remove empty folder directory.
+   */
+  static async deletePageSafely(app, page) {
+    const file = app.vault.getAbstractFileByPath(page.filepath);
+    if (!file || !(file instanceof import_obsidian3.TFile))
+      return;
+    if (page.folderPath) {
+      const folder = app.vault.getAbstractFileByPath(page.folderPath);
+      if (folder && folder instanceof import_obsidian3.TFolder) {
+        const parentSectionFolder = folder.parent;
+        const targetParentPath = parentSectionFolder ? parentSectionFolder.path : "";
+        for (const child of [...folder.children]) {
+          if (child instanceof import_obsidian3.TFile && child.path !== file.path) {
+            const newChildPath = !targetParentPath || targetParentPath === "/" ? child.name : `${targetParentPath}/${child.name}`;
+            let destPath = newChildPath;
+            let counter = 1;
+            while (app.vault.getAbstractFileByPath(destPath)) {
+              destPath = !targetParentPath || targetParentPath === "/" ? `${child.basename} ${counter}.${child.extension}` : `${targetParentPath}/${child.basename} ${counter}.${child.extension}`;
+              counter++;
+            }
+            await app.fileManager.renameFile(child, destPath);
+          }
+        }
+        await app.fileManager.trashFile(file);
+        if (folder.children.length === 0) {
+          await app.vault.adapter.rmdir(folder.path, true);
+        }
+        return;
+      }
+    }
+    await app.fileManager.trashFile(file);
+  }
+  /**
+   * Delete a page and all its child sub-pages by moving the folder to trash.
+   */
+  static async deletePageAndAllSubPages(app, page) {
+    if (page.folderPath) {
+      const folder = app.vault.getAbstractFileByPath(page.folderPath);
+      if (folder && folder instanceof import_obsidian3.TFolder) {
+        await app.fileManager.trashFile(folder);
+        return;
+      }
+    }
+    await _ContextMenuHelper.deletePageSafely(app, page);
+  }
+};
+
 // src/NotebookTreeItem.svelte
+function create_else_block(ctx) {
+  let span;
+  let t_value = (
+    /*notebook*/
+    ctx[0].name + ""
+  );
+  let t;
+  return {
+    c() {
+      span = element("span");
+      t = text(t_value);
+      attr(span, "class", "on-name");
+    },
+    m(target, anchor) {
+      insert(target, span, anchor);
+      append(span, t);
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*notebook*/
+      1 && t_value !== (t_value = /*notebook*/
+      ctx2[0].name + ""))
+        set_data(t, t_value);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(span);
+      }
+    }
+  };
+}
+function create_if_block(ctx) {
+  let input;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      input = element("input");
+      attr(input, "type", "text");
+      attr(input, "class", "on-rename-input");
+    },
+    m(target, anchor) {
+      insert(target, input, anchor);
+      ctx[21](input);
+      set_input_value(
+        input,
+        /*editName*/
+        ctx[3]
+      );
+      if (!mounted) {
+        dispose = [
+          listen(
+            input,
+            "input",
+            /*input_input_handler*/
+            ctx[22]
+          ),
+          listen(input, "click", stop_propagation(
+            /*click_handler*/
+            ctx[18]
+          )),
+          listen(input, "mousedown", stop_propagation(
+            /*mousedown_handler*/
+            ctx[19]
+          )),
+          listen(input, "pointerdown", stop_propagation(
+            /*pointerdown_handler*/
+            ctx[20]
+          )),
+          listen(
+            input,
+            "keydown",
+            /*handleInputKeydown*/
+            ctx[15]
+          ),
+          listen(
+            input,
+            "blur",
+            /*handleInputBlur*/
+            ctx[16]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*editName*/
+      8 && input.value !== /*editName*/
+      ctx2[3]) {
+        set_input_value(
+          input,
+          /*editName*/
+          ctx2[3]
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(input);
+      }
+      ctx[21](null);
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
 function create_fragment(ctx) {
   let div1;
   let div0;
   let span0;
   let t0;
-  let span1;
-  let t1_value = (
-    /*notebook*/
-    ctx[0].name + ""
-  );
   let t1;
-  let t2;
-  let span2;
-  let t3_value = (
+  let span1;
+  let t2_value = (
     /*notebook*/
     ctx[0].sections.length + ""
   );
-  let t3;
+  let t2;
+  let div0_draggable_value;
   let mounted;
   let dispose;
+  function select_block_type(ctx2, dirty) {
+    if (
+      /*isEditing*/
+      ctx2[2]
+    )
+      return create_if_block;
+    return create_else_block;
+  }
+  let current_block_type = select_block_type(ctx, [-1, -1]);
+  let if_block = current_block_type(ctx);
   return {
     c() {
       div1 = element("div");
@@ -1169,47 +1690,46 @@ function create_fragment(ctx) {
       span0 = element("span");
       span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>`;
       t0 = space();
+      if_block.c();
+      t1 = space();
       span1 = element("span");
-      t1 = text(t1_value);
-      t2 = space();
-      span2 = element("span");
-      t3 = text(t3_value);
+      t2 = text(t2_value);
       attr(span0, "class", "on-icon");
-      attr(span1, "class", "on-name");
-      attr(span2, "class", "on-count");
+      attr(span1, "class", "on-count");
       attr(div0, "class", "on-item on-notebook-item");
-      attr(div0, "draggable", "true");
+      attr(div0, "draggable", div0_draggable_value = !/*isEditing*/
+      ctx[2]);
       attr(div0, "role", "button");
       attr(div0, "tabindex", "0");
       toggle_class(
         div0,
         "active",
         /*$selectedNotebook*/
-        ctx[2] && /*$selectedNotebook*/
-        ctx[2].folderPath === /*notebook*/
+        ctx[6] && /*$selectedNotebook*/
+        ctx[6].folderPath === /*notebook*/
         ctx[0].folderPath
       );
       toggle_class(
         div0,
         "drag-over-top",
         /*$dragOverId*/
-        ctx[3] === /*notebook*/
+        ctx[7] === /*notebook*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[4] === "top"
+        ctx[8] === "top"
       );
       toggle_class(
         div0,
         "drag-over-bottom",
         /*$dragOverId*/
-        ctx[3] === /*notebook*/
+        ctx[7] === /*notebook*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[4] === "bottom"
+        ctx[8] === "bottom"
       );
       toggle_class(
         div0,
         "is-dragging",
         /*$draggedItemId*/
-        ctx[5] === /*notebook*/
+        ctx[9] === /*notebook*/
         ctx[0].folderPath
       );
       attr(div1, "class", "on-notebook-wrapper");
@@ -1219,98 +1739,126 @@ function create_fragment(ctx) {
       append(div1, div0);
       append(div0, span0);
       append(div0, t0);
+      if_block.m(div0, null);
+      append(div0, t1);
       append(div0, span1);
-      append(span1, t1);
-      append(div0, t2);
-      append(div0, span2);
-      append(span2, t3);
+      append(span1, t2);
       if (!mounted) {
         dispose = [
           listen(
             div0,
+            "mouseenter",
+            /*mouseenter_handler*/
+            ctx[23]
+          ),
+          listen(
+            div0,
+            "mouseleave",
+            /*mouseleave_handler*/
+            ctx[24]
+          ),
+          listen(
+            div0,
             "dragstart",
             /*dragstart_handler*/
-            ctx[11]
+            ctx[25]
           ),
           listen(div0, "dragover", stop_propagation(
             /*dragover_handler*/
-            ctx[12]
+            ctx[26]
           )),
           listen(
             div0,
             "dragleave",
             /*dragleave_handler*/
-            ctx[13]
+            ctx[27]
           ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[14]
+            ctx[28]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[15]
+            ctx[29]
           ),
           listen(
             div0,
             "click",
-            /*click_handler*/
-            ctx[16]
+            /*click_handler_1*/
+            ctx[30]
+          ),
+          listen(
+            div0,
+            "contextmenu",
+            /*handleContextMenu*/
+            ctx[17]
           )
         ];
         mounted = true;
       }
     },
-    p(ctx2, [dirty]) {
-      if (dirty & /*notebook*/
-      1 && t1_value !== (t1_value = /*notebook*/
-      ctx2[0].name + ""))
-        set_data(t1, t1_value);
-      if (dirty & /*notebook*/
-      1 && t3_value !== (t3_value = /*notebook*/
+    p(ctx2, dirty) {
+      if (current_block_type === (current_block_type = select_block_type(ctx2, dirty)) && if_block) {
+        if_block.p(ctx2, dirty);
+      } else {
+        if_block.d(1);
+        if_block = current_block_type(ctx2);
+        if (if_block) {
+          if_block.c();
+          if_block.m(div0, t1);
+        }
+      }
+      if (dirty[0] & /*notebook*/
+      1 && t2_value !== (t2_value = /*notebook*/
       ctx2[0].sections.length + ""))
-        set_data(t3, t3_value);
-      if (dirty & /*$selectedNotebook, notebook*/
-      5) {
+        set_data(t2, t2_value);
+      if (dirty[0] & /*isEditing*/
+      4 && div0_draggable_value !== (div0_draggable_value = !/*isEditing*/
+      ctx2[2])) {
+        attr(div0, "draggable", div0_draggable_value);
+      }
+      if (dirty[0] & /*$selectedNotebook, notebook*/
+      65) {
         toggle_class(
           div0,
           "active",
           /*$selectedNotebook*/
-          ctx2[2] && /*$selectedNotebook*/
-          ctx2[2].folderPath === /*notebook*/
+          ctx2[6] && /*$selectedNotebook*/
+          ctx2[6].folderPath === /*notebook*/
           ctx2[0].folderPath
         );
       }
-      if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      25) {
+      if (dirty[0] & /*$dragOverId, notebook, $dragPosition*/
+      385) {
         toggle_class(
           div0,
           "drag-over-top",
           /*$dragOverId*/
-          ctx2[3] === /*notebook*/
+          ctx2[7] === /*notebook*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[4] === "top"
+          ctx2[8] === "top"
         );
       }
-      if (dirty & /*$dragOverId, notebook, $dragPosition*/
-      25) {
+      if (dirty[0] & /*$dragOverId, notebook, $dragPosition*/
+      385) {
         toggle_class(
           div0,
           "drag-over-bottom",
           /*$dragOverId*/
-          ctx2[3] === /*notebook*/
+          ctx2[7] === /*notebook*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[4] === "bottom"
+          ctx2[8] === "bottom"
         );
       }
-      if (dirty & /*$draggedItemId, notebook*/
-      33) {
+      if (dirty[0] & /*$draggedItemId, notebook*/
+      513) {
         toggle_class(
           div0,
           "is-dragging",
           /*$draggedItemId*/
-          ctx2[5] === /*notebook*/
+          ctx2[9] === /*notebook*/
           ctx2[0].folderPath
         );
       }
@@ -1321,6 +1869,7 @@ function create_fragment(ctx) {
       if (detaching) {
         detach(div1);
       }
+      if_block.d();
       mounted = false;
       run_all(dispose);
     }
@@ -1336,21 +1885,125 @@ function instance($$self, $$props, $$invalidate) {
   } } = $$props;
   const vm = getContext("vm");
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(2, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(6, $selectedNotebook = value));
   const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(5, $draggedItemId = value));
+  component_subscribe($$self, draggedItemId, (value) => $$invalidate(9, $draggedItemId = value));
   const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(3, $dragOverId = value));
+  component_subscribe($$self, dragOverId, (value) => $$invalidate(7, $dragOverId = value));
   const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(4, $dragPosition = value));
-  const dragstart_handler = (e) => vm.handleDragStart(e, notebook.folderPath, "notebook");
-  const dragover_handler = (e) => vm.handleDragOver(e, notebook.folderPath, "notebook");
-  const dragleave_handler = (e) => vm.handleDragLeave(e, notebook.folderPath);
-  const drop_handler = (e) => vm.handleDrop(e, notebook.folderPath, "notebook");
+  component_subscribe($$self, dragPosition, (value) => $$invalidate(8, $dragPosition = value));
+  let isEditing = false;
+  let editName = notebook.name;
+  let isHovered = false;
+  let inputEl;
+  async function startInlineRename() {
+    $$invalidate(3, editName = notebook.name);
+    $$invalidate(2, isEditing = true);
+    await tick();
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  }
+  async function commitRename() {
+    if (!isEditing)
+      return;
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === notebook.name) {
+      cancelRename();
+      return;
+    }
+    $$invalidate(2, isEditing = false);
+    const activeApp = vm.app || window.app;
+    if (activeApp) {
+      const success = await ContextMenuHelper.renameNotebook(activeApp, notebook, trimmed);
+      if (success) {
+        if ($selectedNotebook && $selectedNotebook.folderPath === notebook.folderPath) {
+          const parentDir = notebook.folderPath.includes("/") ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) : "";
+          const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
+          set_store_value(
+            selectedNotebook,
+            $selectedNotebook = {
+              ...$selectedNotebook,
+              folderPath: newPath,
+              name: trimmed
+            },
+            $selectedNotebook
+          );
+        }
+        vm.loadNotebooks();
+      }
+    }
+  }
+  function cancelRename() {
+    $$invalidate(3, editName = notebook.name);
+    $$invalidate(2, isEditing = false);
+  }
+  function handleInputKeydown(e) {
+    e.stopPropagation();
+    if (e.key === "Enter" && !e.isComposing) {
+      e.preventDefault();
+      commitRename();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancelRename();
+    }
+  }
+  function handleInputBlur() {
+    commitRename();
+  }
+  function handleContextMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const activeApp = vm.app || window.app;
+    if (activeApp) {
+      ContextMenuHelper.showNotebookContextMenu(e, activeApp, notebook, () => vm.loadNotebooks(), () => startInlineRename());
+    }
+  }
+  function handleWindowKeydown(e) {
+    if (e.key === "F2" && isHovered && !isEditing) {
+      e.preventDefault();
+      e.stopPropagation();
+      startInlineRename();
+    }
+  }
+  onMount(() => {
+    window.addEventListener("keydown", handleWindowKeydown);
+  });
+  onDestroy(() => {
+    window.removeEventListener("keydown", handleWindowKeydown);
+  });
+  function click_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function mousedown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function pointerdown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function input_binding($$value) {
+    binding_callbacks[$$value ? "unshift" : "push"](() => {
+      inputEl = $$value;
+      $$invalidate(5, inputEl);
+    });
+  }
+  function input_input_handler() {
+    editName = this.value;
+    $$invalidate(3, editName), $$invalidate(2, isEditing), $$invalidate(0, notebook);
+  }
+  const mouseenter_handler = () => $$invalidate(4, isHovered = true);
+  const mouseleave_handler = () => $$invalidate(4, isHovered = false);
+  const dragstart_handler = (e) => !isEditing && vm.handleDragStart(e, notebook.folderPath, "notebook");
+  const dragover_handler = (e) => !isEditing && vm.handleDragOver(e, notebook.folderPath, "notebook");
+  const dragleave_handler = (e) => !isEditing && vm.handleDragLeave(e, notebook.folderPath);
+  const drop_handler = (e) => !isEditing && vm.handleDrop(e, notebook.folderPath, "notebook");
   const dragend_handler = () => vm.handleDragEnd();
-  const click_handler = () => {
-    vm.selectNotebook(notebook);
-    onSelect(notebook);
+  const click_handler_1 = () => {
+    if (!isEditing) {
+      vm.selectNotebook(notebook);
+      onSelect(notebook);
+    }
   };
   $$self.$$set = ($$props2) => {
     if ("notebook" in $$props2)
@@ -1358,9 +2011,22 @@ function instance($$self, $$props, $$invalidate) {
     if ("onSelect" in $$props2)
       $$invalidate(1, onSelect = $$props2.onSelect);
   };
+  $$self.$$.update = () => {
+    if ($$self.$$.dirty[0] & /*isEditing, notebook*/
+    5) {
+      $:
+        if (!isEditing) {
+          $$invalidate(3, editName = notebook.name);
+        }
+    }
+  };
   return [
     notebook,
     onSelect,
+    isEditing,
+    editName,
+    isHovered,
+    inputEl,
     $selectedNotebook,
     $dragOverId,
     $dragPosition,
@@ -1370,18 +2036,28 @@ function instance($$self, $$props, $$invalidate) {
     draggedItemId,
     dragOverId,
     dragPosition,
+    handleInputKeydown,
+    handleInputBlur,
+    handleContextMenu,
+    click_handler,
+    mousedown_handler,
+    pointerdown_handler,
+    input_binding,
+    input_input_handler,
+    mouseenter_handler,
+    mouseleave_handler,
     dragstart_handler,
     dragover_handler,
     dragleave_handler,
     drop_handler,
     dragend_handler,
-    click_handler
+    click_handler_1
   ];
 }
 var NotebookTreeItem = class extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance, create_fragment, safe_not_equal, { notebook: 0, onSelect: 1 });
+    init(this, options, instance, create_fragment, safe_not_equal, { notebook: 0, onSelect: 1 }, null, [-1, -1]);
   }
 };
 var NotebookTreeItem_default = NotebookTreeItem;
@@ -1392,7 +2068,7 @@ function get_each_context(ctx, list, i) {
   child_ctx[7] = list[i];
   return child_ctx;
 }
-function create_if_block(ctx) {
+function create_if_block2(ctx) {
   let div2;
   let div0;
   let span0;
@@ -1634,7 +2310,7 @@ function create_fragment2(ctx) {
   let current;
   let if_block = (
     /*show*/
-    ctx[0] && create_if_block(ctx)
+    ctx[0] && create_if_block2(ctx)
   );
   return {
     c() {
@@ -1660,7 +2336,7 @@ function create_fragment2(ctx) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block(ctx2);
+          if_block = create_if_block2(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -1747,256 +2423,137 @@ var NotebookPopover = class extends SvelteComponent {
 };
 var NotebookPopover_default = NotebookPopover;
 
-// src/ContextMenuHelper.ts
-var import_obsidian3 = require("obsidian");
-var ContextMenuHelper = class _ContextMenuHelper {
-  /**
-   * Show right-click context menu for a Section (folder)
-   */
-  static showSectionContextMenu(e, app, sec, onRefresh) {
-    e.preventDefault();
-    e.stopPropagation();
-    const menu = new import_obsidian3.Menu();
-    menu.addItem((item) => {
-      item.setTitle("New page").setIcon("file-plus").onClick(async () => {
-        await _ContextMenuHelper.createNewPage(app, sec.folderPath);
-        onRefresh();
-      });
-    });
-    menu.addItem((item) => {
-      item.setTitle("New section").setIcon("folder-plus").onClick(async () => {
-        await _ContextMenuHelper.createNewSection(app, sec.folderPath);
-        onRefresh();
-      });
-    });
-    menu.addSeparator();
-    menu.addItem((item) => {
-      item.setTitle("Copy section path").setIcon("link").onClick(() => {
-        void navigator.clipboard.writeText(sec.folderPath);
-        new import_obsidian3.Notice("Copied section path to clipboard");
-      });
-    });
-    menu.addItem((item) => {
-      item.setTitle("Show in system explorer").setIcon("folder-open").onClick(() => {
-        const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
-        if (abstractFile) {
-          app.showInFolder(abstractFile.path);
-        }
-      });
-    });
-    menu.addItem((item) => {
-      item.setTitle("Delete section").setIcon("trash").onClick(async () => {
-        const abstractFile = app.vault.getAbstractFileByPath(sec.folderPath);
-        if (abstractFile && abstractFile instanceof import_obsidian3.TFolder) {
-          await app.fileManager.trashFile(abstractFile);
-          new import_obsidian3.Notice(`Moved section "${sec.name}" to trash`);
-          onRefresh();
-        }
-      });
-    });
-    menu.showAtMouseEvent(e);
-  }
-  /**
-   * Show right-click context menu for a Page (note file)
-   */
-  static showPageContextMenu(e, app, page, secFolderPath, onRefresh) {
-    e.preventDefault();
-    e.stopPropagation();
-    const menu = new import_obsidian3.Menu();
-    menu.addItem((item) => {
-      item.setTitle("New sub page").setIcon("file-plus").onClick(async () => {
-        await _ContextMenuHelper.createNewSubPage(app, page);
-        onRefresh();
-      });
-    });
-    if (secFolderPath) {
-      menu.addItem((item) => {
-        item.setTitle("New page in section").setIcon("file-plus").onClick(async () => {
-          await _ContextMenuHelper.createNewPage(app, secFolderPath);
-          onRefresh();
-        });
-      });
-    }
-    menu.addItem((item) => {
-      item.setTitle("Copy Obsidian link").setIcon("link").onClick(() => {
-        const wikiLink = `[[${page.name}]]`;
-        void navigator.clipboard.writeText(wikiLink);
-        new import_obsidian3.Notice(`Copied ${wikiLink} to clipboard`);
-      });
-    });
-    menu.addSeparator();
-    menu.addItem((item) => {
-      item.setTitle("Show in system explorer").setIcon("folder-open").onClick(() => {
-        const abstractFile = app.vault.getAbstractFileByPath(page.filepath);
-        if (abstractFile) {
-          app.showInFolder(abstractFile.path);
-        }
-      });
-    });
-    const hasSubPages = page.children && page.children.length > 0 || !!page.folderPath;
-    if (hasSubPages) {
-      menu.addItem((item) => {
-        item.setTitle("Delete note (Keep sub-pages)").setIcon("trash").onClick(async () => {
-          await _ContextMenuHelper.deletePageSafely(app, page);
-          onRefresh();
-        });
-      });
-      menu.addItem((item) => {
-        item.setTitle("Delete note & all sub-pages").setIcon("trash-2").onClick(async () => {
-          await _ContextMenuHelper.deletePageAndAllSubPages(app, page);
-          onRefresh();
-        });
-      });
-    } else {
-      menu.addItem((item) => {
-        item.setTitle("Delete note").setIcon("trash").onClick(async () => {
-          await _ContextMenuHelper.deletePageSafely(app, page);
-          onRefresh();
-        });
-      });
-    }
-    menu.showAtMouseEvent(e);
-  }
-  /** Helper: Create a new sub-page note under an existing page */
-  static async createNewSubPage(app, page) {
-    let targetFolderPath = page.folderPath;
-    if (!targetFolderPath) {
-      const file = app.vault.getAbstractFileByPath(page.filepath);
-      if (!(file instanceof import_obsidian3.TFile))
-        return null;
-      const parentFolderPath = file.parent ? file.parent.path : "";
-      const folderName = page.name;
-      const newFolderPath = !parentFolderPath || parentFolderPath === "/" ? folderName : `${parentFolderPath}/${folderName}`;
-      let targetFolder = app.vault.getAbstractFileByPath(newFolderPath);
-      if (!targetFolder) {
-        targetFolder = await app.vault.createFolder(newFolderPath);
-      }
-      const newMainNotePath = `${newFolderPath}/${file.name}`;
-      if (file.path !== newMainNotePath) {
-        await app.fileManager.renameFile(file, newMainNotePath);
-      }
-      targetFolderPath = newFolderPath;
-    }
-    return await _ContextMenuHelper.createNewPage(app, targetFolderPath);
-  }
-  /** Helper: Create a new markdown page in specified folder path */
-  static async createNewPage(app, sectionFolderPath) {
-    let baseName = DEFAULT_UNTITLED_NOTE_NAME;
-    let folderPath = sectionFolderPath;
-    if (!folderPath) {
-      folderPath = "";
-    }
-    let targetPath = folderPath ? `${folderPath}/${baseName}.md` : `${baseName}.md`;
-    let counter = 1;
-    while (app.vault.getAbstractFileByPath(targetPath)) {
-      targetPath = folderPath ? `${folderPath}/${baseName} ${counter}.md` : `${baseName} ${counter}.md`;
-      counter++;
-    }
-    const folder = app.vault.getAbstractFileByPath(folderPath);
-    if (!folder && folderPath) {
-      await app.vault.createFolder(folderPath);
-    }
-    const newFile = await app.vault.create(targetPath, "");
-    return newFile;
-  }
-  /** Helper: Create a new sibling section in the parent directory of specified section */
-  static async createNewSection(app, currentSectionPath) {
-    const folder = app.vault.getAbstractFileByPath(currentSectionPath);
-    let targetPath = "";
-    if (folder) {
-      const parentDir = folder.parent ? folder.parent.path : "";
-      const parentPath = !parentDir || parentDir === "/" ? "" : parentDir;
-      let baseName = DEFAULT_NEW_SECTION_NAME;
-      targetPath = parentPath ? `${parentPath}/${baseName}` : baseName;
-      let counter = 1;
-      while (app.vault.getAbstractFileByPath(targetPath)) {
-        targetPath = parentPath ? `${parentPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
-        counter++;
-      }
-    } else {
-      let baseName = DEFAULT_NEW_SECTION_NAME;
-      targetPath = currentSectionPath ? `${currentSectionPath}/${baseName}` : baseName;
-      let counter = 1;
-      while (app.vault.getAbstractFileByPath(targetPath)) {
-        targetPath = currentSectionPath ? `${currentSectionPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
-        counter++;
-      }
-    }
-    const newFolder = await app.vault.createFolder(targetPath);
-    return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
-  }
-  /**
-   * Delete a page safely. If it is a Folder-Note with sub-pages:
-   * 1. Safely promote all child sub-pages up to the parent section folder.
-   * 2. Move main note file to system trash.
-   * 3. Remove empty folder directory.
-   */
-  static async deletePageSafely(app, page) {
-    const file = app.vault.getAbstractFileByPath(page.filepath);
-    if (!file || !(file instanceof import_obsidian3.TFile))
-      return;
-    if (page.folderPath) {
-      const folder = app.vault.getAbstractFileByPath(page.folderPath);
-      if (folder && folder instanceof import_obsidian3.TFolder) {
-        const parentSectionFolder = folder.parent;
-        const targetParentPath = parentSectionFolder ? parentSectionFolder.path : "";
-        for (const child of [...folder.children]) {
-          if (child instanceof import_obsidian3.TFile && child.path !== file.path) {
-            const newChildPath = !targetParentPath || targetParentPath === "/" ? child.name : `${targetParentPath}/${child.name}`;
-            let destPath = newChildPath;
-            let counter = 1;
-            while (app.vault.getAbstractFileByPath(destPath)) {
-              destPath = !targetParentPath || targetParentPath === "/" ? `${child.basename} ${counter}.${child.extension}` : `${targetParentPath}/${child.basename} ${counter}.${child.extension}`;
-              counter++;
-            }
-            await app.fileManager.renameFile(child, destPath);
-          }
-        }
-        await app.fileManager.trashFile(file);
-        if (folder.children.length === 0) {
-          await app.vault.adapter.rmdir(folder.path, true);
-        }
-        return;
-      }
-    }
-    await app.fileManager.trashFile(file);
-  }
-  /**
-   * Delete a page and all its child sub-pages by moving the folder to trash.
-   */
-  static async deletePageAndAllSubPages(app, page) {
-    if (page.folderPath) {
-      const folder = app.vault.getAbstractFileByPath(page.folderPath);
-      if (folder && folder instanceof import_obsidian3.TFolder) {
-        await app.fileManager.trashFile(folder);
-        return;
-      }
-    }
-    await _ContextMenuHelper.deletePageSafely(app, page);
-  }
-};
-
 // src/SectionTreeItem.svelte
+function create_else_block2(ctx) {
+  let span;
+  let t_value = (
+    /*sec*/
+    ctx[0].name + ""
+  );
+  let t;
+  return {
+    c() {
+      span = element("span");
+      t = text(t_value);
+      attr(span, "class", "on-name");
+    },
+    m(target, anchor) {
+      insert(target, span, anchor);
+      append(span, t);
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*sec*/
+      1 && t_value !== (t_value = /*sec*/
+      ctx2[0].name + ""))
+        set_data(t, t_value);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(span);
+      }
+    }
+  };
+}
+function create_if_block3(ctx) {
+  let input;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      input = element("input");
+      attr(input, "type", "text");
+      attr(input, "class", "on-rename-input");
+    },
+    m(target, anchor) {
+      insert(target, input, anchor);
+      ctx[24](input);
+      set_input_value(
+        input,
+        /*editName*/
+        ctx[2]
+      );
+      if (!mounted) {
+        dispose = [
+          listen(
+            input,
+            "input",
+            /*input_input_handler*/
+            ctx[25]
+          ),
+          listen(input, "click", stop_propagation(
+            /*click_handler*/
+            ctx[21]
+          )),
+          listen(input, "mousedown", stop_propagation(
+            /*mousedown_handler*/
+            ctx[22]
+          )),
+          listen(input, "pointerdown", stop_propagation(
+            /*pointerdown_handler*/
+            ctx[23]
+          )),
+          listen(
+            input,
+            "keydown",
+            /*handleInputKeydown*/
+            ctx[15]
+          ),
+          listen(
+            input,
+            "blur",
+            /*handleInputBlur*/
+            ctx[16]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*editName*/
+      4 && input.value !== /*editName*/
+      ctx2[2]) {
+        set_input_value(
+          input,
+          /*editName*/
+          ctx2[2]
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(input);
+      }
+      ctx[24](null);
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
 function create_fragment3(ctx) {
   let div1;
   let div0;
   let span0;
   let t0;
-  let span1;
-  let t1_value = (
-    /*sec*/
-    ctx[0].name + ""
-  );
   let t1;
-  let t2;
-  let span2;
-  let t3_value = (
+  let span1;
+  let t2_value = (
     /*sec*/
     ctx[0].pages.length + ""
   );
-  let t3;
+  let t2;
+  let div0_draggable_value;
   let mounted;
   let dispose;
+  function select_block_type(ctx2, dirty) {
+    if (
+      /*isEditing*/
+      ctx2[1]
+    )
+      return create_if_block3;
+    return create_else_block2;
+  }
+  let current_block_type = select_block_type(ctx, [-1, -1]);
+  let if_block = current_block_type(ctx);
   return {
     c() {
       div1 = element("div");
@@ -2004,55 +2561,52 @@ function create_fragment3(ctx) {
       span0 = element("span");
       span0.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>`;
       t0 = space();
+      if_block.c();
+      t1 = space();
       span1 = element("span");
-      t1 = text(t1_value);
-      t2 = space();
-      span2 = element("span");
-      t3 = text(t3_value);
+      t2 = text(t2_value);
       attr(span0, "class", "on-icon");
-      attr(span1, "class", "on-name");
-      attr(span2, "class", "on-count");
+      attr(span1, "class", "on-count");
       attr(div0, "class", "on-item on-section-item");
-      attr(div0, "draggable", "true");
+      attr(div0, "draggable", div0_draggable_value = !/*isEditing*/
+      ctx[1]);
       attr(div0, "role", "button");
       attr(div0, "tabindex", "0");
       toggle_class(
         div0,
         "active",
         /*$selectedSection*/
-        ctx[3] && /*$selectedSection*/
-        ctx[3].folderPath === /*sec*/
+        ctx[6] && /*$selectedSection*/
+        ctx[6].folderPath === /*sec*/
         ctx[0].folderPath
       );
       toggle_class(
         div0,
         "on-focused",
-        /*focusPane*/
-        ctx[1] === "sections" && /*focusedFolderPath*/
-        ctx[2] === /*sec*/
-        ctx[0].folderPath
+        /*isFocused*/
+        ctx[5]
       );
       toggle_class(
         div0,
         "drag-over-top",
         /*$dragOverId*/
-        ctx[4] === /*sec*/
+        ctx[7] === /*sec*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[5] === "top"
+        ctx[8] === "top"
       );
       toggle_class(
         div0,
         "drag-over-bottom",
         /*$dragOverId*/
-        ctx[4] === /*sec*/
+        ctx[7] === /*sec*/
         ctx[0].folderPath && /*$dragPosition*/
-        ctx[5] === "bottom"
+        ctx[8] === "bottom"
       );
       toggle_class(
         div0,
         "is-dragging",
         /*$draggedItemId*/
-        ctx[6] === /*sec*/
+        ctx[9] === /*sec*/
         ctx[0].folderPath
       );
       attr(div1, "class", "on-section-wrapper");
@@ -2062,115 +2616,135 @@ function create_fragment3(ctx) {
       append(div1, div0);
       append(div0, span0);
       append(div0, t0);
+      if_block.m(div0, null);
+      append(div0, t1);
       append(div0, span1);
-      append(span1, t1);
-      append(div0, t2);
-      append(div0, span2);
-      append(span2, t3);
+      append(span1, t2);
       if (!mounted) {
         dispose = [
           listen(
             div0,
+            "mouseenter",
+            /*mouseenter_handler*/
+            ctx[26]
+          ),
+          listen(
+            div0,
+            "mouseleave",
+            /*mouseleave_handler*/
+            ctx[27]
+          ),
+          listen(
+            div0,
             "dragstart",
             /*dragstart_handler*/
-            ctx[14]
+            ctx[28]
           ),
           listen(div0, "dragover", stop_propagation(
             /*dragover_handler*/
-            ctx[15]
+            ctx[29]
           )),
           listen(
             div0,
             "dragleave",
             /*dragleave_handler*/
-            ctx[16]
+            ctx[30]
           ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[17]
+            ctx[31]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[18]
+            ctx[32]
           ),
           listen(
             div0,
             "click",
             /*handleRowClick*/
-            ctx[12]
+            ctx[17]
           ),
           listen(
             div0,
             "contextmenu",
             /*handleContextMenu*/
-            ctx[13]
+            ctx[18]
           )
         ];
         mounted = true;
       }
     },
-    p(ctx2, [dirty]) {
-      if (dirty & /*sec*/
-      1 && t1_value !== (t1_value = /*sec*/
-      ctx2[0].name + ""))
-        set_data(t1, t1_value);
-      if (dirty & /*sec*/
-      1 && t3_value !== (t3_value = /*sec*/
+    p(ctx2, dirty) {
+      if (current_block_type === (current_block_type = select_block_type(ctx2, dirty)) && if_block) {
+        if_block.p(ctx2, dirty);
+      } else {
+        if_block.d(1);
+        if_block = current_block_type(ctx2);
+        if (if_block) {
+          if_block.c();
+          if_block.m(div0, t1);
+        }
+      }
+      if (dirty[0] & /*sec*/
+      1 && t2_value !== (t2_value = /*sec*/
       ctx2[0].pages.length + ""))
-        set_data(t3, t3_value);
-      if (dirty & /*$selectedSection, sec*/
-      9) {
+        set_data(t2, t2_value);
+      if (dirty[0] & /*isEditing*/
+      2 && div0_draggable_value !== (div0_draggable_value = !/*isEditing*/
+      ctx2[1])) {
+        attr(div0, "draggable", div0_draggable_value);
+      }
+      if (dirty[0] & /*$selectedSection, sec*/
+      65) {
         toggle_class(
           div0,
           "active",
           /*$selectedSection*/
-          ctx2[3] && /*$selectedSection*/
-          ctx2[3].folderPath === /*sec*/
+          ctx2[6] && /*$selectedSection*/
+          ctx2[6].folderPath === /*sec*/
           ctx2[0].folderPath
         );
       }
-      if (dirty & /*focusPane, focusedFolderPath, sec*/
-      7) {
+      if (dirty[0] & /*isFocused*/
+      32) {
         toggle_class(
           div0,
           "on-focused",
-          /*focusPane*/
-          ctx2[1] === "sections" && /*focusedFolderPath*/
-          ctx2[2] === /*sec*/
-          ctx2[0].folderPath
+          /*isFocused*/
+          ctx2[5]
         );
       }
-      if (dirty & /*$dragOverId, sec, $dragPosition*/
-      49) {
+      if (dirty[0] & /*$dragOverId, sec, $dragPosition*/
+      385) {
         toggle_class(
           div0,
           "drag-over-top",
           /*$dragOverId*/
-          ctx2[4] === /*sec*/
+          ctx2[7] === /*sec*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[5] === "top"
+          ctx2[8] === "top"
         );
       }
-      if (dirty & /*$dragOverId, sec, $dragPosition*/
-      49) {
+      if (dirty[0] & /*$dragOverId, sec, $dragPosition*/
+      385) {
         toggle_class(
           div0,
           "drag-over-bottom",
           /*$dragOverId*/
-          ctx2[4] === /*sec*/
+          ctx2[7] === /*sec*/
           ctx2[0].folderPath && /*$dragPosition*/
-          ctx2[5] === "bottom"
+          ctx2[8] === "bottom"
         );
       }
-      if (dirty & /*$draggedItemId, sec*/
-      65) {
+      if (dirty[0] & /*$draggedItemId, sec*/
+      513) {
         toggle_class(
           div0,
           "is-dragging",
           /*$draggedItemId*/
-          ctx2[6] === /*sec*/
+          ctx2[9] === /*sec*/
           ctx2[0].folderPath
         );
       }
@@ -2181,12 +2755,14 @@ function create_fragment3(ctx) {
       if (detaching) {
         detach(div1);
       }
+      if_block.d();
       mounted = false;
       run_all(dispose);
     }
   };
 }
 function instance3($$self, $$props, $$invalidate) {
+  let isFocused;
   let $selectedSection;
   let $dragOverId;
   let $dragPosition;
@@ -2196,41 +2772,154 @@ function instance3($$self, $$props, $$invalidate) {
   let { focusedFolderPath = "" } = $$props;
   const vm = getContext("vm");
   const selectedSection = vm.selectedSection;
-  component_subscribe($$self, selectedSection, (value) => $$invalidate(3, $selectedSection = value));
+  component_subscribe($$self, selectedSection, (value) => $$invalidate(6, $selectedSection = value));
   const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(6, $draggedItemId = value));
+  component_subscribe($$self, draggedItemId, (value) => $$invalidate(9, $draggedItemId = value));
   const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(4, $dragOverId = value));
+  component_subscribe($$self, dragOverId, (value) => $$invalidate(7, $dragOverId = value));
   const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(5, $dragPosition = value));
+  component_subscribe($$self, dragPosition, (value) => $$invalidate(8, $dragPosition = value));
+  let isEditing = false;
+  let editName = sec.name;
+  let isHovered = false;
+  let inputEl;
+  async function startInlineRename() {
+    $$invalidate(2, editName = sec.name);
+    $$invalidate(1, isEditing = true);
+    await tick();
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  }
+  async function commitRename() {
+    if (!isEditing)
+      return;
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === sec.name) {
+      cancelRename();
+      return;
+    }
+    $$invalidate(1, isEditing = false);
+    const activeApp = vm.app || window.app;
+    if (activeApp) {
+      const success = await ContextMenuHelper.renameSection(activeApp, sec, trimmed);
+      if (success) {
+        if ($selectedSection && $selectedSection.folderPath === sec.folderPath) {
+          const parentDir = sec.folderPath.includes("/") ? sec.folderPath.substring(0, sec.folderPath.lastIndexOf("/")) : "";
+          const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
+          set_store_value(
+            selectedSection,
+            $selectedSection = {
+              ...$selectedSection,
+              folderPath: newPath,
+              name: trimmed
+            },
+            $selectedSection
+          );
+        }
+        vm.loadNotebooks();
+      }
+    }
+  }
+  function cancelRename() {
+    $$invalidate(2, editName = sec.name);
+    $$invalidate(1, isEditing = false);
+  }
+  function handleInputKeydown(e) {
+    e.stopPropagation();
+    if (e.key === "Enter" && !e.isComposing) {
+      e.preventDefault();
+      commitRename();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancelRename();
+    }
+  }
+  function handleInputBlur() {
+    commitRename();
+  }
   function handleRowClick() {
-    vm.selectSection(sec);
+    if (!isEditing) {
+      vm.selectSection(sec);
+    }
   }
   function handleContextMenu(e) {
     e.preventDefault();
     e.stopPropagation();
     const activeApp = vm.app || window.app;
     if (activeApp) {
-      ContextMenuHelper.showSectionContextMenu(e, activeApp, sec, () => vm.loadNotebooks());
+      ContextMenuHelper.showSectionContextMenu(e, activeApp, sec, () => vm.loadNotebooks(), () => startInlineRename());
     }
   }
-  const dragstart_handler = (e) => vm.handleDragStart(e, sec.folderPath, "section");
-  const dragover_handler = (e) => vm.handleDragOver(e, sec.folderPath, "section");
-  const dragleave_handler = (e) => vm.handleDragLeave(e, sec.folderPath);
-  const drop_handler = (e) => vm.handleDrop(e, sec.folderPath, "section");
+  function handleWindowKeydown(e) {
+    if (e.key === "F2" && (isHovered || isFocused) && !isEditing) {
+      e.preventDefault();
+      e.stopPropagation();
+      startInlineRename();
+    }
+  }
+  onMount(() => {
+    window.addEventListener("keydown", handleWindowKeydown);
+  });
+  onDestroy(() => {
+    window.removeEventListener("keydown", handleWindowKeydown);
+  });
+  function click_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function mousedown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function pointerdown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function input_binding($$value) {
+    binding_callbacks[$$value ? "unshift" : "push"](() => {
+      inputEl = $$value;
+      $$invalidate(4, inputEl);
+    });
+  }
+  function input_input_handler() {
+    editName = this.value;
+    $$invalidate(2, editName), $$invalidate(1, isEditing), $$invalidate(0, sec);
+  }
+  const mouseenter_handler = () => $$invalidate(3, isHovered = true);
+  const mouseleave_handler = () => $$invalidate(3, isHovered = false);
+  const dragstart_handler = (e) => !isEditing && vm.handleDragStart(e, sec.folderPath, "section");
+  const dragover_handler = (e) => !isEditing && vm.handleDragOver(e, sec.folderPath, "section");
+  const dragleave_handler = (e) => !isEditing && vm.handleDragLeave(e, sec.folderPath);
+  const drop_handler = (e) => !isEditing && vm.handleDrop(e, sec.folderPath, "section");
   const dragend_handler = () => vm.handleDragEnd();
   $$self.$$set = ($$props2) => {
     if ("sec" in $$props2)
       $$invalidate(0, sec = $$props2.sec);
     if ("focusPane" in $$props2)
-      $$invalidate(1, focusPane = $$props2.focusPane);
+      $$invalidate(19, focusPane = $$props2.focusPane);
     if ("focusedFolderPath" in $$props2)
-      $$invalidate(2, focusedFolderPath = $$props2.focusedFolderPath);
+      $$invalidate(20, focusedFolderPath = $$props2.focusedFolderPath);
+  };
+  $$self.$$.update = () => {
+    if ($$self.$$.dirty[0] & /*focusPane, focusedFolderPath, sec*/
+    1572865) {
+      $:
+        $$invalidate(5, isFocused = focusPane === "sections" && focusedFolderPath === sec.folderPath);
+    }
+    if ($$self.$$.dirty[0] & /*isEditing, sec*/
+    3) {
+      $:
+        if (!isEditing) {
+          $$invalidate(2, editName = sec.name);
+        }
+    }
   };
   return [
     sec,
-    focusPane,
-    focusedFolderPath,
+    isEditing,
+    editName,
+    isHovered,
+    inputEl,
+    isFocused,
     $selectedSection,
     $dragOverId,
     $dragPosition,
@@ -2240,8 +2929,19 @@ function instance3($$self, $$props, $$invalidate) {
     draggedItemId,
     dragOverId,
     dragPosition,
+    handleInputKeydown,
+    handleInputBlur,
     handleRowClick,
     handleContextMenu,
+    focusPane,
+    focusedFolderPath,
+    click_handler,
+    mousedown_handler,
+    pointerdown_handler,
+    input_binding,
+    input_input_handler,
+    mouseenter_handler,
+    mouseleave_handler,
     dragstart_handler,
     dragover_handler,
     dragleave_handler,
@@ -2252,11 +2952,20 @@ function instance3($$self, $$props, $$invalidate) {
 var SectionTreeItem = class extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance3, create_fragment3, safe_not_equal, {
-      sec: 0,
-      focusPane: 1,
-      focusedFolderPath: 2
-    });
+    init(
+      this,
+      options,
+      instance3,
+      create_fragment3,
+      safe_not_equal,
+      {
+        sec: 0,
+        focusPane: 19,
+        focusedFolderPath: 20
+      },
+      null,
+      [-1, -1]
+    );
   }
 };
 var SectionTreeItem_default = SectionTreeItem;
@@ -2264,8 +2973,113 @@ var SectionTreeItem_default = SectionTreeItem;
 // src/PageTreeItem.svelte
 function get_each_context2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[26] = list[i];
+  child_ctx[43] = list[i];
   return child_ctx;
+}
+function create_else_block3(ctx) {
+  let span;
+  let t_value = (
+    /*page*/
+    ctx[0].name + ""
+  );
+  let t;
+  return {
+    c() {
+      span = element("span");
+      t = text(t_value);
+      attr(span, "class", "on-name");
+    },
+    m(target, anchor) {
+      insert(target, span, anchor);
+      append(span, t);
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*page*/
+      1 && t_value !== (t_value = /*page*/
+      ctx2[0].name + ""))
+        set_data(t, t_value);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(span);
+      }
+    }
+  };
+}
+function create_if_block_2(ctx) {
+  let input;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      input = element("input");
+      attr(input, "type", "text");
+      attr(input, "class", "on-rename-input");
+    },
+    m(target, anchor) {
+      insert(target, input, anchor);
+      ctx[28](input);
+      set_input_value(
+        input,
+        /*editName*/
+        ctx[8]
+      );
+      if (!mounted) {
+        dispose = [
+          listen(
+            input,
+            "input",
+            /*input_input_handler*/
+            ctx[29]
+          ),
+          listen(input, "click", stop_propagation(
+            /*click_handler*/
+            ctx[25]
+          )),
+          listen(input, "mousedown", stop_propagation(
+            /*mousedown_handler*/
+            ctx[26]
+          )),
+          listen(input, "pointerdown", stop_propagation(
+            /*pointerdown_handler*/
+            ctx[27]
+          )),
+          listen(
+            input,
+            "keydown",
+            /*handleInputKeydown*/
+            ctx[21]
+          ),
+          listen(
+            input,
+            "blur",
+            /*handleInputBlur*/
+            ctx[22]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*editName*/
+      256 && input.value !== /*editName*/
+      ctx2[8]) {
+        set_input_value(
+          input,
+          /*editName*/
+          ctx2[8]
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(input);
+      }
+      ctx[28](null);
+      mounted = false;
+      run_all(dispose);
+    }
+  };
 }
 function create_if_block_12(ctx) {
   let span;
@@ -2285,7 +3099,7 @@ function create_if_block_12(ctx) {
       append(span, t);
     },
     p(ctx2, dirty) {
-      if (dirty & /*page*/
+      if (dirty[0] & /*page*/
       1 && t_value !== (t_value = /*page*/
       ctx2[0].sectionName + ""))
         set_data(t, t_value);
@@ -2297,7 +3111,7 @@ function create_if_block_12(ctx) {
     }
   };
 }
-function create_if_block2(ctx) {
+function create_if_block4(ctx) {
   let each_blocks = [];
   let each_1_lookup = /* @__PURE__ */ new Map();
   let each_1_anchor;
@@ -2308,7 +3122,7 @@ function create_if_block2(ctx) {
   );
   const get_key = (ctx2) => (
     /*child*/
-    ctx2[26].filepath
+    ctx2[43].filepath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context2(ctx, each_value, i);
@@ -2332,7 +3146,7 @@ function create_if_block2(ctx) {
       current = true;
     },
     p(ctx2, dirty) {
-      if (dirty & /*page, depth, focusPane, focusedPagePath, onClick, onAuxClick, onContextMenu*/
+      if (dirty[0] & /*page, depth, focusPane, focusedPagePath, onClick, onAuxClick, onContextMenu*/
       127) {
         each_value = ensure_array_like(
           /*page*/
@@ -2375,7 +3189,7 @@ function create_each_block2(key_1, ctx) {
     props: {
       page: (
         /*child*/
-        ctx[26]
+        ctx[43]
       ),
       depth: (
         /*depth*/
@@ -2419,31 +3233,31 @@ function create_each_block2(key_1, ctx) {
     p(new_ctx, dirty) {
       ctx = new_ctx;
       const pagetreeitem_changes = {};
-      if (dirty & /*page*/
+      if (dirty[0] & /*page*/
       1)
         pagetreeitem_changes.page = /*child*/
-        ctx[26];
-      if (dirty & /*depth*/
+        ctx[43];
+      if (dirty[0] & /*depth*/
       2)
         pagetreeitem_changes.depth = /*depth*/
         ctx[1] + 1;
-      if (dirty & /*focusPane*/
+      if (dirty[0] & /*focusPane*/
       4)
         pagetreeitem_changes.focusPane = /*focusPane*/
         ctx[2];
-      if (dirty & /*focusedPagePath*/
+      if (dirty[0] & /*focusedPagePath*/
       8)
         pagetreeitem_changes.focusedPagePath = /*focusedPagePath*/
         ctx[3];
-      if (dirty & /*onClick*/
+      if (dirty[0] & /*onClick*/
       16)
         pagetreeitem_changes.onClick = /*onClick*/
         ctx[4];
-      if (dirty & /*onAuxClick*/
+      if (dirty[0] & /*onAuxClick*/
       32)
         pagetreeitem_changes.onAuxClick = /*onAuxClick*/
         ctx[5];
-      if (dirty & /*onContextMenu*/
+      if (dirty[0] & /*onContextMenu*/
       64)
         pagetreeitem_changes.onContextMenu = /*onContextMenu*/
         ctx[6];
@@ -2474,26 +3288,31 @@ function create_fragment4(ctx) {
   let t0;
   let span1;
   let t1;
-  let span2;
-  let t2_value = (
-    /*page*/
-    ctx[0].name + ""
-  );
   let t2;
+  let div0_draggable_value;
   let t3;
-  let t4;
   let current;
   let mounted;
   let dispose;
-  let if_block0 = (
+  function select_block_type(ctx2, dirty) {
+    if (
+      /*isEditing*/
+      ctx2[7]
+    )
+      return create_if_block_2;
+    return create_else_block3;
+  }
+  let current_block_type = select_block_type(ctx, [-1, -1]);
+  let if_block0 = current_block_type(ctx);
+  let if_block1 = (
     /*page*/
     ctx[0].sectionName && create_if_block_12(ctx)
   );
-  let if_block1 = (
+  let if_block2 = (
     /*page*/
     ctx[0].isExpanded && /*page*/
     ctx[0].children && /*page*/
-    ctx[0].children.length > 0 && create_if_block2(ctx)
+    ctx[0].children.length > 0 && create_if_block4(ctx)
   );
   return {
     c() {
@@ -2505,14 +3324,13 @@ function create_fragment4(ctx) {
       span1 = element("span");
       span1.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
       t1 = space();
-      span2 = element("span");
-      t2 = text(t2_value);
-      t3 = space();
-      if (if_block0)
-        if_block0.c();
-      t4 = space();
+      if_block0.c();
+      t2 = space();
       if (if_block1)
         if_block1.c();
+      t3 = space();
+      if (if_block2)
+        if_block2.c();
       attr(span0, "class", "on-chevron");
       attr(span0, "role", "button");
       attr(span0, "tabindex", "0");
@@ -2530,7 +3348,6 @@ function create_fragment4(ctx) {
         ctx[0].children.length > 0
       );
       attr(span1, "class", "on-icon");
-      attr(span2, "class", "on-name");
       attr(div0, "class", "on-item on-page-item");
       set_style(
         div0,
@@ -2538,43 +3355,44 @@ function create_fragment4(ctx) {
         /*depth*/
         ctx[1] * 14 + 10 + "px"
       );
-      attr(div0, "draggable", "true");
+      attr(div0, "draggable", div0_draggable_value = !/*isEditing*/
+      ctx[7]);
       attr(div0, "role", "button");
       attr(div0, "tabindex", "0");
       toggle_class(
         div0,
         "active",
         /*$activePagePath*/
-        ctx[8] === /*page*/
+        ctx[12] === /*page*/
         ctx[0].filepath
       );
       toggle_class(
         div0,
         "on-focused",
         /*isFocused*/
-        ctx[7]
+        ctx[11]
       );
       toggle_class(
         div0,
         "drag-over-top",
         /*$dragOverId*/
-        ctx[9] === /*page*/
+        ctx[13] === /*page*/
         ctx[0].filepath && /*$dragPosition*/
-        ctx[10] === "top"
+        ctx[14] === "top"
       );
       toggle_class(
         div0,
         "drag-over-bottom",
         /*$dragOverId*/
-        ctx[9] === /*page*/
+        ctx[13] === /*page*/
         ctx[0].filepath && /*$dragPosition*/
-        ctx[10] === "bottom"
+        ctx[14] === "bottom"
       );
       toggle_class(
         div0,
         "is-dragging",
         /*$draggedItemId*/
-        ctx[11] === /*page*/
+        ctx[15] === /*page*/
         ctx[0].filepath
       );
       attr(div1, "class", "on-page-wrapper");
@@ -2586,14 +3404,13 @@ function create_fragment4(ctx) {
       append(div0, t0);
       append(div0, span1);
       append(div0, t1);
-      append(div0, span2);
-      append(span2, t2);
-      append(div0, t3);
-      if (if_block0)
-        if_block0.m(div0, null);
-      append(div1, t4);
+      if_block0.m(div0, null);
+      append(div0, t2);
       if (if_block1)
-        if_block1.m(div1, null);
+        if_block1.m(div0, null);
+      append(div1, t3);
+      if (if_block2)
+        if_block2.m(div1, null);
       current = true;
       if (!mounted) {
         dispose = [
@@ -2601,58 +3418,70 @@ function create_fragment4(ctx) {
             span0,
             "click",
             /*handleChevronClick*/
-            ctx[17]
+            ctx[23]
+          ),
+          listen(
+            div0,
+            "mouseenter",
+            /*mouseenter_handler*/
+            ctx[30]
+          ),
+          listen(
+            div0,
+            "mouseleave",
+            /*mouseleave_handler*/
+            ctx[31]
           ),
           listen(
             div0,
             "dragstart",
             /*dragstart_handler*/
-            ctx[18]
+            ctx[32]
           ),
           listen(div0, "dragover", stop_propagation(
             /*dragover_handler*/
-            ctx[19]
+            ctx[33]
           )),
           listen(
             div0,
             "dragleave",
             /*dragleave_handler*/
-            ctx[20]
+            ctx[34]
           ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[21]
+            ctx[35]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[22]
+            ctx[36]
           ),
           listen(
             div0,
             "click",
-            /*click_handler*/
-            ctx[23]
+            /*click_handler_1*/
+            ctx[37]
           ),
           listen(
             div0,
             "auxclick",
             /*auxclick_handler*/
-            ctx[24]
+            ctx[38]
           ),
           listen(
             div0,
             "contextmenu",
-            /*contextmenu_handler*/
-            ctx[25]
+            /*handleItemContextMenu*/
+            ctx[24]
           )
         ];
         mounted = true;
       }
     },
-    p(ctx2, [dirty]) {
-      if (!current || dirty & /*page*/
+    p(ctx2, dirty) {
+      if (!current || dirty[0] & /*page*/
       1) {
         toggle_class(
           span0,
@@ -2661,7 +3490,7 @@ function create_fragment4(ctx) {
           ctx2[0].isExpanded
         );
       }
-      if (!current || dirty & /*page*/
+      if (!current || dirty[0] & /*page*/
       1) {
         toggle_class(
           span0,
@@ -2671,26 +3500,32 @@ function create_fragment4(ctx) {
           ctx2[0].children.length > 0
         );
       }
-      if ((!current || dirty & /*page*/
-      1) && t2_value !== (t2_value = /*page*/
-      ctx2[0].name + ""))
-        set_data(t2, t2_value);
+      if (current_block_type === (current_block_type = select_block_type(ctx2, dirty)) && if_block0) {
+        if_block0.p(ctx2, dirty);
+      } else {
+        if_block0.d(1);
+        if_block0 = current_block_type(ctx2);
+        if (if_block0) {
+          if_block0.c();
+          if_block0.m(div0, t2);
+        }
+      }
       if (
         /*page*/
         ctx2[0].sectionName
       ) {
-        if (if_block0) {
-          if_block0.p(ctx2, dirty);
+        if (if_block1) {
+          if_block1.p(ctx2, dirty);
         } else {
-          if_block0 = create_if_block_12(ctx2);
-          if_block0.c();
-          if_block0.m(div0, null);
+          if_block1 = create_if_block_12(ctx2);
+          if_block1.c();
+          if_block1.m(div0, null);
         }
-      } else if (if_block0) {
-        if_block0.d(1);
-        if_block0 = null;
+      } else if (if_block1) {
+        if_block1.d(1);
+        if_block1 = null;
       }
-      if (!current || dirty & /*depth*/
+      if (!current || dirty[0] & /*depth*/
       2) {
         set_style(
           div0,
@@ -2699,54 +3534,59 @@ function create_fragment4(ctx) {
           ctx2[1] * 14 + 10 + "px"
         );
       }
-      if (!current || dirty & /*$activePagePath, page*/
-      257) {
+      if (!current || dirty[0] & /*isEditing*/
+      128 && div0_draggable_value !== (div0_draggable_value = !/*isEditing*/
+      ctx2[7])) {
+        attr(div0, "draggable", div0_draggable_value);
+      }
+      if (!current || dirty[0] & /*$activePagePath, page*/
+      4097) {
         toggle_class(
           div0,
           "active",
           /*$activePagePath*/
-          ctx2[8] === /*page*/
+          ctx2[12] === /*page*/
           ctx2[0].filepath
         );
       }
-      if (!current || dirty & /*isFocused*/
-      128) {
+      if (!current || dirty[0] & /*isFocused*/
+      2048) {
         toggle_class(
           div0,
           "on-focused",
           /*isFocused*/
-          ctx2[7]
+          ctx2[11]
         );
       }
-      if (!current || dirty & /*$dragOverId, page, $dragPosition*/
-      1537) {
+      if (!current || dirty[0] & /*$dragOverId, page, $dragPosition*/
+      24577) {
         toggle_class(
           div0,
           "drag-over-top",
           /*$dragOverId*/
-          ctx2[9] === /*page*/
+          ctx2[13] === /*page*/
           ctx2[0].filepath && /*$dragPosition*/
-          ctx2[10] === "top"
+          ctx2[14] === "top"
         );
       }
-      if (!current || dirty & /*$dragOverId, page, $dragPosition*/
-      1537) {
+      if (!current || dirty[0] & /*$dragOverId, page, $dragPosition*/
+      24577) {
         toggle_class(
           div0,
           "drag-over-bottom",
           /*$dragOverId*/
-          ctx2[9] === /*page*/
+          ctx2[13] === /*page*/
           ctx2[0].filepath && /*$dragPosition*/
-          ctx2[10] === "bottom"
+          ctx2[14] === "bottom"
         );
       }
-      if (!current || dirty & /*$draggedItemId, page*/
-      2049) {
+      if (!current || dirty[0] & /*$draggedItemId, page*/
+      32769) {
         toggle_class(
           div0,
           "is-dragging",
           /*$draggedItemId*/
-          ctx2[11] === /*page*/
+          ctx2[15] === /*page*/
           ctx2[0].filepath
         );
       }
@@ -2756,22 +3596,22 @@ function create_fragment4(ctx) {
         ctx2[0].children && /*page*/
         ctx2[0].children.length > 0
       ) {
-        if (if_block1) {
-          if_block1.p(ctx2, dirty);
-          if (dirty & /*page*/
+        if (if_block2) {
+          if_block2.p(ctx2, dirty);
+          if (dirty[0] & /*page*/
           1) {
-            transition_in(if_block1, 1);
+            transition_in(if_block2, 1);
           }
         } else {
-          if_block1 = create_if_block2(ctx2);
-          if_block1.c();
-          transition_in(if_block1, 1);
-          if_block1.m(div1, null);
+          if_block2 = create_if_block4(ctx2);
+          if_block2.c();
+          transition_in(if_block2, 1);
+          if_block2.m(div1, null);
         }
-      } else if (if_block1) {
+      } else if (if_block2) {
         group_outros();
-        transition_out(if_block1, 1, 1, () => {
-          if_block1 = null;
+        transition_out(if_block2, 1, 1, () => {
+          if_block2 = null;
         });
         check_outros();
       }
@@ -2779,21 +3619,22 @@ function create_fragment4(ctx) {
     i(local) {
       if (current)
         return;
-      transition_in(if_block1);
+      transition_in(if_block2);
       current = true;
     },
     o(local) {
-      transition_out(if_block1);
+      transition_out(if_block2);
       current = false;
     },
     d(detaching) {
       if (detaching) {
         detach(div1);
       }
-      if (if_block0)
-        if_block0.d();
+      if_block0.d();
       if (if_block1)
         if_block1.d();
+      if (if_block2)
+        if_block2.d();
       mounted = false;
       run_all(dispose);
     }
@@ -2813,33 +3654,126 @@ function instance4($$self, $$props, $$invalidate) {
   } } = $$props;
   let { onAuxClick = () => {
   } } = $$props;
-  let { onContextMenu = () => {
-  } } = $$props;
+  let { onContextMenu = null } = $$props;
   const vm = getContext("vm");
   const activePagePath = vm.activePagePath;
-  component_subscribe($$self, activePagePath, (value) => $$invalidate(8, $activePagePath = value));
+  component_subscribe($$self, activePagePath, (value) => $$invalidate(12, $activePagePath = value));
   const draggedItemId = vm.draggedItemId;
-  component_subscribe($$self, draggedItemId, (value) => $$invalidate(11, $draggedItemId = value));
+  component_subscribe($$self, draggedItemId, (value) => $$invalidate(15, $draggedItemId = value));
   const dragOverId = vm.dragOverId;
-  component_subscribe($$self, dragOverId, (value) => $$invalidate(9, $dragOverId = value));
+  component_subscribe($$self, dragOverId, (value) => $$invalidate(13, $dragOverId = value));
   const dragPosition = vm.dragPosition;
-  component_subscribe($$self, dragPosition, (value) => $$invalidate(10, $dragPosition = value));
+  component_subscribe($$self, dragPosition, (value) => $$invalidate(14, $dragPosition = value));
+  let isEditing = false;
+  let editName = page.name;
+  let isHovered = false;
+  let inputEl;
+  async function startInlineRename() {
+    $$invalidate(8, editName = page.name);
+    $$invalidate(7, isEditing = true);
+    await tick();
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  }
+  async function commitRename() {
+    if (!isEditing)
+      return;
+    const trimmed = editName.replace(/\.md$/i, "").trim();
+    if (!trimmed || trimmed === page.name) {
+      cancelRename();
+      return;
+    }
+    $$invalidate(7, isEditing = false);
+    const activeApp = vm.app || window.app;
+    if (activeApp) {
+      const success = await ContextMenuHelper.renamePage(activeApp, page, trimmed);
+      if (success) {
+        vm.loadNotebooks();
+      }
+    }
+  }
+  function cancelRename() {
+    $$invalidate(8, editName = page.name);
+    $$invalidate(7, isEditing = false);
+  }
+  function handleInputKeydown(e) {
+    e.stopPropagation();
+    if (e.key === "Enter" && !e.isComposing) {
+      e.preventDefault();
+      commitRename();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancelRename();
+    }
+  }
+  function handleInputBlur() {
+    commitRename();
+  }
   function handleChevronClick(e) {
     e.stopPropagation();
     $$invalidate(0, page.isExpanded = !page.isExpanded, page);
     $$invalidate(0, page = { ...page });
   }
-  const dragstart_handler = (e) => vm.handleDragStart(e, page.filepath, "page");
-  const dragover_handler = (e) => vm.handleDragOver(e, page.filepath, "page");
-  const dragleave_handler = (e) => vm.handleDragLeave(e, page.filepath);
-  const drop_handler = (e) => vm.handleDrop(e, page.filepath, "page");
+  function handleItemContextMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onContextMenu) {
+      onContextMenu(e, page, () => startInlineRename());
+    } else {
+      const activeApp = vm.app || window.app;
+      if (activeApp) {
+        ContextMenuHelper.showPageContextMenu(e, activeApp, page, "", () => vm.loadNotebooks(), () => startInlineRename());
+      }
+    }
+  }
+  function handleWindowKeydown(e) {
+    if (e.key === "F2" && (isHovered || isFocused) && !isEditing) {
+      e.preventDefault();
+      e.stopPropagation();
+      startInlineRename();
+    }
+  }
+  onMount(() => {
+    window.addEventListener("keydown", handleWindowKeydown);
+  });
+  onDestroy(() => {
+    window.removeEventListener("keydown", handleWindowKeydown);
+  });
+  function click_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function mousedown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function pointerdown_handler(event) {
+    bubble.call(this, $$self, event);
+  }
+  function input_binding($$value) {
+    binding_callbacks[$$value ? "unshift" : "push"](() => {
+      inputEl = $$value;
+      $$invalidate(10, inputEl);
+    });
+  }
+  function input_input_handler() {
+    editName = this.value;
+    $$invalidate(8, editName), $$invalidate(7, isEditing), $$invalidate(0, page);
+  }
+  const mouseenter_handler = () => $$invalidate(9, isHovered = true);
+  const mouseleave_handler = () => $$invalidate(9, isHovered = false);
+  const dragstart_handler = (e) => !isEditing && vm.handleDragStart(e, page.filepath, "page");
+  const dragover_handler = (e) => !isEditing && vm.handleDragOver(e, page.filepath, "page");
+  const dragleave_handler = (e) => !isEditing && vm.handleDragLeave(e, page.filepath);
+  const drop_handler = (e) => !isEditing && vm.handleDrop(e, page.filepath, "page");
   const dragend_handler = () => vm.handleDragEnd();
-  const click_handler = (e) => {
-    const inNewTab = e.ctrlKey || e.metaKey;
-    onClick(page, inNewTab);
+  const click_handler_1 = (e) => {
+    if (!isEditing) {
+      const inNewTab = e.ctrlKey || e.metaKey;
+      onClick(page, inNewTab);
+    }
   };
-  const auxclick_handler = (e) => onAuxClick(e, page);
-  const contextmenu_handler = (e) => onContextMenu(e, page);
+  const auxclick_handler = (e) => !isEditing && onAuxClick(e, page);
   $$self.$$set = ($$props2) => {
     if ("page" in $$props2)
       $$invalidate(0, page = $$props2.page);
@@ -2857,10 +3791,17 @@ function instance4($$self, $$props, $$invalidate) {
       $$invalidate(6, onContextMenu = $$props2.onContextMenu);
   };
   $$self.$$.update = () => {
-    if ($$self.$$.dirty & /*focusPane, focusedPagePath, page*/
+    if ($$self.$$.dirty[0] & /*focusPane, focusedPagePath, page*/
     13) {
       $:
-        $$invalidate(7, isFocused = focusPane === "pages" && focusedPagePath === page.filepath);
+        $$invalidate(11, isFocused = focusPane === "pages" && focusedPagePath === page.filepath);
+    }
+    if ($$self.$$.dirty[0] & /*isEditing, page*/
+    129) {
+      $:
+        if (!isEditing) {
+          $$invalidate(8, editName = page.name);
+        }
     }
   };
   return [
@@ -2871,6 +3812,10 @@ function instance4($$self, $$props, $$invalidate) {
     onClick,
     onAuxClick,
     onContextMenu,
+    isEditing,
+    editName,
+    isHovered,
+    inputEl,
     isFocused,
     $activePagePath,
     $dragOverId,
@@ -2881,29 +3826,47 @@ function instance4($$self, $$props, $$invalidate) {
     draggedItemId,
     dragOverId,
     dragPosition,
+    handleInputKeydown,
+    handleInputBlur,
     handleChevronClick,
+    handleItemContextMenu,
+    click_handler,
+    mousedown_handler,
+    pointerdown_handler,
+    input_binding,
+    input_input_handler,
+    mouseenter_handler,
+    mouseleave_handler,
     dragstart_handler,
     dragover_handler,
     dragleave_handler,
     drop_handler,
     dragend_handler,
-    click_handler,
-    auxclick_handler,
-    contextmenu_handler
+    click_handler_1,
+    auxclick_handler
   ];
 }
 var PageTreeItem = class extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, instance4, create_fragment4, safe_not_equal, {
-      page: 0,
-      depth: 1,
-      focusPane: 2,
-      focusedPagePath: 3,
-      onClick: 4,
-      onAuxClick: 5,
-      onContextMenu: 6
-    });
+    init(
+      this,
+      options,
+      instance4,
+      create_fragment4,
+      safe_not_equal,
+      {
+        page: 0,
+        depth: 1,
+        focusPane: 2,
+        focusedPagePath: 3,
+        onClick: 4,
+        onAuxClick: 5,
+        onContextMenu: 6
+      },
+      null,
+      [-1, -1]
+    );
   }
 };
 var PageTreeItem_default = PageTreeItem;
@@ -2939,6 +3902,10 @@ var GUIDE_QUICK_ITEMS = [
     desc: "Reorder notebooks, sections, and sibling pages with 60px rAF auto-scroll"
   },
   {
+    key: "F2 / Right Click",
+    desc: "Inline rename notebook, section, or note directly in place"
+  },
+  {
     key: "Right Click",
     desc: "Native context menus (Rename, Delete, New Note/Section)"
   }
@@ -2947,6 +3914,11 @@ var GUIDE_SECTIONS = [
   {
     title: "\u26A1 Navigation & Keyboard Shortcuts (\u5FEB\u6377\u952E\u4E0E\u6309\u952E\u6D41)",
     cards: [
+      {
+        badge: "F2",
+        title: "Inline Rename (\u884C\u5185\u91CD\u547D\u540D)",
+        description: "Hover over or focus any Notebook, Section, or Note and press <kbd>F2</kbd> (or right-click \u2192 Rename) to edit the name inline with <kbd>Enter</kbd> to save and <kbd>Escape</kbd> to cancel."
+      },
       {
         badge: "\u2191 / \u2193",
         title: "Item Traversal",
@@ -3027,7 +3999,7 @@ function get_each_context3(ctx, list, i) {
   child_ctx[7] = list[i];
   return child_ctx;
 }
-function create_if_block3(ctx) {
+function create_if_block5(ctx) {
   let div3;
   let div0;
   let span0;
@@ -3220,7 +4192,7 @@ function create_fragment5(ctx) {
   let if_block_anchor;
   let if_block = (
     /*show*/
-    ctx[0] && create_if_block3(ctx)
+    ctx[0] && create_if_block5(ctx)
   );
   return {
     c() {
@@ -3241,7 +4213,7 @@ function create_fragment5(ctx) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
-          if_block = create_if_block3(ctx2);
+          if_block = create_if_block5(ctx2);
           if_block.c();
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
@@ -3317,7 +4289,7 @@ function get_each_context_1(ctx, list, i) {
   child_ctx[6] = list[i];
   return child_ctx;
 }
-function create_if_block4(ctx) {
+function create_if_block6(ctx) {
   let div4;
   let div3;
   let div1;
@@ -3516,7 +4488,7 @@ function create_fragment6(ctx) {
   let if_block_anchor;
   let if_block = (
     /*show*/
-    ctx[0] && create_if_block4(ctx)
+    ctx[0] && create_if_block6(ctx)
   );
   return {
     c() {
@@ -3537,7 +4509,7 @@ function create_fragment6(ctx) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
-          if_block = create_if_block4(ctx2);
+          if_block = create_if_block6(ctx2);
           if_block.c();
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
@@ -4448,7 +5420,7 @@ function get_each_context_12(ctx, list, i) {
   child_ctx[62] = list[i];
   return child_ctx;
 }
-function create_else_block(ctx) {
+function create_else_block4(ctx) {
   let div2;
   let div0;
   let button0;
@@ -4809,7 +5781,7 @@ function create_else_block(ctx) {
     }
   };
 }
-function create_if_block5(ctx) {
+function create_if_block7(ctx) {
   let div2;
   let div0;
   let t3;
@@ -4962,7 +5934,7 @@ function create_if_block_13(ctx) {
   let if_block;
   let if_block_anchor;
   let current;
-  const if_block_creators = [create_if_block_2, create_else_block_1];
+  const if_block_creators = [create_if_block_22, create_else_block_1];
   const if_blocks = [];
   function select_block_type_2(ctx2, dirty) {
     if (
@@ -5152,7 +6124,7 @@ function create_else_block_1(ctx) {
     }
   };
 }
-function create_if_block_2(ctx) {
+function create_if_block_22(ctx) {
   let div;
   return {
     c() {
@@ -5315,7 +6287,7 @@ function create_fragment7(ctx) {
   let current;
   let mounted;
   let dispose;
-  const if_block_creators = [create_if_block5, create_else_block];
+  const if_block_creators = [create_if_block7, create_else_block4];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     if (!/*$rootFolderExists*/
@@ -5625,12 +6597,12 @@ function instance7($$self, $$props, $$invalidate) {
       openPage(page, true);
     }
   }
-  function handlePageContextMenu(e, page) {
+  function handlePageContextMenu(e, page, onRename) {
     e.preventDefault();
     e.stopPropagation();
     const activeApp = app || window.app;
     if (activeApp) {
-      ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => vm.loadNotebooks());
+      ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => vm.loadNotebooks(), onRename);
     }
   }
   async function handleQuickNewNote() {
@@ -6053,7 +7025,7 @@ function create_if_block_7(ctx) {
     }
   };
 }
-function create_else_block2(ctx) {
+function create_else_block5(ctx) {
   let div2;
   let div0;
   let button0;
@@ -6404,7 +7376,7 @@ function create_else_block2(ctx) {
     }
   };
 }
-function create_if_block6(ctx) {
+function create_if_block8(ctx) {
   let div2;
   let div0;
   let t3;
@@ -6679,7 +7651,7 @@ function create_if_block_14(ctx) {
   }
   let if_block1 = (
     /*visibleRange*/
-    ctx[19].bottomPadding > 0 && create_if_block_22(ctx)
+    ctx[19].bottomPadding > 0 && create_if_block_23(ctx)
   );
   return {
     c() {
@@ -6743,7 +7715,7 @@ function create_if_block_14(ctx) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_22(ctx2);
+          if_block1 = create_if_block_23(ctx2);
           if_block1.c();
           if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
         }
@@ -6896,7 +7868,7 @@ function create_each_block6(key_1, ctx) {
     }
   };
 }
-function create_if_block_22(ctx) {
+function create_if_block_23(ctx) {
   let div;
   return {
     c() {
@@ -6981,7 +7953,7 @@ function create_fragment8(ctx) {
   }
   let current_block_type = select_block_type(ctx, [-1, -1, -1, -1]);
   let if_block2 = current_block_type(ctx);
-  const if_block_creators = [create_if_block6, create_else_block2];
+  const if_block_creators = [create_if_block8, create_else_block5];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
     if (!/*$rootFolderExists*/
@@ -7585,7 +8557,7 @@ function instance8($$self, $$props, $$invalidate) {
       openPage(page, true);
     }
   }
-  function handlePageContextMenu(e, page) {
+  function handlePageContextMenu(e, page, onRename) {
     e.preventDefault();
     e.stopPropagation();
     const activeApp = app || window.app;
@@ -7597,14 +8569,21 @@ function instance8($$self, $$props, $$invalidate) {
     } else if (visibleFlatPages.length > 1) {
       nextFocusPath = visibleFlatPages[1].filepath;
     }
-    ContextMenuHelper.showPageContextMenu(e, activeApp, page, ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "", () => {
-      vm.loadNotebooks();
-      if (nextFocusPath) {
-        $$invalidate(17, focusedPagePath = nextFocusPath);
-        $$invalidate(15, focusPane = "pages");
-        setTimeout(scrollFocusedIntoView, 10);
-      }
-    });
+    ContextMenuHelper.showPageContextMenu(
+      e,
+      activeApp,
+      page,
+      ($selectedSection == null ? void 0 : $selectedSection.folderPath) || "",
+      () => {
+        vm.loadNotebooks();
+        if (nextFocusPath) {
+          $$invalidate(17, focusedPagePath = nextFocusPath);
+          $$invalidate(15, focusPane = "pages");
+          setTimeout(scrollFocusedIntoView, 10);
+        }
+      },
+      onRename
+    );
   }
   function openCurrentSelection(inNewTab = false) {
     const visibleFlatPages = trimmedQuery ? $filteredPages : $selectedSection ? DataService.getFlattenedPages($selectedSection.pages) : [];
@@ -7694,7 +8673,8 @@ function instance8($$self, $$props, $$invalidate) {
     }
   }
   function handleKeydown(e) {
-    if (e.isComposing || e.keyCode === 229) {
+    var _a, _b, _c, _d;
+    if (e.isComposing || e.keyCode === 229 || ((_b = (_a = e.target) == null ? void 0 : _a.classList) == null ? void 0 : _b.contains("on-rename-input")) || ((_d = (_c = document.activeElement) == null ? void 0 : _c.classList) == null ? void 0 : _d.contains("on-rename-input"))) {
       return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
