@@ -74,7 +74,7 @@ export class OneNoteViewModel {
     // =============================================
     // Data Loading & Selection
     // =============================================
-    public loadNotebooks(autoSelectSectionPath?: string) {
+    public loadNotebooks(autoSelectSectionPath?: string, autoSelectNotebookPath?: string) {
         const exists = this.checkFolderExists(this.rootFolder);
         this.rootFolderExists.set(exists);
         if (!exists) {
@@ -96,7 +96,9 @@ export class OneNoteViewModel {
         const currentSelectedNb = get(this.selectedNotebook);
 
         if (nbs.length > 0) {
-            let nextNb = currentSelectedNb ? nbs.find(n => n.folderPath === currentSelectedNb.folderPath) : nbs[0];
+            let nextNb = autoSelectNotebookPath 
+                ? nbs.find(n => n.folderPath === autoSelectNotebookPath)
+                : (currentSelectedNb ? nbs.find(n => n.folderPath === currentSelectedNb.folderPath) : nbs[0]);
             if (!nextNb) nextNb = nbs[0];
             
             this.selectedNotebook.set(nextNb);

@@ -252,9 +252,11 @@
     async function handleQuickNewNotebook() {
         const activeApp = app || (window as any).app;
         if (activeApp) {
-            const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+            const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
             if (newFolder) {
-                vm.loadNotebooks();
+                vm.loadNotebooks(undefined, newFolder.path);
+                showNotebookDropdown = false;
+                new Notice(`Created notebook "${newFolder.name}"`);
             }
         }
     }
@@ -351,12 +353,16 @@
 
     async function handleQuickNewSection() {
         let targetFolderPath = $selectedSection?.folderPath;
-        if (!targetFolderPath) {
-            targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
-        }
         const activeApp = app || (window as any).app;
         if (activeApp) {
-            const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+            let newFolder: import("obsidian").TFolder | null = null;
+            if (targetFolderPath) {
+                newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+            } else if ($selectedNotebook?.folderPath) {
+                newFolder = await ContextMenuHelper.createNewSectionInsideNotebook(activeApp, $selectedNotebook.folderPath);
+            } else {
+                newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
+            }
             if (newFolder) {
                 if (targetFolderPath) {
                     vm.expandedSections.update(s => {
@@ -364,13 +370,14 @@
                         return s;
                     });
                 }
-                vm.loadNotebooks();
+                vm.loadNotebooks(newFolder.path);
                 focusPane = "sections";
                 const index = $visibleSections.findIndex(s => s.folderPath === newFolder.path);
                 if (index !== -1) {
                     focusedSectionIndex = index;
                     $selectedSection = $visibleSections[index];
                 }
+                new Notice(`Created section "${newFolder.name}"`);
                 setTimeout(scrollFocusedIntoView, 50);
             }
         }

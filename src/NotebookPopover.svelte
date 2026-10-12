@@ -19,8 +19,8 @@
                 style="cursor: pointer;" 
                 role="button"
                 tabindex="0"
-                on:keydown={(e) => { if (e.key === 'Enter') { onNewNotebook(); onClose(); } }}
-                on:click|stopPropagation={() => { onNewNotebook(); onClose(); }}
+                on:keydown={async (e) => { if (e.key === 'Enter') { await onNewNotebook(); onClose(); } }}
+                on:click|stopPropagation={async () => { await onNewNotebook(); onClose(); }}
             >
                 + New
             </span>

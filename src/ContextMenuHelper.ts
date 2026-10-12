@@ -1,6 +1,6 @@
 import { App, Menu, Notice, TFile, TFolder } from "obsidian";
 import { type SectionInfo, type PageInfo, type NotebookInfo } from "./types";
-import { DEFAULT_UNTITLED_NOTE_NAME, DEFAULT_NEW_SECTION_NAME } from "./constants";
+import { DEFAULT_UNTITLED_NOTE_NAME, DEFAULT_NEW_SECTION_NAME, DEFAULT_NEW_NOTEBOOK_NAME } from "./constants";
 
 export class ContextMenuHelper {
 
@@ -33,7 +33,10 @@ export class ContextMenuHelper {
             item.setTitle("New section")
                 .setIcon("folder-plus")
                 .onClick(async () => {
-                    await ContextMenuHelper.createNewSection(app, nb.folderPath);
+                    const newSec = await ContextMenuHelper.createNewSectionInsideNotebook(app, nb.folderPath);
+                    if (newSec) {
+                        new Notice(`Created section "${newSec.name}" in "${nb.name}"`);
+                    }
                     onRefresh();
                 });
         });
@@ -494,6 +497,47 @@ export class ContextMenuHelper {
                 targetPath = currentSectionPath ? `${currentSectionPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
                 counter++;
             }
+        }
+
+        const newFolder = await app.vault.createFolder(targetPath);
+        return newFolder instanceof TFolder ? newFolder : null;
+    }
+
+    /** Helper: Create a new notebook folder directly inside rootFolder */
+    public static async createNewNotebook(app: App, rootFolder: string): Promise<TFolder | null> {
+        const cleanRoot = (rootFolder || "").trim().replace(/^\/+|\/+$/g, "");
+        
+        let baseName = DEFAULT_NEW_NOTEBOOK_NAME;
+        let targetPath = cleanRoot ? `${cleanRoot}/${baseName}` : baseName;
+        let counter = 1;
+
+        while (app.vault.getAbstractFileByPath(targetPath)) {
+            targetPath = cleanRoot ? `${cleanRoot}/${baseName} ${counter}` : `${baseName} ${counter}`;
+            counter++;
+        }
+
+        // Ensure root folder exists if cleanRoot is specified
+        if (cleanRoot) {
+            const rootFile = app.vault.getAbstractFileByPath(cleanRoot);
+            if (!rootFile) {
+                await app.vault.createFolder(cleanRoot);
+            }
+        }
+
+        const newFolder = await app.vault.createFolder(targetPath);
+        return newFolder instanceof TFolder ? newFolder : null;
+    }
+
+    /** Helper: Create a new section directly inside a notebook folder */
+    public static async createNewSectionInsideNotebook(app: App, notebookFolderPath: string): Promise<TFolder | null> {
+        const cleanParent = (notebookFolderPath || "").trim().replace(/^\/+|\/+$/g, "");
+        let baseName = DEFAULT_NEW_SECTION_NAME;
+        let targetPath = cleanParent ? `${cleanParent}/${baseName}` : baseName;
+        let counter = 1;
+
+        while (app.vault.getAbstractFileByPath(targetPath)) {
+            targetPath = cleanParent ? `${cleanParent}/${baseName} ${counter}` : `${baseName} ${counter}`;
+            counter++;
         }
 
         const newFolder = await app.vault.createFolder(targetPath);

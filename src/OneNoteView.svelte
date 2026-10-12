@@ -225,15 +225,20 @@
     }
 
     async function handleQuickNewSection() {
-        let targetFolderPath = $selectedNotebook?.folderPath;
-        if (!targetFolderPath) {
-            targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
-        }
+        let targetFolderPath = $selectedSection?.folderPath;
         const activeApp = app || (window as any).app;
         if (activeApp) {
-            const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+            let newFolder: TFolder | null = null;
+            if (targetFolderPath) {
+                newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+            } else if ($selectedNotebook?.folderPath) {
+                newFolder = await ContextMenuHelper.createNewSectionInsideNotebook(activeApp, $selectedNotebook.folderPath);
+            } else {
+                newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
+            }
             if (newFolder) {
-                vm.loadNotebooks();
+                vm.loadNotebooks(newFolder.path);
+                new Notice(`Created section "${newFolder.name}"`);
             }
         }
     }
@@ -241,9 +246,11 @@
     async function handleQuickNewNotebook() {
         const activeApp = app || (window as any).app;
         if (activeApp) {
-            const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+            const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
             if (newFolder) {
-                vm.loadNotebooks();
+                vm.loadNotebooks(undefined, newFolder.path);
+                showNotebookDropdown = false;
+                new Notice(`Created notebook "${newFolder.name}"`);
             }
         }
     }

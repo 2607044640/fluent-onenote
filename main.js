@@ -32,7 +32,7 @@ __export(main_exports, {
   default: () => FluentOneNotePlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian10 = require("obsidian");
+var import_obsidian11 = require("obsidian");
 
 // src/constants.ts
 var VIEW_TYPE_SECTIONS = "fluent-onenote-sections";
@@ -41,6 +41,7 @@ var PAGE_ITEM_HEIGHT = 32;
 var VIRTUAL_BUFFER_ITEMS = 10;
 var DEFAULT_UNTITLED_NOTE_NAME = "Untitled Note";
 var DEFAULT_NEW_SECTION_NAME = "New Section";
+var DEFAULT_NEW_NOTEBOOK_NAME = "New Notebook";
 
 // src/Logger.ts
 var import_obsidian = require("obsidian");
@@ -1169,7 +1170,10 @@ var ContextMenuHelper = class _ContextMenuHelper {
     });
     menu.addItem((item) => {
       item.setTitle("New section").setIcon("folder-plus").onClick(async () => {
-        await _ContextMenuHelper.createNewSection(app, nb.folderPath);
+        const newSec = await _ContextMenuHelper.createNewSectionInsideNotebook(app, nb.folderPath);
+        if (newSec) {
+          new import_obsidian3.Notice(`Created section "${newSec.name}" in "${nb.name}"`);
+        }
         onRefresh();
       });
     });
@@ -1497,6 +1501,38 @@ var ContextMenuHelper = class _ContextMenuHelper {
         targetPath = currentSectionPath ? `${currentSectionPath}/${baseName} ${counter}` : `${baseName} ${counter}`;
         counter++;
       }
+    }
+    const newFolder = await app.vault.createFolder(targetPath);
+    return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
+  }
+  /** Helper: Create a new notebook folder directly inside rootFolder */
+  static async createNewNotebook(app, rootFolder) {
+    const cleanRoot = (rootFolder || "").trim().replace(/^\/+|\/+$/g, "");
+    let baseName = DEFAULT_NEW_NOTEBOOK_NAME;
+    let targetPath = cleanRoot ? `${cleanRoot}/${baseName}` : baseName;
+    let counter = 1;
+    while (app.vault.getAbstractFileByPath(targetPath)) {
+      targetPath = cleanRoot ? `${cleanRoot}/${baseName} ${counter}` : `${baseName} ${counter}`;
+      counter++;
+    }
+    if (cleanRoot) {
+      const rootFile = app.vault.getAbstractFileByPath(cleanRoot);
+      if (!rootFile) {
+        await app.vault.createFolder(cleanRoot);
+      }
+    }
+    const newFolder = await app.vault.createFolder(targetPath);
+    return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
+  }
+  /** Helper: Create a new section directly inside a notebook folder */
+  static async createNewSectionInsideNotebook(app, notebookFolderPath) {
+    const cleanParent = (notebookFolderPath || "").trim().replace(/^\/+|\/+$/g, "");
+    let baseName = DEFAULT_NEW_SECTION_NAME;
+    let targetPath = cleanParent ? `${cleanParent}/${baseName}` : baseName;
+    let counter = 1;
+    while (app.vault.getAbstractFileByPath(targetPath)) {
+      targetPath = cleanParent ? `${cleanParent}/${baseName} ${counter}` : `${baseName} ${counter}`;
+      counter++;
     }
     const newFolder = await app.vault.createFolder(targetPath);
     return newFolder instanceof import_obsidian3.TFolder ? newFolder : null;
@@ -2377,14 +2413,14 @@ function instance2($$self, $$props, $$invalidate) {
   } } = $$props;
   let { onClose = () => {
   } } = $$props;
-  const keydown_handler = (e) => {
+  const keydown_handler = async (e) => {
     if (e.key === "Enter") {
-      onNewNotebook();
+      await onNewNotebook();
       onClose();
     }
   };
-  const click_handler = () => {
-    onNewNotebook();
+  const click_handler = async () => {
+    await onNewNotebook();
     onClose();
   };
   $$self.$$set = ($$props2) => {
@@ -4906,7 +4942,7 @@ var _OneNoteViewModel = class _OneNoteViewModel {
   // =============================================
   // Data Loading & Selection
   // =============================================
-  loadNotebooks(autoSelectSectionPath) {
+  loadNotebooks(autoSelectSectionPath, autoSelectNotebookPath) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i;
     const exists = this.checkFolderExists(this.rootFolder);
     this.rootFolderExists.set(exists);
@@ -4926,7 +4962,7 @@ var _OneNoteViewModel = class _OneNoteViewModel {
     this.notebooks.set(nbs);
     const currentSelectedNb = get_store_value(this.selectedNotebook);
     if (nbs.length > 0) {
-      let nextNb = currentSelectedNb ? nbs.find((n) => n.folderPath === currentSelectedNb.folderPath) : nbs[0];
+      let nextNb = autoSelectNotebookPath ? nbs.find((n) => n.folderPath === autoSelectNotebookPath) : currentSelectedNb ? nbs.find((n) => n.folderPath === currentSelectedNb.folderPath) : nbs[0];
       if (!nextNb)
         nextNb = nbs[0];
       this.selectedNotebook.set(nextNb);
@@ -6621,24 +6657,31 @@ function instance7($$self, $$props, $$invalidate) {
     }
   }
   async function handleQuickNewSection() {
-    let targetFolderPath = $selectedNotebook == null ? void 0 : $selectedNotebook.folderPath;
-    if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
-    }
+    let targetFolderPath = $selectedSection == null ? void 0 : $selectedSection.folderPath;
     const activeApp = app || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+      let newFolder = null;
+      if (targetFolderPath) {
+        newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+      } else if ($selectedNotebook == null ? void 0 : $selectedNotebook.folderPath) {
+        newFolder = await ContextMenuHelper.createNewSectionInsideNotebook(activeApp, $selectedNotebook.folderPath);
+      } else {
+        newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
+      }
       if (newFolder) {
-        vm.loadNotebooks();
+        vm.loadNotebooks(newFolder.path);
+        new import_obsidian6.Notice(`Created section "${newFolder.name}"`);
       }
     }
   }
   async function handleQuickNewNotebook() {
     const activeApp = app || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+      const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
       if (newFolder) {
-        vm.loadNotebooks();
+        vm.loadNotebooks(void 0, newFolder.path);
+        $$invalidate(3, showNotebookDropdown = false);
+        new import_obsidian6.Notice(`Created notebook "${newFolder.name}"`);
       }
     }
   }
@@ -6815,9 +6858,10 @@ var OneNoteView = class extends SvelteComponent {
 var OneNoteView_default = OneNoteView;
 
 // src/OneNoteModal.ts
-var import_obsidian7 = require("obsidian");
+var import_obsidian8 = require("obsidian");
 
 // src/OneNoteModalView.svelte
+var import_obsidian7 = require("obsidian");
 var { window: window_12 } = globals;
 function get_each_context6(ctx, list, i) {
   const child_ctx = ctx.slice();
@@ -7034,9 +7078,9 @@ function create_else_block5(ctx) {
   let span1;
   let t2_value = (
     /*$selectedNotebook*/
-    (ctx[23] ? (
+    (ctx[22] ? (
       /*$selectedNotebook*/
-      ctx[23].name
+      ctx[22].name
     ) : "Select Notebook") + ""
   );
   let t2;
@@ -7260,10 +7304,10 @@ function create_else_block5(ctx) {
     },
     p(ctx2, dirty) {
       if ((!current || dirty[0] & /*$selectedNotebook*/
-      8388608) && t2_value !== (t2_value = /*$selectedNotebook*/
-      (ctx2[23] ? (
+      4194304) && t2_value !== (t2_value = /*$selectedNotebook*/
+      (ctx2[22] ? (
         /*$selectedNotebook*/
-        ctx2[23].name
+        ctx2[22].name
       ) : "Select Notebook") + ""))
         set_data(t2, t2_value);
       if (!current || dirty[0] & /*showNotebookDropdown*/
@@ -7946,7 +7990,7 @@ function create_fragment8(ctx) {
   function select_block_type(ctx2, dirty) {
     if (
       /*$searchAllNotebooks*/
-      ctx2[22]
+      ctx2[23]
     )
       return create_if_block_7;
     return create_else_block_22;
@@ -8041,24 +8085,24 @@ function create_fragment8(ctx) {
       attr(input, "type", "text");
       attr(input, "class", "on-filter-input");
       attr(input, "placeholder", input_placeholder_value = /*$searchAllNotebooks*/
-      ctx[22] ? "Search across all notebooks..." : (
+      ctx[23] ? "Search across all notebooks..." : (
         /*$selectedNotebook*/
-        ctx[23] ? `Search in "${/*$selectedNotebook*/
-        ctx[23].name}"...` : "Type to search page or section..."
+        ctx[22] ? `Search in "${/*$selectedNotebook*/
+        ctx[22].name}"...` : "Type to search page or section..."
       ));
       attr(button0, "type", "button");
       attr(button0, "class", "on-filter-btn-global");
       attr(button0, "title", button0_title_value = /*$searchAllNotebooks*/
-      ctx[22] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
-      ctx[23] ? (
+      ctx[23] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx[22] ? (
         /*$selectedNotebook*/
-        ctx[23].name
+        ctx[22].name
       ) : "Active"}) (Click to switch to All Notebooks)`);
       toggle_class(
         button0,
         "active",
         /*$searchAllNotebooks*/
-        ctx[22]
+        ctx[23]
       );
       attr(span1, "class", "on-root-scope-badge");
       attr(span1, "title", span1_title_value = /*rootFolder*/
@@ -8181,10 +8225,10 @@ function create_fragment8(ctx) {
       }
       if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
       12582912 && input_placeholder_value !== (input_placeholder_value = /*$searchAllNotebooks*/
-      ctx2[22] ? "Search across all notebooks..." : (
+      ctx2[23] ? "Search across all notebooks..." : (
         /*$selectedNotebook*/
-        ctx2[23] ? `Search in "${/*$selectedNotebook*/
-        ctx2[23].name}"...` : "Type to search page or section..."
+        ctx2[22] ? `Search in "${/*$selectedNotebook*/
+        ctx2[22].name}"...` : "Type to search page or section..."
       ))) {
         attr(input, "placeholder", input_placeholder_value);
       }
@@ -8222,20 +8266,20 @@ function create_fragment8(ctx) {
       }
       if (!current || dirty[0] & /*$searchAllNotebooks, $selectedNotebook*/
       12582912 && button0_title_value !== (button0_title_value = /*$searchAllNotebooks*/
-      ctx2[22] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
-      ctx2[23] ? (
+      ctx2[23] ? "Search Scope: All Notebooks (Click to switch to Current Notebook)" : `Search Scope: Current Notebook (${/*$selectedNotebook*/
+      ctx2[22] ? (
         /*$selectedNotebook*/
-        ctx2[23].name
+        ctx2[22].name
       ) : "Active"}) (Click to switch to All Notebooks)`)) {
         attr(button0, "title", button0_title_value);
       }
       if (!current || dirty[0] & /*$searchAllNotebooks*/
-      4194304) {
+      8388608) {
         toggle_class(
           button0,
           "active",
           /*$searchAllNotebooks*/
-          ctx2[22]
+          ctx2[23]
         );
       }
       if ((!current || dirty[0] & /*rootFolder*/
@@ -8346,9 +8390,9 @@ function instance8($$self, $$props, $$invalidate) {
   let $filteredPages;
   let $visibleSections;
   let $filterQueryStore;
+  let $selectedNotebook;
   let $activePagePath;
   let $searchAllNotebooks;
-  let $selectedNotebook;
   let $rootFolderExists;
   let $notebooks;
   let $sections;
@@ -8373,7 +8417,7 @@ function instance8($$self, $$props, $$invalidate) {
   const notebooks = vm.notebooks;
   component_subscribe($$self, notebooks, (value) => $$invalidate(25, $notebooks = value));
   const selectedNotebook = vm.selectedNotebook;
-  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(23, $selectedNotebook = value));
+  component_subscribe($$self, selectedNotebook, (value) => $$invalidate(22, $selectedNotebook = value));
   const sections = vm.sections;
   component_subscribe($$self, sections, (value) => $$invalidate(26, $sections = value));
   const selectedSection = vm.selectedSection;
@@ -8385,7 +8429,7 @@ function instance8($$self, $$props, $$invalidate) {
   const filterQueryStore = vm.filterQuery;
   component_subscribe($$self, filterQueryStore, (value) => $$invalidate(6, $filterQueryStore = value));
   const searchAllNotebooks = vm.searchAllNotebooks;
-  component_subscribe($$self, searchAllNotebooks, (value) => $$invalidate(22, $searchAllNotebooks = value));
+  component_subscribe($$self, searchAllNotebooks, (value) => $$invalidate(23, $searchAllNotebooks = value));
   const visibleSections = vm.visibleSections;
   component_subscribe($$self, visibleSections, (value) => $$invalidate(21, $visibleSections = value));
   const filteredPages = vm.filteredPages;
@@ -8529,9 +8573,11 @@ function instance8($$self, $$props, $$invalidate) {
   async function handleQuickNewNotebook() {
     const activeApp = app || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, rootFolder);
+      const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
       if (newFolder) {
-        vm.loadNotebooks();
+        vm.loadNotebooks(void 0, newFolder.path);
+        $$invalidate(7, showNotebookDropdown = false);
+        new import_obsidian7.Notice(`Created notebook "${newFolder.name}"`);
       }
     }
   }
@@ -8625,12 +8671,16 @@ function instance8($$self, $$props, $$invalidate) {
   }
   async function handleQuickNewSection() {
     let targetFolderPath = $selectedSection == null ? void 0 : $selectedSection.folderPath;
-    if (!targetFolderPath) {
-      targetFolderPath = rootFolder.trim() !== "" ? rootFolder : "";
-    }
     const activeApp = app || window.app;
     if (activeApp) {
-      const newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+      let newFolder = null;
+      if (targetFolderPath) {
+        newFolder = await ContextMenuHelper.createNewSection(activeApp, targetFolderPath);
+      } else if ($selectedNotebook == null ? void 0 : $selectedNotebook.folderPath) {
+        newFolder = await ContextMenuHelper.createNewSectionInsideNotebook(activeApp, $selectedNotebook.folderPath);
+      } else {
+        newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
+      }
       if (newFolder) {
         if (targetFolderPath) {
           vm.expandedSections.update((s) => {
@@ -8638,13 +8688,14 @@ function instance8($$self, $$props, $$invalidate) {
             return s;
           });
         }
-        vm.loadNotebooks();
+        vm.loadNotebooks(newFolder.path);
         $$invalidate(15, focusPane = "sections");
         const index = $visibleSections.findIndex((s) => s.folderPath === newFolder.path);
         if (index !== -1) {
           $$invalidate(16, focusedSectionIndex = index);
           set_store_value(selectedSection, $selectedSection = $visibleSections[index], $selectedSection);
         }
+        new import_obsidian7.Notice(`Created section "${newFolder.name}"`);
         setTimeout(scrollFocusedIntoView, 50);
       }
     }
@@ -9006,8 +9057,8 @@ function instance8($$self, $$props, $$invalidate) {
     visibleRange,
     $selectedSection,
     $visibleSections,
-    $searchAllNotebooks,
     $selectedNotebook,
+    $searchAllNotebooks,
     $rootFolderExists,
     $notebooks,
     $sections,
@@ -9092,7 +9143,7 @@ var OneNoteModalView_default = OneNoteModalView;
 
 // src/OneNoteModal.ts
 var MAX_TIP_COUNT = 5;
-var OneNoteModal = class extends import_obsidian7.Modal {
+var OneNoteModal = class extends import_obsidian8.Modal {
   constructor(app, plugin, dataService) {
     super(app);
     this.component = null;
@@ -9150,8 +9201,8 @@ var OneNoteModal = class extends import_obsidian7.Modal {
 };
 
 // src/RecentPagesModal.ts
-var import_obsidian8 = require("obsidian");
-var RecentPagesModal = class extends import_obsidian8.FuzzySuggestModal {
+var import_obsidian9 = require("obsidian");
+var RecentPagesModal = class extends import_obsidian9.FuzzySuggestModal {
   constructor(app, plugin) {
     super(app);
     this.plugin = plugin;
@@ -9178,7 +9229,7 @@ var RecentPagesModal = class extends import_obsidian8.FuzzySuggestModal {
 };
 
 // src/settings.ts
-var import_obsidian9 = require("obsidian");
+var import_obsidian10 = require("obsidian");
 var DEFAULT_SETTINGS = {
   rootFolder: "OneNote",
   accentColor: "#8b5cf6",
@@ -9197,7 +9248,7 @@ var DEFAULT_SETTINGS = {
   customNotebookOrder: [],
   searchAllNotebooks: false
 };
-var ConfirmModal = class extends import_obsidian9.Modal {
+var ConfirmModal = class extends import_obsidian10.Modal {
   constructor(app, titleText, messageText, confirmButtonText, onConfirm) {
     super(app);
     this.titleText = titleText;
@@ -9236,7 +9287,7 @@ var ConfirmModal = class extends import_obsidian9.Modal {
     contentEl.empty();
   }
 };
-var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
+var FluentOneNoteSettingTab = class extends import_obsidian10.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -9244,17 +9295,17 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian9.Setting(containerEl).setName("Folder Navigation").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Root Folder Path").setDesc("The base folder path scanned for OneNote-style notebooks. Dedicated folder mode (default: 'OneNote'): keeps notebooks neatly organized in a dedicated directory without mixing with daily notes or attachments. Vault root mode: leave empty (or '/') to scan your entire vault as notebooks.").addText((text2) => text2.setPlaceholder("e.g. OneNote (or leave blank for entire vault)").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
+    new import_obsidian10.Setting(containerEl).setName("Folder Navigation").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("Root Folder Path").setDesc("The base folder path scanned for OneNote-style notebooks. Dedicated folder mode (default: 'OneNote'): keeps notebooks neatly organized in a dedicated directory without mixing with daily notes or attachments. Vault root mode: leave empty (or '/') to scan your entire vault as notebooks.").addText((text2) => text2.setPlaceholder("e.g. OneNote (or leave blank for entire vault)").setValue(this.plugin.settings.rootFolder).onChange(async (value) => {
       this.plugin.settings.rootFolder = value.trim();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian9.Setting(containerEl).setName("Display Mode").setDesc("Choose how the navigation panel is displayed.").addDropdown((dropdown) => dropdown.addOption("floating", "Floating popup only").addOption("both", "Both (sidebar + floating popup)").setValue(this.plugin.settings.displayMode === "sidebar" ? "both" : this.plugin.settings.displayMode).onChange(async (value) => {
+    new import_obsidian10.Setting(containerEl).setName("Display Mode").setDesc("Choose how the navigation panel is displayed.").addDropdown((dropdown) => dropdown.addOption("floating", "Floating popup only").addOption("both", "Both (sidebar + floating popup)").setValue(this.plugin.settings.displayMode === "sidebar" ? "both" : this.plugin.settings.displayMode).onChange(async (value) => {
       this.plugin.settings.displayMode = value;
       await this.plugin.saveSettings();
       this.plugin.applyDisplayMode();
     }));
-    new import_obsidian9.Setting(containerEl).setName("Hide Ribbon Icon").setDesc("Hide the Fluent OneNote icon in the left ribbon.").addToggle((toggle) => {
+    new import_obsidian10.Setting(containerEl).setName("Hide Ribbon Icon").setDesc("Hide the Fluent OneNote icon in the left ribbon.").addToggle((toggle) => {
       var _a;
       return toggle.setValue((_a = this.plugin.settings.hideRibbonIcon) != null ? _a : false).onChange(async (value) => {
         this.plugin.settings.hideRibbonIcon = value;
@@ -9262,24 +9313,24 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         this.plugin.refreshRibbonIcon();
       });
     });
-    new import_obsidian9.Setting(containerEl).setName("Search Navigation").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Global Search by Default").setDesc("Search notes across all notebooks by default in the search popup modal, instead of restricting search to the currently active notebook.").addToggle((toggle) => {
+    new import_obsidian10.Setting(containerEl).setName("Search Navigation").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("Global Search by Default").setDesc("Search notes across all notebooks by default in the search popup modal, instead of restricting search to the currently active notebook.").addToggle((toggle) => {
       var _a;
       return toggle.setValue((_a = this.plugin.settings.searchAllNotebooks) != null ? _a : false).onChange(async (value) => {
         this.plugin.settings.searchAllNotebooks = value;
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian9.Setting(containerEl).setName("Performance Optimization").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("DOM Virtualization for Large Vaults").setDesc("Experimental: Enable only if you experience scrolling lag with 5000+ notes in a single section. Keeps default rendering clean and zero-friction for normal vaults.").addToggle((toggle) => {
+    new import_obsidian10.Setting(containerEl).setName("Performance Optimization").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("DOM Virtualization for Large Vaults").setDesc("Experimental: Enable only if you experience scrolling lag with 5000+ notes in a single section. Keeps default rendering clean and zero-friction for normal vaults.").addToggle((toggle) => {
       var _a;
       return toggle.setValue((_a = this.plugin.settings.enableDOMVirtualization) != null ? _a : false).onChange(async (value) => {
         this.plugin.settings.enableDOMVirtualization = value;
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian9.Setting(containerEl).setName("Popup Modal Size").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Modal Width (%)").setDesc("Set the width percentage of the navigation popup modal (Min: 40%, Max: 98%).").addSlider((slider) => {
+    new import_obsidian10.Setting(containerEl).setName("Popup Modal Size").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("Modal Width (%)").setDesc("Set the width percentage of the navigation popup modal (Min: 40%, Max: 98%).").addSlider((slider) => {
       var _a;
       return slider.setLimits(40, 98, 1).setValue((_a = this.plugin.settings.modalWidth) != null ? _a : 65).onChange(async (value) => {
         this.plugin.settings.modalWidth = value;
@@ -9287,7 +9338,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         this.plugin.applySettings();
       });
     });
-    new import_obsidian9.Setting(containerEl).setName("Modal Height (%)").setDesc("Set the height percentage of the navigation popup modal (Min: 40%, Max: 95%).").addSlider((slider) => {
+    new import_obsidian10.Setting(containerEl).setName("Modal Height (%)").setDesc("Set the height percentage of the navigation popup modal (Min: 40%, Max: 95%).").addSlider((slider) => {
       var _a;
       return slider.setLimits(40, 95, 1).setValue((_a = this.plugin.settings.modalHeight) != null ? _a : 70).onChange(async (value) => {
         this.plugin.settings.modalHeight = value;
@@ -9295,7 +9346,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         this.plugin.applySettings();
       });
     });
-    const colorSetting = new import_obsidian9.Setting(containerEl).setName("Accent Color").setDesc("Choose the primary accent color for active elements.").addColorPicker((color) => color.setValue(this.plugin.settings.accentColor).onChange(async (value) => {
+    const colorSetting = new import_obsidian10.Setting(containerEl).setName("Accent Color").setDesc("Choose the primary accent color for active elements.").addColorPicker((color) => color.setValue(this.plugin.settings.accentColor).onChange(async (value) => {
       this.plugin.settings.accentColor = value;
       await this.plugin.saveSettings();
       this.plugin.applySettings();
@@ -9311,14 +9362,14 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         })();
       });
     }
-    new import_obsidian9.Setting(containerEl).setName("Custom Order Management").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Export Custom Order").setDesc("Export the current custom ordering of notebooks, sections, and pages to a JSON file.").addButton((btn) => btn.setButtonText("Export Order").setIcon("download").onClick(() => {
+    new import_obsidian10.Setting(containerEl).setName("Custom Order Management").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("Export Custom Order").setDesc("Export the current custom ordering of notebooks, sections, and pages to a JSON file.").addButton((btn) => btn.setButtonText("Export Order").setIcon("download").onClick(() => {
       this.exportOrder();
     }));
-    new import_obsidian9.Setting(containerEl).setName("Import Custom Order").setDesc("Import custom order configuration from a previously exported JSON file.").addButton((btn) => btn.setButtonText("Import Order").setIcon("upload").onClick(() => {
+    new import_obsidian10.Setting(containerEl).setName("Import Custom Order").setDesc("Import custom order configuration from a previously exported JSON file.").addButton((btn) => btn.setButtonText("Import Order").setIcon("upload").onClick(() => {
       this.importOrder();
     }));
-    new import_obsidian9.Setting(containerEl).setName("Clear Custom Order").setDesc("Clear all custom drag-and-drop orderings (notebooks, sections, and pages) and revert to default alphabetical order.").addButton((btn) => btn.setButtonText("Clear All Orders").setWarning().onClick(() => {
+    new import_obsidian10.Setting(containerEl).setName("Clear Custom Order").setDesc("Clear all custom drag-and-drop orderings (notebooks, sections, and pages) and revert to default alphabetical order.").addButton((btn) => btn.setButtonText("Clear All Orders").setWarning().onClick(() => {
       new ConfirmModal(
         this.app,
         "Clear Custom Order?",
@@ -9331,15 +9382,15 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
           this.plugin.settings.customPageOrder = {};
           await this.plugin.saveSettings();
           EventBus.emit("order:changed" /* ORDER_CHANGED */);
-          new import_obsidian9.Notice("All custom orderings have been cleared.");
+          new import_obsidian10.Notice("All custom orderings have been cleared.");
         }
       ).open();
     }));
-    new import_obsidian9.Setting(containerEl).setName("Tips & Recommendations").setHeading();
-    new import_obsidian9.Setting(containerEl).setName("Reset Hotkey Tips Counter").setDesc(`Reset the hotkey recommendation notice counter (currently shown: ${this.plugin.settings.tipShownCount}/5).`).addButton((btn) => btn.setButtonText("Reset Counter").onClick(async () => {
+    new import_obsidian10.Setting(containerEl).setName("Tips & Recommendations").setHeading();
+    new import_obsidian10.Setting(containerEl).setName("Reset Hotkey Tips Counter").setDesc(`Reset the hotkey recommendation notice counter (currently shown: ${this.plugin.settings.tipShownCount}/5).`).addButton((btn) => btn.setButtonText("Reset Counter").onClick(async () => {
       this.plugin.settings.tipShownCount = 0;
       await this.plugin.saveSettings();
-      new import_obsidian9.Notice("Hotkey tips counter has been reset to 0.");
+      new import_obsidian10.Notice("Hotkey tips counter has been reset to 0.");
       this.display();
     }));
   }
@@ -9363,7 +9414,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    new import_obsidian9.Notice("Custom order exported successfully.");
+    new import_obsidian10.Notice("Custom order exported successfully.");
   }
   importOrder() {
     const input = document.createElement("input");
@@ -9391,10 +9442,10 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
         this.plugin.settings.customPageOrder = typeof data.customPageOrder === "object" && data.customPageOrder !== null && !Array.isArray(data.customPageOrder) ? data.customPageOrder : {};
         await this.plugin.saveSettings();
         EventBus.emit("order:changed" /* ORDER_CHANGED */);
-        new import_obsidian9.Notice("Custom order imported successfully.");
+        new import_obsidian10.Notice("Custom order imported successfully.");
       } catch (err) {
         console.error("[Fluent OneNote] Order import failed:", err);
-        new import_obsidian9.Notice(`Failed to import order: ${err instanceof Error ? err.message : "Invalid JSON file"}`);
+        new import_obsidian10.Notice(`Failed to import order: ${err instanceof Error ? err.message : "Invalid JSON file"}`);
       } finally {
         if (input.parentNode)
           input.parentNode.removeChild(input);
@@ -9405,7 +9456,7 @@ var FluentOneNoteSettingTab = class extends import_obsidian9.PluginSettingTab {
 };
 
 // src/main.ts
-var OneNoteViewWrapper = class extends import_obsidian10.ItemView {
+var OneNoteViewWrapper = class extends import_obsidian11.ItemView {
   constructor(leaf, dataService, plugin) {
     super(leaf);
     this.component = null;
@@ -9467,7 +9518,7 @@ var OneNoteViewWrapper = class extends import_obsidian10.ItemView {
     }
   }
 };
-var FluentOneNotePlugin = class extends import_obsidian10.Plugin {
+var FluentOneNotePlugin = class extends import_obsidian11.Plugin {
   constructor() {
     super(...arguments);
     this.ribbonIconEl = null;

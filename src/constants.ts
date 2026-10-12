@@ -19,3 +19,4 @@ export const VIRTUAL_BUFFER_ITEMS = 10;
 
 export const DEFAULT_UNTITLED_NOTE_NAME = "Untitled Note";
 export const DEFAULT_NEW_SECTION_NAME = "New Section";
+export const DEFAULT_NEW_NOTEBOOK_NAME = "New Notebook";
