@@ -1631,7 +1631,7 @@ function create_if_block(ctx) {
     },
     m(target, anchor) {
       insert(target, input, anchor);
-      ctx[21](input);
+      ctx[23](input);
       set_input_value(
         input,
         /*editName*/
@@ -1643,31 +1643,31 @@ function create_if_block(ctx) {
             input,
             "input",
             /*input_input_handler*/
-            ctx[22]
+            ctx[24]
           ),
           listen(input, "click", stop_propagation(
             /*click_handler*/
-            ctx[18]
+            ctx[20]
           )),
           listen(input, "mousedown", stop_propagation(
             /*mousedown_handler*/
-            ctx[19]
+            ctx[21]
           )),
           listen(input, "pointerdown", stop_propagation(
             /*pointerdown_handler*/
-            ctx[20]
+            ctx[22]
           )),
           listen(
             input,
             "keydown",
             /*handleInputKeydown*/
-            ctx[15]
+            ctx[16]
           ),
           listen(
             input,
             "blur",
             /*handleInputBlur*/
-            ctx[16]
+            ctx[17]
           )
         ];
         mounted = true;
@@ -1688,7 +1688,7 @@ function create_if_block(ctx) {
       if (detaching) {
         detach(input);
       }
-      ctx[21](null);
+      ctx[23](null);
       mounted = false;
       run_all(dispose);
     }
@@ -1785,51 +1785,51 @@ function create_fragment(ctx) {
             div0,
             "mouseenter",
             /*mouseenter_handler*/
-            ctx[23]
+            ctx[25]
           ),
           listen(
             div0,
             "mouseleave",
             /*mouseleave_handler*/
-            ctx[24]
+            ctx[26]
           ),
           listen(
             div0,
             "dragstart",
             /*dragstart_handler*/
-            ctx[25]
+            ctx[27]
           ),
           listen(div0, "dragover", stop_propagation(
             /*dragover_handler*/
-            ctx[26]
+            ctx[28]
           )),
           listen(
             div0,
             "dragleave",
             /*dragleave_handler*/
-            ctx[27]
+            ctx[29]
           ),
           listen(div0, "drop", stop_propagation(
             /*drop_handler*/
-            ctx[28]
+            ctx[30]
           )),
           listen(
             div0,
             "dragend",
             /*dragend_handler*/
-            ctx[29]
+            ctx[31]
           ),
           listen(
             div0,
             "click",
             /*click_handler_1*/
-            ctx[30]
+            ctx[32]
           ),
           listen(
             div0,
             "contextmenu",
             /*handleContextMenu*/
-            ctx[17]
+            ctx[18]
           )
         ];
         mounted = true;
@@ -1912,6 +1912,7 @@ function create_fragment(ctx) {
   };
 }
 function instance($$self, $$props, $$invalidate) {
+  let $editingNotebookPath;
   let $selectedNotebook;
   let $dragOverId;
   let $dragPosition;
@@ -1932,6 +1933,8 @@ function instance($$self, $$props, $$invalidate) {
   let editName = notebook.name;
   let isHovered = false;
   let inputEl;
+  const editingNotebookPath = vm.editingNotebookPath;
+  component_subscribe($$self, editingNotebookPath, (value) => $$invalidate(19, $editingNotebookPath = value));
   async function startInlineRename() {
     $$invalidate(3, editName = notebook.name);
     $$invalidate(2, isEditing = true);
@@ -1939,14 +1942,19 @@ function instance($$self, $$props, $$invalidate) {
     if (inputEl) {
       inputEl.focus();
       inputEl.select();
+      inputEl.scrollIntoView({ block: "nearest", behavior: "auto" });
     }
   }
-  async function commitRename() {
+  async function commitRename(closeOnEnter = false) {
     if (!isEditing)
       return;
     const trimmed = editName.trim();
     if (!trimmed || trimmed === notebook.name) {
       cancelRename();
+      if (closeOnEnter) {
+        vm.selectNotebook(notebook);
+        onSelect(notebook);
+      }
       return;
     }
     $$invalidate(2, isEditing = false);
@@ -1954,20 +1962,21 @@ function instance($$self, $$props, $$invalidate) {
     if (activeApp) {
       const success = await ContextMenuHelper.renameNotebook(activeApp, notebook, trimmed);
       if (success) {
+        const parentDir = notebook.folderPath.includes("/") ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) : "";
+        const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
+        const updatedNb = {
+          ...notebook,
+          folderPath: newPath,
+          name: trimmed
+        };
         if ($selectedNotebook && $selectedNotebook.folderPath === notebook.folderPath) {
-          const parentDir = notebook.folderPath.includes("/") ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) : "";
-          const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
-          set_store_value(
-            selectedNotebook,
-            $selectedNotebook = {
-              ...$selectedNotebook,
-              folderPath: newPath,
-              name: trimmed
-            },
-            $selectedNotebook
-          );
+          set_store_value(selectedNotebook, $selectedNotebook = updatedNb, $selectedNotebook);
         }
-        vm.loadNotebooks();
+        vm.loadNotebooks(void 0, newPath);
+        if (closeOnEnter) {
+          vm.selectNotebook(updatedNb);
+          onSelect(updatedNb);
+        }
       }
     }
   }
@@ -1979,14 +1988,14 @@ function instance($$self, $$props, $$invalidate) {
     e.stopPropagation();
     if (e.key === "Enter" && !e.isComposing) {
       e.preventDefault();
-      commitRename();
+      commitRename(true);
     } else if (e.key === "Escape") {
       e.preventDefault();
       cancelRename();
     }
   }
   function handleInputBlur() {
-    commitRename();
+    commitRename(false);
   }
   function handleContextMenu(e) {
     e.preventDefault();
@@ -2005,6 +2014,10 @@ function instance($$self, $$props, $$invalidate) {
   }
   onMount(() => {
     window.addEventListener("keydown", handleWindowKeydown);
+    if ($editingNotebookPath === notebook.folderPath && !isEditing) {
+      startInlineRename();
+      vm.editingNotebookPath.set(null);
+    }
   });
   onDestroy(() => {
     window.removeEventListener("keydown", handleWindowKeydown);
@@ -2055,6 +2068,14 @@ function instance($$self, $$props, $$invalidate) {
           $$invalidate(3, editName = notebook.name);
         }
     }
+    if ($$self.$$.dirty[0] & /*$editingNotebookPath, notebook, isEditing*/
+    524293) {
+      $:
+        if ($editingNotebookPath === notebook.folderPath && !isEditing) {
+          startInlineRename();
+          vm.editingNotebookPath.set(null);
+        }
+    }
   };
   return [
     notebook,
@@ -2072,9 +2093,11 @@ function instance($$self, $$props, $$invalidate) {
     draggedItemId,
     dragOverId,
     dragPosition,
+    editingNotebookPath,
     handleInputKeydown,
     handleInputBlur,
     handleContextMenu,
+    $editingNotebookPath,
     click_handler,
     mousedown_handler,
     pointerdown_handler,
@@ -2101,7 +2124,7 @@ var NotebookTreeItem_default = NotebookTreeItem;
 // src/NotebookPopover.svelte
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[7] = list[i];
+  child_ctx[8] = list[i];
   return child_ctx;
 }
 function create_if_block2(ctx) {
@@ -2135,7 +2158,7 @@ function create_if_block2(ctx) {
   );
   const get_key = (ctx2) => (
     /*nb*/
-    ctx2[7].folderPath
+    ctx2[8].folderPath
   );
   for (let i = 0; i < each_value.length; i += 1) {
     let child_ctx = get_each_context(ctx, each_value, i);
@@ -2194,12 +2217,12 @@ function create_if_block2(ctx) {
           listen(
             span1,
             "keydown",
-            /*keydown_handler*/
-            ctx[5]
+            /*keydown_handler_1*/
+            ctx[6]
           ),
           listen(span1, "click", stop_propagation(
             /*click_handler*/
-            ctx[6]
+            ctx[7]
           ))
         ];
         mounted = true;
@@ -2289,7 +2312,7 @@ function create_each_block(key_1, ctx) {
     props: {
       notebook: (
         /*nb*/
-        ctx[7]
+        ctx[8]
       ),
       onSelect: (
         /*onSelect*/
@@ -2316,7 +2339,7 @@ function create_each_block(key_1, ctx) {
       if (dirty & /*notebooks*/
       2)
         notebooktreeitem_changes.notebook = /*nb*/
-        ctx[7];
+        ctx[8];
       if (dirty & /*onSelect*/
       4)
         notebooktreeitem_changes.onSelect = /*onSelect*/
@@ -2344,6 +2367,8 @@ function create_each_block(key_1, ctx) {
 function create_fragment2(ctx) {
   let if_block_anchor;
   let current;
+  let mounted;
+  let dispose;
   let if_block = (
     /*show*/
     ctx[0] && create_if_block2(ctx)
@@ -2359,6 +2384,15 @@ function create_fragment2(ctx) {
         if_block.m(target, anchor);
       insert(target, if_block_anchor, anchor);
       current = true;
+      if (!mounted) {
+        dispose = listen(
+          window,
+          "keydown",
+          /*keydown_handler*/
+          ctx[5]
+        );
+        mounted = true;
+      }
     },
     p(ctx2, [dirty]) {
       if (
@@ -2401,6 +2435,8 @@ function create_fragment2(ctx) {
       }
       if (if_block)
         if_block.d(detaching);
+      mounted = false;
+      dispose();
     }
   };
 }
@@ -2413,15 +2449,18 @@ function instance2($$self, $$props, $$invalidate) {
   } } = $$props;
   let { onClose = () => {
   } } = $$props;
-  const keydown_handler = async (e) => {
+  const keydown_handler = (e) => {
+    if (e.key === "Escape" && show) {
+      onClose();
+    }
+  };
+  const keydown_handler_1 = async (e) => {
     if (e.key === "Enter") {
       await onNewNotebook();
-      onClose();
     }
   };
   const click_handler = async () => {
     await onNewNotebook();
-    onClose();
   };
   $$self.$$set = ($$props2) => {
     if ("show" in $$props2)
@@ -2442,6 +2481,7 @@ function instance2($$self, $$props, $$invalidate) {
     onNewNotebook,
     onClose,
     keydown_handler,
+    keydown_handler_1,
     click_handler
   ];
 }
@@ -4901,6 +4941,8 @@ var _OneNoteViewModel = class _OneNoteViewModel {
     this.draggedItemType = writable(null);
     this.dragOverId = writable("");
     this.dragPosition = writable(null);
+    // Inline Rename state
+    this.editingNotebookPath = writable(null);
     // Derived stores
     this.visibleSections = derived(this.sections, ($sections) => this.flattenVisibleSections($sections));
     this.filteredPages = derived(
@@ -6680,8 +6722,9 @@ function instance7($$self, $$props, $$invalidate) {
       const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
       if (newFolder) {
         vm.loadNotebooks(void 0, newFolder.path);
-        $$invalidate(3, showNotebookDropdown = false);
-        new import_obsidian6.Notice(`Created notebook "${newFolder.name}"`);
+        $$invalidate(3, showNotebookDropdown = true);
+        vm.editingNotebookPath.set(newFolder.path);
+        new import_obsidian6.Notice(`Created notebook "${newFolder.name}" (Hover and press F2 to rename)`);
       }
     }
   }
@@ -8576,8 +8619,9 @@ function instance8($$self, $$props, $$invalidate) {
       const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
       if (newFolder) {
         vm.loadNotebooks(void 0, newFolder.path);
-        $$invalidate(7, showNotebookDropdown = false);
-        new import_obsidian7.Notice(`Created notebook "${newFolder.name}"`);
+        $$invalidate(7, showNotebookDropdown = true);
+        vm.editingNotebookPath.set(newFolder.path);
+        new import_obsidian7.Notice(`Created notebook "${newFolder.name}" (Hover and press F2 to rename)`);
       }
     }
   }

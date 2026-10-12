@@ -9,6 +9,8 @@
     export let onClose: () => void = () => {};
 </script>
 
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape' && show) { onClose(); } }} />
+
 {#if show}
     <div class="on-notebook-popover">
         <div class="on-popover-header">
@@ -19,8 +21,8 @@
                 style="cursor: pointer;" 
                 role="button"
                 tabindex="0"
-                on:keydown={async (e) => { if (e.key === 'Enter') { await onNewNotebook(); onClose(); } }}
-                on:click|stopPropagation={async () => { await onNewNotebook(); onClose(); }}
+                on:keydown={async (e) => { if (e.key === 'Enter') { await onNewNotebook(); } }}
+                on:click|stopPropagation={async () => { await onNewNotebook(); }}
             >
                 + New
             </span>

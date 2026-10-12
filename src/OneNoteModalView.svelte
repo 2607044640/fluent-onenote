@@ -255,8 +255,9 @@
             const newFolder = await ContextMenuHelper.createNewNotebook(activeApp, rootFolder);
             if (newFolder) {
                 vm.loadNotebooks(undefined, newFolder.path);
-                showNotebookDropdown = false;
-                new Notice(`Created notebook "${newFolder.name}"`);
+                showNotebookDropdown = true;
+                vm.editingNotebookPath.set(newFolder.path);
+                new Notice(`Created notebook "${newFolder.name}" (Hover and press F2 to rename)`);
             }
         }
     }

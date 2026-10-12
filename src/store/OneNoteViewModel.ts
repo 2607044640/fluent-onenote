@@ -23,6 +23,9 @@ export class OneNoteViewModel {
     public dragOverId: Writable<string> = writable("");
     public dragPosition: Writable<"top" | "bottom" | null> = writable(null);
 
+    // Inline Rename state
+    public editingNotebookPath: Writable<string | null> = writable(null);
+
     // Derived stores
     public visibleSections = derived(this.sections, $sections => this.flattenVisibleSections($sections));
     

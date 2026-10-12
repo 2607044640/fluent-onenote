@@ -19,8 +19,15 @@
     let isHovered = false;
     let inputEl: HTMLInputElement;
 
+    const editingNotebookPath = vm.editingNotebookPath;
+
     $: if (!isEditing) {
         editName = notebook.name;
+    }
+
+    $: if ($editingNotebookPath === notebook.folderPath && !isEditing) {
+        startInlineRename();
+        vm.editingNotebookPath.set(null);
     }
 
     async function startInlineRename() {
@@ -30,14 +37,19 @@
         if (inputEl) {
             inputEl.focus();
             inputEl.select();
+            inputEl.scrollIntoView({ block: "nearest", behavior: "auto" });
         }
     }
 
-    async function commitRename() {
+    async function commitRename(closeOnEnter: boolean = false) {
         if (!isEditing) return;
         const trimmed = editName.trim();
         if (!trimmed || trimmed === notebook.name) {
             cancelRename();
+            if (closeOnEnter) {
+                vm.selectNotebook(notebook);
+                onSelect(notebook);
+            }
             return;
         }
         isEditing = false;
@@ -45,14 +57,19 @@
         if (activeApp) {
             const success = await ContextMenuHelper.renameNotebook(activeApp, notebook, trimmed);
             if (success) {
+                const parentDir = notebook.folderPath.includes("/") 
+                    ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) 
+                    : "";
+                const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
+                const updatedNb: NotebookInfo = { ...notebook, folderPath: newPath, name: trimmed };
                 if ($selectedNotebook && $selectedNotebook.folderPath === notebook.folderPath) {
-                    const parentDir = notebook.folderPath.includes("/") 
-                        ? notebook.folderPath.substring(0, notebook.folderPath.lastIndexOf("/")) 
-                        : "";
-                    const newPath = parentDir ? `${parentDir}/${trimmed}` : trimmed;
-                    $selectedNotebook = { ...$selectedNotebook, folderPath: newPath, name: trimmed };
+                    $selectedNotebook = updatedNb;
                 }
-                vm.loadNotebooks();
+                vm.loadNotebooks(undefined, newPath);
+                if (closeOnEnter) {
+                    vm.selectNotebook(updatedNb);
+                    onSelect(updatedNb);
+                }
             }
         }
     }
@@ -66,7 +83,7 @@
         e.stopPropagation();
         if (e.key === "Enter" && !e.isComposing) {
             e.preventDefault();
-            commitRename();
+            commitRename(true);
         } else if (e.key === "Escape") {
             e.preventDefault();
             cancelRename();
@@ -74,7 +91,7 @@
     }
 
     function handleInputBlur() {
-        commitRename();
+        commitRename(false);
     }
 
     function handleContextMenu(e: MouseEvent) {
@@ -102,6 +119,10 @@
 
     onMount(() => {
         window.addEventListener("keydown", handleWindowKeydown);
+        if ($editingNotebookPath === notebook.folderPath && !isEditing) {
+            startInlineRename();
+            vm.editingNotebookPath.set(null);
+        }
     });
 
     onDestroy(() => {
